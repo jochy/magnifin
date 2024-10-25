@@ -2,14 +2,11 @@ package server
 
 import (
 	"fmt"
+	"magnifin/internal/infra/database"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
-
-	_ "github.com/joho/godotenv/autoload"
-
-	"magnifin/internal/database"
 )
 
 type Server struct {
@@ -23,7 +20,7 @@ func NewServer() *http.Server {
 	NewServer := &Server{
 		port: port,
 
-		db: database.New(),
+		db: database.NewService(),
 	}
 
 	// Declare Server config

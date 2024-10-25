@@ -61,4 +61,21 @@ watch:
             fi; \
         fi
 
+generate-db-stub:
+	sqlc generate -f sqlc.yaml --no-remote
+
+lint:
+	golangci-lint run --timeout 4m ./...
+
+lint-fix:
+	golangci-lint run --fix --timeout 4m ./...
+
+MOCKERY_VERSION=v2.42.1
+
+update-mocks:
+	go install github.com/vektra/mockery/v2@$(MOCKERY_VERSION)
+	mockery --log-level error
+	go generate ./...
+
+
 .PHONY: all build run test clean watch docker-run docker-down itest

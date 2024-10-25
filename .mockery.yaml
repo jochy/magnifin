@@ -1,0 +1,10 @@
+with-expecter: true
+dir: "{{.InterfaceDir}}/mocks"
+outpkg: mocks
+filename: "{{.InterfaceNameSnake}}.go"
+mockname: "{{.InterfaceName}}"
+all: true
+packages:
+  magnifin/internal:
+    config:
+      recursive: True
