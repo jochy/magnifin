@@ -1,0 +1,4 @@
+**/mocks/** -diff
+**/infra/database/models.go -diff
+**/infra/database/querier.go -diff
+**/infra/database/queries.sql.go -diff

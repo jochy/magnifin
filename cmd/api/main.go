@@ -2,14 +2,24 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"log/slog"
+	"magnifin/internal/adapters/http/handlers"
+	usershandlers "magnifin/internal/adapters/http/handlers/users"
+	"magnifin/internal/adapters/http/middlewares"
+	"magnifin/internal/adapters/repository/users"
+	"magnifin/internal/app"
+	"magnifin/internal/infra/database"
+	"magnifin/internal/infra/server"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"magnifin/internal/server"
+	"github.com/google/uuid"
 )
 
 func gracefulShutdown(apiServer *http.Server, done chan bool) {
@@ -37,8 +47,25 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 }
 
 func main() {
+	signKey := os.Getenv("JWT_SIGN_KEY")
+	if signKey == "" {
+		slog.Warn("JWT_SIGN_KEY not set, using random value. This means that each time the server restarts, all JWT tokens will be invalidated.")
+		signKey = uuid.New().String()
+	}
 
-	server := server.NewServer()
+	db := database.NewService()
+	userRepository := users.NewRepository(db, "secret")
+
+	userService := app.NewUserService(*userRepository, signKey)
+
+	authMiddleware := middlewares.NewAuthMiddleware(userService)
+
+	server := server.NewServer(
+		handlers.NewHealthHandler(db),
+		usershandlers.NewLoginHandler(userService),
+		usershandlers.NewCreateHandler(userService),
+		authMiddleware,
+	)
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
@@ -47,7 +74,7 @@ func main() {
 	go gracefulShutdown(server, done)
 
 	err := server.ListenAndServe()
-	if err != nil && err != http.ErrServerClosed {
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		panic(fmt.Sprintf("http server error: %s", err))
 	}
 
