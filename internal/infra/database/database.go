@@ -9,6 +9,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	_ "github.com/jackc/pgx/v5"
 )
 
 // Service represents a service that interacts with a database.
@@ -22,6 +24,8 @@ type Service interface {
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
 	Close() error
+
+	Driver() *sql.DB
 }
 
 type service struct {
@@ -35,7 +39,6 @@ var (
 	username   = os.Getenv("DB_USERNAME")
 	port       = os.Getenv("DB_PORT")
 	host       = os.Getenv("DB_HOST")
-	schema     = os.Getenv("DB_SCHEMA")
 	dbInstance *service
 )
 
@@ -44,7 +47,7 @@ func NewService() Service {
 	if dbInstance != nil {
 		return dbInstance
 	}
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&search_path=%s", username, password, host, port, database, schema)
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", username, password, host, port, database)
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
 		slog.Error(fmt.Sprintf("unable to open connection: %s", err))
@@ -114,4 +117,8 @@ func (s *service) Health() map[string]string {
 func (s *service) Close() error {
 	log.Printf("Disconnected from database: %s", database)
 	return s.db.Close()
+}
+
+func (s *service) Driver() *sql.DB {
+	return s.db
 }

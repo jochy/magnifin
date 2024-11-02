@@ -22,12 +22,12 @@ func (_m *Service) EXPECT() *Service_Expecter {
 	return &Service_Expecter{mock: &_m.Mock}
 }
 
-// List provides a mock function with given fields: ctx
-func (_m *Service) List(ctx context.Context) ([]model.Provider, error) {
+// ListProviders provides a mock function with given fields: ctx
+func (_m *Service) ListProviders(ctx context.Context) ([]model.Provider, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
-		panic("no return value specified for List")
+		panic("no return value specified for ListProviders")
 	}
 
 	var r0 []model.Provider
@@ -52,40 +52,40 @@ func (_m *Service) List(ctx context.Context) ([]model.Provider, error) {
 	return r0, r1
 }
 
-// Service_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
-type Service_List_Call struct {
+// Service_ListProviders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListProviders'
+type Service_ListProviders_Call struct {
 	*mock.Call
 }
 
-// List is a helper method to define mock.On call
+// ListProviders is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *Service_Expecter) List(ctx interface{}) *Service_List_Call {
-	return &Service_List_Call{Call: _e.mock.On("List", ctx)}
+func (_e *Service_Expecter) ListProviders(ctx interface{}) *Service_ListProviders_Call {
+	return &Service_ListProviders_Call{Call: _e.mock.On("ListProviders", ctx)}
 }
 
-func (_c *Service_List_Call) Run(run func(ctx context.Context)) *Service_List_Call {
+func (_c *Service_ListProviders_Call) Run(run func(ctx context.Context)) *Service_ListProviders_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})
 	return _c
 }
 
-func (_c *Service_List_Call) Return(_a0 []model.Provider, _a1 error) *Service_List_Call {
+func (_c *Service_ListProviders_Call) Return(_a0 []model.Provider, _a1 error) *Service_ListProviders_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Service_List_Call) RunAndReturn(run func(context.Context) ([]model.Provider, error)) *Service_List_Call {
+func (_c *Service_ListProviders_Call) RunAndReturn(run func(context.Context) ([]model.Provider, error)) *Service_ListProviders_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Update provides a mock function with given fields: ctx, provider
-func (_m *Service) Update(ctx context.Context, provider model.Provider) (*model.Provider, error) {
+// UpdateProvider provides a mock function with given fields: ctx, provider
+func (_m *Service) UpdateProvider(ctx context.Context, provider model.Provider) (*model.Provider, error) {
 	ret := _m.Called(ctx, provider)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Update")
+		panic("no return value specified for UpdateProvider")
 	}
 
 	var r0 *model.Provider
@@ -110,31 +110,31 @@ func (_m *Service) Update(ctx context.Context, provider model.Provider) (*model.
 	return r0, r1
 }
 
-// Service_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
-type Service_Update_Call struct {
+// Service_UpdateProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateProvider'
+type Service_UpdateProvider_Call struct {
 	*mock.Call
 }
 
-// Update is a helper method to define mock.On call
+// UpdateProvider is a helper method to define mock.On call
 //   - ctx context.Context
 //   - provider model.Provider
-func (_e *Service_Expecter) Update(ctx interface{}, provider interface{}) *Service_Update_Call {
-	return &Service_Update_Call{Call: _e.mock.On("Update", ctx, provider)}
+func (_e *Service_Expecter) UpdateProvider(ctx interface{}, provider interface{}) *Service_UpdateProvider_Call {
+	return &Service_UpdateProvider_Call{Call: _e.mock.On("UpdateProvider", ctx, provider)}
 }
 
-func (_c *Service_Update_Call) Run(run func(ctx context.Context, provider model.Provider)) *Service_Update_Call {
+func (_c *Service_UpdateProvider_Call) Run(run func(ctx context.Context, provider model.Provider)) *Service_UpdateProvider_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(model.Provider))
 	})
 	return _c
 }
 
-func (_c *Service_Update_Call) Return(_a0 *model.Provider, _a1 error) *Service_Update_Call {
+func (_c *Service_UpdateProvider_Call) Return(_a0 *model.Provider, _a1 error) *Service_UpdateProvider_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Service_Update_Call) RunAndReturn(run func(context.Context, model.Provider) (*model.Provider, error)) *Service_Update_Call {
+func (_c *Service_UpdateProvider_Call) RunAndReturn(run func(context.Context, model.Provider) (*model.Provider, error)) *Service_UpdateProvider_Call {
 	_c.Call.Return(run)
 	return _c
 }

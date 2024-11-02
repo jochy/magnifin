@@ -80,9 +80,9 @@ func TestHandler_Update(t *testing.T) {
 			handler := NewHandler(mockService)
 
 			if tt.mockUpdateError == nil {
-				mockService.On("Update", mock.Anything, mock.Anything).Return(&tt.mockUpdateResponse, nil)
+				mockService.On("UpdateProvider", mock.Anything, mock.Anything).Return(&tt.mockUpdateResponse, nil)
 			} else {
-				mockService.On("Update", mock.Anything, mock.Anything).Return(nil, tt.mockUpdateError).Maybe()
+				mockService.On("UpdateProvider", mock.Anything, mock.Anything).Return(nil, tt.mockUpdateError).Maybe()
 			}
 
 			w := httptest.NewRecorder()

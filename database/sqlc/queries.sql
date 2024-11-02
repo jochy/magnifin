@@ -37,3 +37,23 @@ set name       = $2,
     updated_at = now()
 where id = $1
 returning *;
+
+-- name: GetProviderByID :one
+select *
+from providers
+where id = $1
+  and deleted_at is null;
+
+-- name: GetProviderByName :one
+select *
+from providers
+where name = $1
+  and deleted_at is null;
+
+-- name: UpsertConnector :one
+insert into connectors (name, logo_url, provider_connector_id, provider_id)
+values ($1, $2, $3, $4)
+on conflict (provider_id, provider_connector_id) do update
+set name     = excluded.name,
+    logo_url = excluded.logo_url
+returning *;

@@ -10,9 +10,12 @@ import (
 	"magnifin/internal/adapters/http/handlers/providers"
 	usershandlers "magnifin/internal/adapters/http/handlers/users"
 	"magnifin/internal/adapters/http/middlewares"
+	"magnifin/internal/adapters/providers/gocardless"
+	"magnifin/internal/adapters/repository/connectors"
 	providersrepo "magnifin/internal/adapters/repository/providers"
 	usersrepo "magnifin/internal/adapters/repository/users"
 	"magnifin/internal/app"
+	providers2 "magnifin/internal/app/providers"
 	"magnifin/internal/infra/database"
 	"magnifin/internal/infra/server"
 	"net/http"
@@ -55,13 +58,27 @@ func main() {
 		signKey = uuid.New().String()
 	}
 
+	// Db
 	db := database.NewService()
 	userRepository := usersrepo.NewRepository(db, "secret")
 	providerRepository := providersrepo.NewRepository(db, "secret")
+	connectorsRepository := connectors.NewRepository(db)
 
+	// Ports
+	providerPorts := []providers2.ProviderPort{
+		gocardless.NewGoCardless(),
+	}
+
+	// Services
 	userService := app.NewUserService(userRepository, signKey)
-	providerService := app.NewProviderService(providerRepository)
+	providerService := providers2.NewProviderService(providerRepository, connectorsRepository, providerPorts)
 
+	// Refresh the connectors list in background
+	go func() {
+		providerService.UpdateConnectorsList(context.Background())
+	}()
+
+	// Server
 	server := server.NewServer(
 		handlers.NewHealthHandler(db),
 		usershandlers.NewHandler(userService),

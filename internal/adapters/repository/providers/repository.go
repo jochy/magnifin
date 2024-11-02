@@ -63,6 +63,15 @@ func (r *Repository) Update(ctx context.Context, provider *model.Provider) (*mod
 	return toDomain(&p, r.CypherKey)
 }
 
+func (r *Repository) GetByName(ctx context.Context, name string) (*model.Provider, error) {
+	p, err := r.db.GetProviderByName(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return toDomain(&p, r.CypherKey)
+}
+
 func toSqlNullValue(s *string) sql.NullString {
 	if s == nil {
 		return sql.NullString{Valid: false}
