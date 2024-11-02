@@ -6,23 +6,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (s *Server) RegisterRoutes() http.Handler {
+func (s *Server) registerRoutes() http.Handler {
 	r := gin.Default()
 
-	r.GET("/", s.HelloWorldHandler)
+	// Public routes
+	r.GET("/health", s.healthHandler.HealthHandler)
+	r.POST("/v1/login", s.loginHandler.Handle)
+	r.POST("/v1/users", s.createUserHandler.Handle)
 
-	r.GET("/health", s.healthHandler)
+	// Authenticated routes
+	auth := r.Group("/v1", s.authMiddleware.Authenticate)
+
+	auth.GET("/check-login", func(context *gin.Context) {
+		context.JSON(http.StatusNoContent, nil)
+	})
 
 	return r
-}
-
-func (s *Server) HelloWorldHandler(c *gin.Context) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
-
-	c.JSON(http.StatusOK, resp)
-}
-
-func (s *Server) healthHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, s.db.Health())
 }
