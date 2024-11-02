@@ -14,3 +14,11 @@ type Service interface {
 type loginResponse struct {
 	Token string `json:"token"`
 }
+
+type Handler struct {
+	service Service
+}
+
+func NewHandler(service Service) *Handler {
+	return &Handler{service}
+}

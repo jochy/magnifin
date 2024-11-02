@@ -7,9 +7,11 @@ import (
 	"log"
 	"log/slog"
 	"magnifin/internal/adapters/http/handlers"
+	"magnifin/internal/adapters/http/handlers/providers"
 	usershandlers "magnifin/internal/adapters/http/handlers/users"
 	"magnifin/internal/adapters/http/middlewares"
-	"magnifin/internal/adapters/repository/users"
+	providersrepo "magnifin/internal/adapters/repository/providers"
+	usersrepo "magnifin/internal/adapters/repository/users"
 	"magnifin/internal/app"
 	"magnifin/internal/infra/database"
 	"magnifin/internal/infra/server"
@@ -54,17 +56,17 @@ func main() {
 	}
 
 	db := database.NewService()
-	userRepository := users.NewRepository(db, "secret")
+	userRepository := usersrepo.NewRepository(db, "secret")
+	providerRepository := providersrepo.NewRepository(db, "secret")
 
 	userService := app.NewUserService(userRepository, signKey)
-
-	authMiddleware := middlewares.NewAuthMiddleware(userService)
+	providerService := app.NewProviderService(providerRepository)
 
 	server := server.NewServer(
 		handlers.NewHealthHandler(db),
-		usershandlers.NewLoginHandler(userService),
-		usershandlers.NewCreateHandler(userService),
-		authMiddleware,
+		usershandlers.NewHandler(userService),
+		middlewares.NewAuthMiddleware(userService),
+		providers.NewHandler(providerService),
 	)
 
 	// Create a done channel to signal when the shutdown is complete

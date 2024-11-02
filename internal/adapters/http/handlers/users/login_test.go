@@ -99,7 +99,7 @@ func TestLoginHandler_Handle(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockService := tt.mockService(t)
-			handler := NewLoginHandler(mockService)
+			handler := NewHandler(mockService)
 
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
@@ -108,7 +108,7 @@ func TestLoginHandler_Handle(t *testing.T) {
 			c.Request, _ = http.NewRequest(http.MethodPost, "/login", bytes.NewBuffer(body))
 			c.Request.Header.Set("Content-Type", "application/json")
 
-			handler.Handle(c)
+			handler.Login(c)
 
 			assert.Equal(t, tt.expectedStatus, w.Code)
 			if tt.expectedBody != nil {

@@ -22,3 +22,18 @@ select *
 from users
 where id = $1
   and deleted_at is null;
+
+-- name: ListProviders :many
+select *
+from providers
+where deleted_at is null;
+
+-- name: UpdateProvider :one
+update providers
+set name       = $2,
+    access_key = $3,
+    secret     = $4,
+    enabled    = $5,
+    updated_at = now()
+where id = $1
+returning *;

@@ -28,3 +28,5 @@ main
 
 # OS X generated file
 .DS_Store
+
+.secret

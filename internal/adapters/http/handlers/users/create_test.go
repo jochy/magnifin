@@ -77,7 +77,7 @@ func TestCreateHandler_Handle(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockService := tt.mockService(t)
-			handler := NewCreateHandler(mockService)
+			handler := NewHandler(mockService)
 
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
@@ -86,7 +86,7 @@ func TestCreateHandler_Handle(t *testing.T) {
 			c.Request, _ = http.NewRequest(http.MethodPost, "/create", bytes.NewBuffer(body))
 			c.Request.Header.Set("Content-Type", "application/json")
 
-			handler.Handle(c)
+			handler.Create(c)
 
 			assert.Equal(t, tt.expectedStatus, w.Code)
 			var responseBody gin.H

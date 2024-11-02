@@ -11,8 +11,8 @@ func (s *Server) registerRoutes() http.Handler {
 
 	// Public routes
 	r.GET("/health", s.healthHandler.HealthHandler)
-	r.POST("/v1/login", s.loginHandler.Handle)
-	r.POST("/v1/users", s.createUserHandler.Handle)
+	r.POST("/v1/login", s.usersHandlers.Login)
+	r.POST("/v1/users", s.usersHandlers.Create)
 
 	// Authenticated routes
 	auth := r.Group("/v1", s.authMiddleware.Authenticate)
@@ -20,6 +20,8 @@ func (s *Server) registerRoutes() http.Handler {
 	auth.GET("/check-login", func(context *gin.Context) {
 		context.JSON(http.StatusNoContent, nil)
 	})
+	auth.GET("/providers", s.providersHandlers.List)
+	auth.POST("/providers/:id", s.providersHandlers.Update)
 
 	return r
 }
