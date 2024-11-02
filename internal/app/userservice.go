@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"magnifin/internal/adapters/repository/users"
 	"magnifin/internal/app/model"
 	"strconv"
 	"time"
@@ -11,12 +10,18 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type UserRepository interface {
+	GetUserByUsernameAndPassword(ctx context.Context, username string, password string) (*model.User, error)
+	CreateUser(ctx context.Context, username string, password string) (*model.User, error)
+	GetUserByID(ctx context.Context, id int32) (*model.User, error)
+}
+
 type UserService struct {
-	userRepository users.Repository
+	userRepository UserRepository
 	jwtSignKey     string
 }
 
-func NewUserService(userRepository users.Repository, jwtSignKey string) *UserService {
+func NewUserService(userRepository UserRepository, jwtSignKey string) *UserService {
 	return &UserService{
 		userRepository: userRepository,
 		jwtSignKey:     jwtSignKey,
@@ -46,7 +51,7 @@ func (s *UserService) GenerateJWT(_ context.Context, user *model.User) (string, 
 			"exp": time.Now().Add(time.Hour * 24).Unix(),
 		})
 
-	tokenString, err := token.SignedString(s.jwtSignKey)
+	tokenString, err := token.SignedString([]byte(s.jwtSignKey))
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +61,7 @@ func (s *UserService) GenerateJWT(_ context.Context, user *model.User) (string, 
 
 func (s *UserService) FromJWT(ctx context.Context, token string) (*model.User, error) {
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return s.jwtSignKey, nil
+		return []byte(s.jwtSignKey), nil
 	})
 	if err != nil {
 		return nil, err

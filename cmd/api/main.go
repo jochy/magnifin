@@ -56,7 +56,7 @@ func main() {
 	db := database.NewService()
 	userRepository := users.NewRepository(db, "secret")
 
-	userService := app.NewUserService(*userRepository, signKey)
+	userService := app.NewUserService(userRepository, signKey)
 
 	authMiddleware := middlewares.NewAuthMiddleware(userService)
 
