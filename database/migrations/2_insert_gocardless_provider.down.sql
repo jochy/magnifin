@@ -1,0 +1,1 @@
+delete from providers where name = 'GoCardless';

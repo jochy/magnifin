@@ -47,7 +47,7 @@ func TestListHandler_Handle(t *testing.T) {
 			mockService := mocks.NewService(t)
 			handler := NewHandler(mockService)
 
-			mockService.On("List", mock.Anything).Return(tt.mockListResponse, tt.mockListError)
+			mockService.On("ListProviders", mock.Anything).Return(tt.mockListResponse, tt.mockListError)
 
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)

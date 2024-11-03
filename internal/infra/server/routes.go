@@ -20,8 +20,11 @@ func (s *Server) registerRoutes() http.Handler {
 	auth.GET("/check-login", func(context *gin.Context) {
 		context.JSON(http.StatusNoContent, nil)
 	})
+
 	auth.GET("/providers", s.providersHandlers.List)
 	auth.POST("/providers/:id", s.providersHandlers.Update)
+
+	auth.GET("/connectors", s.connectorsHandlers.SearchByName)
 
 	return r
 }

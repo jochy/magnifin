@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -62,4 +63,9 @@ func DecryptString(ciphertextHex *string, keyString string) (*string, error) {
 
 	decoded := string(plaintextBytes)
 	return &decoded, nil
+}
+
+func Generate32ByteKey(input string) string {
+	hash := sha256.Sum256([]byte(input))
+	return string(hash[:])
 }

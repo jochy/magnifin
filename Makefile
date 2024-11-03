@@ -70,6 +70,9 @@ lint:
 lint-fix:
 	golangci-lint run --fix --timeout 4m ./...
 
+migrate:
+	go run database/migrate.go
+
 MOCKERY_VERSION=v2.42.1
 
 update-mocks:

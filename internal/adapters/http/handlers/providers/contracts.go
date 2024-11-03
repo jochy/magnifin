@@ -6,8 +6,8 @@ import (
 )
 
 type Service interface {
-	List(ctx context.Context) ([]model.Provider, error)
-	Update(ctx context.Context, provider model.Provider) (*model.Provider, error)
+	ListProviders(ctx context.Context) ([]model.Provider, error)
+	UpdateProvider(ctx context.Context, provider model.Provider) (*model.Provider, error)
 }
 
 type providerResponse struct {

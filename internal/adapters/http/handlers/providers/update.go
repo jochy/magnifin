@@ -33,7 +33,7 @@ func (h *Handler) Update(ctx *gin.Context) {
 		Secret:    req.Secret,
 	}
 
-	updatedProvider, err := h.service.Update(ctx, provider)
+	updatedProvider, err := h.service.UpdateProvider(ctx, provider)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

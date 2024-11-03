@@ -79,6 +79,120 @@ func (_c *Querier_CreateUser_Call) RunAndReturn(run func(context.Context, databa
 	return _c
 }
 
+// GetProviderByID provides a mock function with given fields: ctx, id
+func (_m *Querier) GetProviderByID(ctx context.Context, id int32) (database.Provider, error) {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetProviderByID")
+	}
+
+	var r0 database.Provider
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int32) (database.Provider, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int32) database.Provider); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Get(0).(database.Provider)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Querier_GetProviderByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetProviderByID'
+type Querier_GetProviderByID_Call struct {
+	*mock.Call
+}
+
+// GetProviderByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int32
+func (_e *Querier_Expecter) GetProviderByID(ctx interface{}, id interface{}) *Querier_GetProviderByID_Call {
+	return &Querier_GetProviderByID_Call{Call: _e.mock.On("GetProviderByID", ctx, id)}
+}
+
+func (_c *Querier_GetProviderByID_Call) Run(run func(ctx context.Context, id int32)) *Querier_GetProviderByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *Querier_GetProviderByID_Call) Return(_a0 database.Provider, _a1 error) *Querier_GetProviderByID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Querier_GetProviderByID_Call) RunAndReturn(run func(context.Context, int32) (database.Provider, error)) *Querier_GetProviderByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetProviderByName provides a mock function with given fields: ctx, name
+func (_m *Querier) GetProviderByName(ctx context.Context, name string) (database.Provider, error) {
+	ret := _m.Called(ctx, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetProviderByName")
+	}
+
+	var r0 database.Provider
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (database.Provider, error)); ok {
+		return rf(ctx, name)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) database.Provider); ok {
+		r0 = rf(ctx, name)
+	} else {
+		r0 = ret.Get(0).(database.Provider)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Querier_GetProviderByName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetProviderByName'
+type Querier_GetProviderByName_Call struct {
+	*mock.Call
+}
+
+// GetProviderByName is a helper method to define mock.On call
+//   - ctx context.Context
+//   - name string
+func (_e *Querier_Expecter) GetProviderByName(ctx interface{}, name interface{}) *Querier_GetProviderByName_Call {
+	return &Querier_GetProviderByName_Call{Call: _e.mock.On("GetProviderByName", ctx, name)}
+}
+
+func (_c *Querier_GetProviderByName_Call) Run(run func(ctx context.Context, name string)) *Querier_GetProviderByName_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *Querier_GetProviderByName_Call) Return(_a0 database.Provider, _a1 error) *Querier_GetProviderByName_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Querier_GetProviderByName_Call) RunAndReturn(run func(context.Context, string) (database.Provider, error)) *Querier_GetProviderByName_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUserByID provides a mock function with given fields: ctx, id
 func (_m *Querier) GetUserByID(ctx context.Context, id int32) (database.User, error) {
 	ret := _m.Called(ctx, id)
@@ -189,6 +303,235 @@ func (_c *Querier_GetUserByUsernameAndHashedPassword_Call) Return(_a0 database.U
 }
 
 func (_c *Querier_GetUserByUsernameAndHashedPassword_Call) RunAndReturn(run func(context.Context, database.GetUserByUsernameAndHashedPasswordParams) (database.User, error)) *Querier_GetUserByUsernameAndHashedPassword_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListProviders provides a mock function with given fields: ctx
+func (_m *Querier) ListProviders(ctx context.Context) ([]database.Provider, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListProviders")
+	}
+
+	var r0 []database.Provider
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]database.Provider, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []database.Provider); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]database.Provider)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Querier_ListProviders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListProviders'
+type Querier_ListProviders_Call struct {
+	*mock.Call
+}
+
+// ListProviders is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *Querier_Expecter) ListProviders(ctx interface{}) *Querier_ListProviders_Call {
+	return &Querier_ListProviders_Call{Call: _e.mock.On("ListProviders", ctx)}
+}
+
+func (_c *Querier_ListProviders_Call) Run(run func(ctx context.Context)) *Querier_ListProviders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *Querier_ListProviders_Call) Return(_a0 []database.Provider, _a1 error) *Querier_ListProviders_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Querier_ListProviders_Call) RunAndReturn(run func(context.Context) ([]database.Provider, error)) *Querier_ListProviders_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateProvider provides a mock function with given fields: ctx, arg
+func (_m *Querier) UpdateProvider(ctx context.Context, arg database.UpdateProviderParams) (database.Provider, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateProvider")
+	}
+
+	var r0 database.Provider
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateProviderParams) (database.Provider, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateProviderParams) database.Provider); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Provider)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.UpdateProviderParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Querier_UpdateProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateProvider'
+type Querier_UpdateProvider_Call struct {
+	*mock.Call
+}
+
+// UpdateProvider is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.UpdateProviderParams
+func (_e *Querier_Expecter) UpdateProvider(ctx interface{}, arg interface{}) *Querier_UpdateProvider_Call {
+	return &Querier_UpdateProvider_Call{Call: _e.mock.On("UpdateProvider", ctx, arg)}
+}
+
+func (_c *Querier_UpdateProvider_Call) Run(run func(ctx context.Context, arg database.UpdateProviderParams)) *Querier_UpdateProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.UpdateProviderParams))
+	})
+	return _c
+}
+
+func (_c *Querier_UpdateProvider_Call) Return(_a0 database.Provider, _a1 error) *Querier_UpdateProvider_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Querier_UpdateProvider_Call) RunAndReturn(run func(context.Context, database.UpdateProviderParams) (database.Provider, error)) *Querier_UpdateProvider_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateUser provides a mock function with given fields: ctx, arg
+func (_m *Querier) UpdateUser(ctx context.Context, arg database.UpdateUserParams) (database.User, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUser")
+	}
+
+	var r0 database.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateUserParams) (database.User, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateUserParams) database.User); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.User)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.UpdateUserParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Querier_UpdateUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUser'
+type Querier_UpdateUser_Call struct {
+	*mock.Call
+}
+
+// UpdateUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.UpdateUserParams
+func (_e *Querier_Expecter) UpdateUser(ctx interface{}, arg interface{}) *Querier_UpdateUser_Call {
+	return &Querier_UpdateUser_Call{Call: _e.mock.On("UpdateUser", ctx, arg)}
+}
+
+func (_c *Querier_UpdateUser_Call) Run(run func(ctx context.Context, arg database.UpdateUserParams)) *Querier_UpdateUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.UpdateUserParams))
+	})
+	return _c
+}
+
+func (_c *Querier_UpdateUser_Call) Return(_a0 database.User, _a1 error) *Querier_UpdateUser_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Querier_UpdateUser_Call) RunAndReturn(run func(context.Context, database.UpdateUserParams) (database.User, error)) *Querier_UpdateUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpsertConnector provides a mock function with given fields: ctx, arg
+func (_m *Querier) UpsertConnector(ctx context.Context, arg database.UpsertConnectorParams) (database.Connector, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpsertConnector")
+	}
+
+	var r0 database.Connector
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpsertConnectorParams) (database.Connector, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpsertConnectorParams) database.Connector); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Connector)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.UpsertConnectorParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Querier_UpsertConnector_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpsertConnector'
+type Querier_UpsertConnector_Call struct {
+	*mock.Call
+}
+
+// UpsertConnector is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.UpsertConnectorParams
+func (_e *Querier_Expecter) UpsertConnector(ctx interface{}, arg interface{}) *Querier_UpsertConnector_Call {
+	return &Querier_UpsertConnector_Call{Call: _e.mock.On("UpsertConnector", ctx, arg)}
+}
+
+func (_c *Querier_UpsertConnector_Call) Run(run func(ctx context.Context, arg database.UpsertConnectorParams)) *Querier_UpsertConnector_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.UpsertConnectorParams))
+	})
+	return _c
+}
+
+func (_c *Querier_UpsertConnector_Call) Return(_a0 database.Connector, _a1 error) *Querier_UpsertConnector_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Querier_UpsertConnector_Call) RunAndReturn(run func(context.Context, database.UpsertConnectorParams) (database.Connector, error)) *Querier_UpsertConnector_Call {
 	_c.Call.Return(run)
 	return _c
 }

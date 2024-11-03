@@ -26,7 +26,7 @@ func (r *Repository) List(ctx context.Context) ([]model.Provider, error) {
 		return nil, err
 	}
 
-	providers := make([]model.Provider, 0, len(res))
+	providers := make([]model.Provider, len(res))
 	for i, p := range res {
 		provider, err := toDomain(&p, r.CypherKey)
 		if err != nil {
@@ -56,6 +56,15 @@ func (r *Repository) Update(ctx context.Context, provider *model.Provider) (*mod
 		AccessKey: toSqlNullValue(accessKey),
 		Secret:    toSqlNullValue(secret),
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return toDomain(&p, r.CypherKey)
+}
+
+func (r *Repository) GetByName(ctx context.Context, name string) (*model.Provider, error) {
+	p, err := r.db.GetProviderByName(ctx, name)
 	if err != nil {
 		return nil, err
 	}

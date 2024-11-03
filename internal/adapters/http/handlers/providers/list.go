@@ -9,7 +9,7 @@ import (
 )
 
 func (h *Handler) List(ctx *gin.Context) {
-	providers, err := h.service.List(ctx)
+	providers, err := h.service.ListProviders(ctx)
 	if err != nil {
 		slog.Error(fmt.Sprintf("error listing providers: %s", err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

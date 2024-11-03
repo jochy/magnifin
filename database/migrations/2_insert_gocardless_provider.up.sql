@@ -1,0 +1,1 @@
+insert into providers (name, enabled) values ('GoCardless', false);
