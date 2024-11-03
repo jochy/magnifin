@@ -26,7 +26,7 @@ func (r *Repository) List(ctx context.Context) ([]model.Provider, error) {
 		return nil, err
 	}
 
-	providers := make([]model.Provider, 0, len(res))
+	providers := make([]model.Provider, len(res))
 	for i, p := range res {
 		provider, err := toDomain(&p, r.CypherKey)
 		if err != nil {

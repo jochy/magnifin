@@ -35,6 +35,68 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const fuzzySearchConnectorsByName = `-- name: FuzzySearchConnectorsByName :many
+select id, name, logo_url, provider_connector_id, provider_id, created_at, updated_at, deleted_at
+from connectors
+where name % $1
+  and deleted_at is null
+`
+
+func (q *Queries) FuzzySearchConnectorsByName(ctx context.Context, name string) ([]Connector, error) {
+	rows, err := q.db.QueryContext(ctx, fuzzySearchConnectorsByName, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Connector{}
+	for rows.Next() {
+		var i Connector
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.LogoUrl,
+			&i.ProviderConnectorID,
+			&i.ProviderID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getConnectorByID = `-- name: GetConnectorByID :one
+select id, name, logo_url, provider_connector_id, provider_id, created_at, updated_at, deleted_at
+from connectors
+where id = $1
+  and deleted_at is null
+`
+
+func (q *Queries) GetConnectorByID(ctx context.Context, id int32) (Connector, error) {
+	row := q.db.QueryRowContext(ctx, getConnectorByID, id)
+	var i Connector
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.LogoUrl,
+		&i.ProviderConnectorID,
+		&i.ProviderID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getProviderByID = `-- name: GetProviderByID :one
 select id, name, access_key, secret, enabled, created_at, updated_at, deleted_at
 from providers
@@ -127,6 +189,45 @@ func (q *Queries) GetUserByUsernameAndHashedPassword(ctx context.Context, arg Ge
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const likeSearchConnectorsByName = `-- name: LikeSearchConnectorsByName :many
+select id, name, logo_url, provider_connector_id, provider_id, created_at, updated_at, deleted_at
+from connectors
+where name ilike $1
+  and deleted_at is null
+`
+
+func (q *Queries) LikeSearchConnectorsByName(ctx context.Context, name string) ([]Connector, error) {
+	rows, err := q.db.QueryContext(ctx, likeSearchConnectorsByName, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Connector{}
+	for rows.Next() {
+		var i Connector
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.LogoUrl,
+			&i.ProviderConnectorID,
+			&i.ProviderID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listProviders = `-- name: ListProviders :many
@@ -239,8 +340,8 @@ const upsertConnector = `-- name: UpsertConnector :one
 insert into connectors (name, logo_url, provider_connector_id, provider_id)
 values ($1, $2, $3, $4)
 on conflict (provider_id, provider_connector_id) do update
-set name     = excluded.name,
-    logo_url = excluded.logo_url
+    set name     = excluded.name,
+        logo_url = excluded.logo_url
 returning id, name, logo_url, provider_connector_id, provider_id, created_at, updated_at, deleted_at
 `
 

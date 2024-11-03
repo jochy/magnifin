@@ -2,14 +2,22 @@ package providers
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"magnifin/internal/app/model"
 
 	"golang.org/x/sync/errgroup"
 )
 
+const (
+	maxConcurrency = 50
+)
+
 func (s *ProviderService) UpdateConnectorsList(ctx context.Context) ([]model.Connector, []error) {
+	slog.Info("Updating connectors list")
+
 	group, cctx := errgroup.WithContext(ctx)
-	group.SetLimit(50)
+	group.SetLimit(maxConcurrency)
 
 	var connectors []model.Connector
 	var errors []error
@@ -19,6 +27,10 @@ func (s *ProviderService) UpdateConnectorsList(ctx context.Context) ([]model.Con
 		port := p
 		group.Go(func() error {
 			provider, err := s.providerRepository.GetByName(cctx, port.Name())
+			if !provider.Enabled {
+				return nil
+			}
+
 			if err != nil {
 				errors = append(errors, err)
 				return nil
@@ -41,6 +53,9 @@ func (s *ProviderService) UpdateConnectorsList(ctx context.Context) ([]model.Con
 	}
 
 	// Upsert connectors
+	group, cctx = errgroup.WithContext(ctx)
+	group.SetLimit(maxConcurrency)
+
 	var updatedConnectors []model.Connector
 	for _, c := range connectors {
 		group.Go(func() error {
@@ -59,5 +74,8 @@ func (s *ProviderService) UpdateConnectorsList(ctx context.Context) ([]model.Con
 		errors = append(errors, err)
 	}
 
+	slog.Info("Connectors list updated")
+	slog.Debug(fmt.Sprintf("Total connectors: %d", len(updatedConnectors)))
+	slog.Debug(fmt.Sprintf("Total errors: %s", errors))
 	return updatedConnectors, errors
 }

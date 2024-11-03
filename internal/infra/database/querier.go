@@ -10,10 +10,13 @@ import (
 
 type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	FuzzySearchConnectorsByName(ctx context.Context, name string) ([]Connector, error)
+	GetConnectorByID(ctx context.Context, id int32) (Connector, error)
 	GetProviderByID(ctx context.Context, id int32) (Provider, error)
 	GetProviderByName(ctx context.Context, name string) (Provider, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
 	GetUserByUsernameAndHashedPassword(ctx context.Context, arg GetUserByUsernameAndHashedPasswordParams) (User, error)
+	LikeSearchConnectorsByName(ctx context.Context, name string) ([]Connector, error)
 	ListProviders(ctx context.Context) ([]Provider, error)
 	UpdateProvider(ctx context.Context, arg UpdateProviderParams) (Provider, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)

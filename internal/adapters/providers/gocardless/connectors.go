@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	goCardlessConnectors = "/api/v2/institutions"
+	goCardlessConnectors = "/api/v2/institutions/"
 )
 
 func (g *GoCardless) ListConnectors(ctx context.Context, provider *model.Provider) ([]model.Connector, error) {
@@ -34,7 +34,7 @@ func (g *GoCardless) ListConnectors(ctx context.Context, provider *model.Provide
 		return nil, err
 	}
 
-	result := make([]model.Connector, 0, len(connectors))
+	result := make([]model.Connector, len(connectors))
 	for i, c := range connectors {
 		result[i] = *c.toDomain(provider.ID)
 	}

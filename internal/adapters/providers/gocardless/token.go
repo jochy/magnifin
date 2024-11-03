@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	goCardlessNewToken = "/api/v2/token/new" //nolint: gosec
+	goCardlessNewToken = "/api/v2/token/new/" //nolint: gosec
 )
 
 func (g *GoCardless) updateTokenIfNeeded(ctx context.Context, provider *model.Provider) error {
@@ -66,7 +66,7 @@ func (g *GoCardless) generateNewToken(ctx context.Context, provider *model.Provi
 	defer resp.Body.Close() //nolint: errcheck
 
 	if resp.StatusCode != http.StatusOK {
-		return errors.New("failed to generate new token http status code is %s" + resp.Status)
+		return errors.New("failed to generate new token http status code is " + resp.Status)
 	}
 
 	var token gocardlessAccessToken

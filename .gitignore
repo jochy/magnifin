@@ -30,3 +30,4 @@ main
 .DS_Store
 
 .secret
+.run/

@@ -7,10 +7,12 @@ import (
 	"log"
 	"log/slog"
 	"magnifin/internal/adapters/http/handlers"
+	connectorshandlers "magnifin/internal/adapters/http/handlers/connectors"
 	"magnifin/internal/adapters/http/handlers/providers"
 	usershandlers "magnifin/internal/adapters/http/handlers/users"
 	"magnifin/internal/adapters/http/middlewares"
 	"magnifin/internal/adapters/providers/gocardless"
+	"magnifin/internal/adapters/repository"
 	"magnifin/internal/adapters/repository/connectors"
 	providersrepo "magnifin/internal/adapters/repository/providers"
 	usersrepo "magnifin/internal/adapters/repository/users"
@@ -25,6 +27,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func gracefulShutdown(apiServer *http.Server, done chan bool) {
@@ -58,10 +61,16 @@ func main() {
 		signKey = uuid.New().String()
 	}
 
+	cypherKey := os.Getenv("CYPHER_KEY")
+	if cypherKey == "" {
+		panic("DB_CYPHER_KEY is required")
+	}
+	cypherKey = repository.Generate32ByteKey(cypherKey)
+
 	// Db
 	db := database.NewService()
-	userRepository := usersrepo.NewRepository(db, "secret")
-	providerRepository := providersrepo.NewRepository(db, "secret")
+	userRepository := usersrepo.NewRepository(db, cypherKey)
+	providerRepository := providersrepo.NewRepository(db, cypherKey)
 	connectorsRepository := connectors.NewRepository(db)
 
 	// Ports
@@ -72,6 +81,7 @@ func main() {
 	// Services
 	userService := app.NewUserService(userRepository, signKey)
 	providerService := providers2.NewProviderService(providerRepository, connectorsRepository, providerPorts)
+	connectorsService := app.NewConnectorService(connectorsRepository)
 
 	// Refresh the connectors list in background
 	go func() {
@@ -84,6 +94,7 @@ func main() {
 		usershandlers.NewHandler(userService),
 		middlewares.NewAuthMiddleware(userService),
 		providers.NewHandler(providerService),
+		connectorshandlers.NewHandler(connectorsService),
 	)
 
 	// Create a done channel to signal when the shutdown is complete

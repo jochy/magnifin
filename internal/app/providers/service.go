@@ -60,5 +60,10 @@ func (s *ProviderService) UpdateProvider(ctx context.Context, provider model.Pro
 		return nil, err
 	}
 
+	// Update the bank list in background
+	go func() {
+		s.UpdateConnectorsList(context.Background())
+	}()
+
 	return s.providerRepository.Update(ctx, &provider)
 }

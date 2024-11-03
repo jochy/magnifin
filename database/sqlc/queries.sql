@@ -54,6 +54,24 @@ where name = $1
 insert into connectors (name, logo_url, provider_connector_id, provider_id)
 values ($1, $2, $3, $4)
 on conflict (provider_id, provider_connector_id) do update
-set name     = excluded.name,
-    logo_url = excluded.logo_url
+    set name     = excluded.name,
+        logo_url = excluded.logo_url
 returning *;
+
+-- name: FuzzySearchConnectorsByName :many
+select *
+from connectors
+where name % $1
+  and deleted_at is null;
+
+-- name: LikeSearchConnectorsByName :many
+select *
+from connectors
+where name ilike $1
+  and deleted_at is null;
+
+-- name: GetConnectorByID :one
+select *
+from connectors
+where id = $1
+  and deleted_at is null;
