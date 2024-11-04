@@ -15,8 +15,10 @@ import (
 	"magnifin/internal/adapters/repository"
 	"magnifin/internal/adapters/repository/connectors"
 	providersrepo "magnifin/internal/adapters/repository/providers"
+	"magnifin/internal/adapters/repository/providerusers"
 	usersrepo "magnifin/internal/adapters/repository/users"
 	"magnifin/internal/app"
+	connectors2 "magnifin/internal/app/connectors"
 	providers2 "magnifin/internal/app/providers"
 	"magnifin/internal/infra/database"
 	"magnifin/internal/infra/server"
@@ -67,23 +69,29 @@ func main() {
 	}
 	cypherKey = repository.Generate32ByteKey(cypherKey)
 
+	publicURL := os.Getenv("PUBLIC_URL")
+	if publicURL == "" {
+		panic("PUBLIC_URL is required")
+	}
+
 	// Db
 	db := database.NewService()
 	userRepository := usersrepo.NewRepository(db, cypherKey)
 	providerRepository := providersrepo.NewRepository(db, cypherKey)
 	connectorsRepository := connectors.NewRepository(db)
+	providerUserRepository := providerusers.NewRepository(db)
 
 	// Ports
 	providerPorts := []providers2.ProviderPort{
-		gocardless.NewGoCardless(),
+		gocardless.NewGoCardless(publicURL),
 	}
 
 	// Services
 	userService := app.NewUserService(userRepository, signKey)
-	providerService := providers2.NewProviderService(providerRepository, connectorsRepository, providerPorts)
-	connectorsService := app.NewConnectorService(connectorsRepository)
+	providerService := providers2.NewProviderService(providerRepository, connectorsRepository, providerUserRepository, providerPorts)
+	connectorsService := connectors2.NewConnectorService(connectorsRepository, providerService)
 
-	// Refresh the connectors list in background
+	// Refresh the connectors list in backgrounds
 	go func() {
 		providerService.UpdateConnectorsList(context.Background())
 	}()

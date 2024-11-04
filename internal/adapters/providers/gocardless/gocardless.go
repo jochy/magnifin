@@ -22,14 +22,16 @@ type gocardlessAccessToken struct {
 }
 
 type GoCardless struct {
-	token *gocardlessAccessToken
-	mu    sync.Mutex
+	token     *gocardlessAccessToken
+	mu        sync.Mutex
+	publicURL string
 }
 
-func NewGoCardless() *GoCardless {
+func NewGoCardless(publicURL string) *GoCardless {
 	return &GoCardless{
-		token: nil,
-		mu:    sync.Mutex{},
+		token:     nil,
+		mu:        sync.Mutex{},
+		publicURL: publicURL,
 	}
 }
 

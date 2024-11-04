@@ -25,6 +25,8 @@ func (s *Server) registerRoutes() http.Handler {
 	auth.POST("/providers/:id", s.providersHandlers.Update)
 
 	auth.GET("/connectors", s.connectorsHandlers.SearchByName)
+	auth.POST("/connectors/:id/connect", s.connectorsHandlers.Connect)
+	auth.GET("/providers/gocardless/callback", s.connectorsHandlers.GoCardlessCallback)
 
 	return r
 }

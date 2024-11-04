@@ -10,6 +10,33 @@ import (
 	"database/sql"
 )
 
+const createProviderUser = `-- name: CreateProviderUser :one
+insert into provider_users (provider_id, user_id, provider_user_id)
+values ($1, $2, $3)
+returning id, provider_id, provider_user_id, user_id, created_at, updated_at, deleted_at
+`
+
+type CreateProviderUserParams struct {
+	ProviderID     int32  `db:"provider_id"`
+	UserID         int32  `db:"user_id"`
+	ProviderUserID string `db:"provider_user_id"`
+}
+
+func (q *Queries) CreateProviderUser(ctx context.Context, arg CreateProviderUserParams) (ProviderUser, error) {
+	row := q.db.QueryRowContext(ctx, createProviderUser, arg.ProviderID, arg.UserID, arg.ProviderUserID)
+	var i ProviderUser
+	err := row.Scan(
+		&i.ID,
+		&i.ProviderID,
+		&i.ProviderUserID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 insert into users (username, hashed_password)
 values ($1, $2)
@@ -36,10 +63,13 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const fuzzySearchConnectorsByName = `-- name: FuzzySearchConnectorsByName :many
-select id, name, logo_url, provider_connector_id, provider_id, created_at, updated_at, deleted_at
+select connectors.id, connectors.name, connectors.logo_url, connectors.provider_connector_id, connectors.provider_id, connectors.created_at, connectors.updated_at, connectors.deleted_at
 from connectors
-where name % $1
-  and deleted_at is null
+         inner join providers on connectors.provider_id = providers.id
+where connectors.name % $1
+  and connectors.deleted_at is null
+  and providers.deleted_at is null
+  and providers.enabled = true
 `
 
 func (q *Queries) FuzzySearchConnectorsByName(ctx context.Context, name string) ([]Connector, error) {
@@ -143,6 +173,34 @@ func (q *Queries) GetProviderByName(ctx context.Context, name string) (Provider,
 	return i, err
 }
 
+const getProviderUserByProviderIDAndUserID = `-- name: GetProviderUserByProviderIDAndUserID :one
+select id, provider_id, provider_user_id, user_id, created_at, updated_at, deleted_at
+from provider_users
+where provider_id = $1
+  and user_id = $2
+  and deleted_at is null
+`
+
+type GetProviderUserByProviderIDAndUserIDParams struct {
+	ProviderID int32 `db:"provider_id"`
+	UserID     int32 `db:"user_id"`
+}
+
+func (q *Queries) GetProviderUserByProviderIDAndUserID(ctx context.Context, arg GetProviderUserByProviderIDAndUserIDParams) (ProviderUser, error) {
+	row := q.db.QueryRowContext(ctx, getProviderUserByProviderIDAndUserID, arg.ProviderID, arg.UserID)
+	var i ProviderUser
+	err := row.Scan(
+		&i.ID,
+		&i.ProviderID,
+		&i.ProviderUserID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getUserByID = `-- name: GetUserByID :one
 select id, username, hashed_password, created_at, updated_at, deleted_at
 from users
@@ -192,10 +250,13 @@ func (q *Queries) GetUserByUsernameAndHashedPassword(ctx context.Context, arg Ge
 }
 
 const likeSearchConnectorsByName = `-- name: LikeSearchConnectorsByName :many
-select id, name, logo_url, provider_connector_id, provider_id, created_at, updated_at, deleted_at
+select connectors.id, connectors.name, connectors.logo_url, connectors.provider_connector_id, connectors.provider_id, connectors.created_at, connectors.updated_at, connectors.deleted_at
 from connectors
-where name ilike $1
-  and deleted_at is null
+         inner join providers on connectors.provider_id = providers.id
+where connectors.name ilike $1
+  and connectors.deleted_at is null
+  and providers.deleted_at is null
+  and providers.enabled = true
 `
 
 func (q *Queries) LikeSearchConnectorsByName(ctx context.Context, name string) ([]Connector, error) {

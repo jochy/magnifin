@@ -28,7 +28,7 @@ type ProviderUser struct {
 	ID             int32
 	ProviderID     int32
 	UserID         int32
-	ProviderUserId string
+	ProviderUserID string
 }
 
 type Connector struct {
@@ -48,4 +48,14 @@ type Connection struct {
 	RenewConsentBefore *time.Time
 	ErrorMessage       *string
 	LastSuccessfulSync *time.Time
+}
+
+type ConnectInstruction struct {
+	ID          string
+	RedirectURL string
+}
+
+type ConnectParams struct {
+	SuccessURL string
+	ErrorURL   string
 }

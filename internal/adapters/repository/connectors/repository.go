@@ -3,6 +3,7 @@ package connectors
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"magnifin/internal/app/model"
 	"magnifin/internal/infra/database"
 )
@@ -24,7 +25,10 @@ func (r *Repository) Upsert(ctx context.Context, connector *model.Connector) (*m
 		Name:                connector.Name,
 		LogoUrl:             toSqlNullValue(connector.LogoURL),
 	})
-	if err != nil {
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -33,7 +37,10 @@ func (r *Repository) Upsert(ctx context.Context, connector *model.Connector) (*m
 
 func (r *Repository) SearchByName(ctx context.Context, name string) ([]model.Connector, error) {
 	connectors, err := r.db.FuzzySearchConnectorsByName(ctx, name)
-	if err != nil {
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -47,7 +54,9 @@ func (r *Repository) SearchByName(ctx context.Context, name string) ([]model.Con
 
 func (r *Repository) LikeSearchByName(ctx context.Context, name string) ([]model.Connector, error) {
 	connectors, err := r.db.LikeSearchConnectorsByName(ctx, "%"+name+"%")
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -61,7 +70,9 @@ func (r *Repository) LikeSearchByName(ctx context.Context, name string) ([]model
 
 func (r *Repository) GetByID(ctx context.Context, id int32) (*model.Connector, error) {
 	c, err := r.db.GetConnectorByID(ctx, id)
-	if err != nil {
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 

@@ -59,19 +59,37 @@ on conflict (provider_id, provider_connector_id) do update
 returning *;
 
 -- name: FuzzySearchConnectorsByName :many
-select *
+select connectors.*
 from connectors
-where name % $1
-  and deleted_at is null;
+         inner join providers on connectors.provider_id = providers.id
+where connectors.name % $1
+  and connectors.deleted_at is null
+  and providers.deleted_at is null
+  and providers.enabled = true;
 
 -- name: LikeSearchConnectorsByName :many
-select *
+select connectors.*
 from connectors
-where name ilike $1
-  and deleted_at is null;
+         inner join providers on connectors.provider_id = providers.id
+where connectors.name ilike $1
+  and connectors.deleted_at is null
+  and providers.deleted_at is null
+  and providers.enabled = true;
 
 -- name: GetConnectorByID :one
 select *
 from connectors
 where id = $1
   and deleted_at is null;
+
+-- name: GetProviderUserByProviderIDAndUserID :one
+select *
+from provider_users
+where provider_id = $1
+  and user_id = $2
+  and deleted_at is null;
+
+-- name: CreateProviderUser :one
+insert into provider_users (provider_id, user_id, provider_user_id)
+values ($1, $2, $3)
+returning *;

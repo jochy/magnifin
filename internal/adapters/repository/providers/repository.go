@@ -3,6 +3,7 @@ package providers
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"magnifin/internal/adapters/repository"
 	"magnifin/internal/app/model"
 	"magnifin/internal/infra/database"
@@ -22,7 +23,10 @@ func NewRepository(db database.Service, cypherKey string) *Repository {
 
 func (r *Repository) List(ctx context.Context) ([]model.Provider, error) {
 	res, err := r.db.ListProviders(ctx)
-	if err != nil {
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -65,7 +69,22 @@ func (r *Repository) Update(ctx context.Context, provider *model.Provider) (*mod
 
 func (r *Repository) GetByName(ctx context.Context, name string) (*model.Provider, error) {
 	p, err := r.db.GetProviderByName(ctx, name)
-	if err != nil {
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	return toDomain(&p, r.CypherKey)
+}
+
+func (r *Repository) GetByID(ctx context.Context, id int32) (*model.Provider, error) {
+	p, err := r.db.GetProviderByID(ctx, id)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 

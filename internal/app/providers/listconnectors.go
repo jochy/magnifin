@@ -27,12 +27,16 @@ func (s *ProviderService) UpdateConnectorsList(ctx context.Context) ([]model.Con
 		port := p
 		group.Go(func() error {
 			provider, err := s.providerRepository.GetByName(cctx, port.Name())
-			if !provider.Enabled {
-				return nil
-			}
 
 			if err != nil {
 				errors = append(errors, err)
+				return nil
+			} else if provider == nil {
+				errors = append(errors, fmt.Errorf("provider %s not found", port.Name()))
+				return nil
+			}
+
+			if !provider.Enabled {
 				return nil
 			}
 

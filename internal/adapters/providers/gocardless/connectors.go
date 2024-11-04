@@ -25,7 +25,7 @@ func (g *GoCardless) ListConnectors(ctx context.Context, provider *model.Provide
 	defer resp.Body.Close() //nolint: errcheck
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New("failed to list connectors http status code is %s" + resp.Status)
+		return nil, errors.New("failed to list connectors http status code is " + resp.Status)
 	}
 
 	var connectors []connectorResponse
