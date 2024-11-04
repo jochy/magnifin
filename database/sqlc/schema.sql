@@ -53,16 +53,43 @@ create table connectors
 
 create table connections
 (
-    id                   serial primary key,
-    provider_users_id    integer   not null references provider_users (id),
-    connector_id         integer   not null references connectors (id),
+    id                     serial primary key,
+    provider_users_id      integer   not null references provider_users (id),
+    provider_connection_id text      not null,
+    connector_id           integer   not null references connectors (id),
 
-    status               text      not null default 'SYNC_IN_PROGRESS',
-    renew_consent_before timestamp,
-    error_message        VARCHAR(1024),
-    last_successful_sync timestamp,
+    status                 text      not null default 'SYNC_IN_PROGRESS',
+    renew_consent_before   timestamp,
+    error_message          VARCHAR(1024),
+    last_successful_sync   timestamp,
 
-    created_at           timestamp not null default now(),
-    updated_at           timestamp not null default now(),
-    deleted_at           timestamp null
+    created_at             timestamp not null default now(),
+    updated_at             timestamp not null default now(),
+    deleted_at             timestamp null,
+
+    unique (provider_users_id, provider_connection_id)
+);
+
+create table redirect_sessions
+(
+    id                     text primary key,
+    provider_connection_id text null,
+    internal_connection_id integer null references connections (id),
+    created_at             timestamp not null default now()
+);
+
+create table accounts
+(
+    id                  serial primary key,
+    connection_id       integer   not null references connections (id),
+    provider_account_id text      not null,
+    name                text null,
+    type                text null,
+    currency            text null,
+    account_number      text null,
+    balance             numeric   not null default 0,
+
+    created_at          timestamp not null default now(),
+    updated_at          timestamp not null default now(),
+    deleted_at          timestamp null
 );

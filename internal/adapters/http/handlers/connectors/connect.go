@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/google/uuid"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,11 +35,11 @@ func (h *Handler) Connect(c *gin.Context) {
 		middlewares.GetUser(c.Request.Context()),
 		connectorID,
 		&model.ConnectParams{
+			SID:        uuid.New(),
 			SuccessURL: req.SuccessURL,
 			ErrorURL:   req.ErrorURL,
 		},
 	)
-
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+
 	_ "github.com/jackc/pgx"
 	_ "github.com/jackc/pgx/v5"
 )
@@ -27,11 +29,13 @@ type Service interface {
 	Close() error
 
 	Driver() *sql.DB
+	PgxPool() *pgxpool.Pool
 }
 
 type service struct {
 	Querier
-	db *sql.DB
+	db      *sql.DB
+	pgxpool *pgxpool.Pool
 }
 
 var (
@@ -51,11 +55,18 @@ func NewService() Service {
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", username, password, host, port, database)
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
-		slog.Error(fmt.Sprintf("unable to open connection: %s", err))
+		panic(err)
 	}
+
+	pgxpool, err := pgxpool.New(context.Background(), connStr)
+	if err != nil {
+		panic(err)
+	}
+
 	dbInstance = &service{
 		Querier: New(db),
 		db:      db,
+		pgxpool: pgxpool,
 	}
 	return dbInstance
 }
@@ -122,4 +133,8 @@ func (s *service) Close() error {
 
 func (s *service) Driver() *sql.DB {
 	return s.db
+}
+
+func (s *service) PgxPool() *pgxpool.Pool {
+	return s.pgxpool
 }

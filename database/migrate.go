@@ -1,7 +1,12 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"magnifin/internal/infra/database"
+
+	"github.com/riverqueue/river/riverdriver/riverpgxv5"
+	"github.com/riverqueue/river/rivermigrate"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4"
@@ -28,6 +33,19 @@ func main() {
 	}
 
 	err = m.Up()
+	if errors.Is(err, migrate.ErrNoChange) {
+		// Ignore
+	} else if err != nil {
+		panic(err)
+	}
+
+	riverdriver := riverpgxv5.New(database.NewService().PgxPool())
+	migrator, err := rivermigrate.New(riverdriver, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = migrator.Migrate(context.Background(), rivermigrate.DirectionUp, nil)
 	if err != nil {
 		panic(err)
 	}

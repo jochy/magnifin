@@ -17,7 +17,20 @@ type ConnectorRepository interface {
 	Upsert(ctx context.Context, connectors *model.Connector) (*model.Connector, error)
 }
 
+type RedirectSessionsRepository interface {
+	SaveRedirectSession(ctx context.Context, session model.RedirectSession) error
+	GetRedirectSessionByID(ctx context.Context, id string) (*model.RedirectSession, error)
+}
+
+type ConnectionRepository interface {
+	GetByProviderUserIDAndProviderConnectionID(ctx context.Context, providerUserID int32, providerConnectionID string) (*model.Connection, error)
+	Create(ctx context.Context, connection *model.Connection) (*model.Connection, error)
+	Update(ctx context.Context, connection *model.Connection) (*model.Connection, error)
+	GetByID(ctx context.Context, id int32) (*model.Connection, error)
+}
+
 type ProviderUserRepository interface {
+	GetByID(ctx context.Context, id int32) (*model.ProviderUser, error)
 	GetByProviderIDAndUserID(ctx context.Context, providerID int32, userID int32) (*model.ProviderUser, error)
 	Save(ctx context.Context, providerID int32, userID int32, providerUserID string) (*model.ProviderUser, error)
 }
@@ -28,19 +41,33 @@ type ProviderPort interface {
 	ListConnectors(ctx context.Context, provider *model.Provider) ([]model.Connector, error)
 	CreateProviderUser(ctx context.Context, provider *model.Provider, user *model.User) (*model.ProviderUser, error)
 	Connect(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connector *model.Connector, params *model.ConnectParams) (*model.ConnectInstruction, error)
+	GetConnectionByID(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connector *model.Connector, connectionID string) (*model.Connection, error)
+	GetAccounts(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connection *model.Connection) ([]model.Account, error)
+}
+
+type AccountRepository interface {
+	GetByConnectionIDAndProviderAccountID(ctx context.Context, connectionID int32, providerAccountID string) (*model.Account, error)
+	Create(ctx context.Context, account *model.Account) (*model.Account, error)
+	Update(ctx context.Context, account *model.Account) (*model.Account, error)
 }
 
 type ProviderService struct {
-	providerRepository     ProviderRepository
-	connectorRepository    ConnectorRepository
-	providerUserRepository ProviderUserRepository
-	ports                  map[string]ProviderPort
+	providerRepository         ProviderRepository
+	connectorRepository        ConnectorRepository
+	providerUserRepository     ProviderUserRepository
+	connectionRepository       ConnectionRepository
+	redirectSessionsRepository RedirectSessionsRepository
+	accountsRepository         AccountRepository
+	ports                      map[string]ProviderPort
 }
 
 func NewProviderService(
 	repository ProviderRepository,
 	connectorRepository ConnectorRepository,
 	providerUserRepository ProviderUserRepository,
+	connectionRepository ConnectionRepository,
+	redirectSessionsRepository RedirectSessionsRepository,
+	accountsRepository AccountRepository,
 	ports []ProviderPort,
 ) *ProviderService {
 	p := make(map[string]ProviderPort)
@@ -49,10 +76,13 @@ func NewProviderService(
 	}
 
 	return &ProviderService{
-		providerRepository:     repository,
-		connectorRepository:    connectorRepository,
-		providerUserRepository: providerUserRepository,
-		ports:                  p,
+		providerRepository:         repository,
+		connectorRepository:        connectorRepository,
+		providerUserRepository:     providerUserRepository,
+		connectionRepository:       connectionRepository,
+		redirectSessionsRepository: redirectSessionsRepository,
+		accountsRepository:         accountsRepository,
+		ports:                      p,
 	}
 }
 

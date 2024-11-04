@@ -93,3 +93,72 @@ where provider_id = $1
 insert into provider_users (provider_id, user_id, provider_user_id)
 values ($1, $2, $3)
 returning *;
+
+-- name: GetConnectionByProviderUserIDAndProviderConnectionID :one
+select *
+from connections
+where provider_users_id = $1
+  and provider_connection_id = $2
+  and deleted_at is null;
+
+-- name: GetProviderUserByID :one
+select *
+from provider_users
+where id = $1
+  and deleted_at is null;
+
+-- name: CreateConnection :one
+insert into connections (provider_users_id, provider_connection_id, connector_id, status, renew_consent_before,
+                         error_message, last_successful_sync)
+values ($1, $2, $3, $4, $5, $6, $7)
+returning *;
+
+-- name: UpdateConnection :one
+update connections
+set status                 = $2,
+    renew_consent_before   = $3,
+    error_message          = $4,
+    last_successful_sync   = $5,
+    provider_connection_id = $6,
+    updated_at             = now()
+where id = $1
+returning *;
+
+-- name: GetConnectionByID :one
+select *
+from connections
+where id = $1
+  and deleted_at is null;
+
+-- name: StoreRedirectSessions :exec
+insert into redirect_sessions (id, provider_connection_id, internal_connection_id)
+values ($1, $2, $3);
+
+-- name: GetRedirectSessionByID :one
+select *
+from redirect_sessions
+where id = $1;
+
+-- name: GetAccountByConnectionIDAndProviderAccountID :one
+select *
+from accounts
+where connection_id = $1
+  and provider_account_id = $2
+  and deleted_at is null;
+
+-- name: CreateAccount :one
+insert into accounts (connection_id, provider_account_id, name, type, currency, account_number, balance)
+values ($1, $2, $3, $4, $5, $6, $7)
+returning *;
+
+-- name: UpdateAccount :one
+update accounts
+set name                = $2,
+    type                = $3,
+    currency            = $4,
+    account_number      = $5,
+    balance             = $6,
+    provider_account_id = $7,
+    updated_at          = now()
+where id = $1
+returning *;

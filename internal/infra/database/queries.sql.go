@@ -10,6 +10,93 @@ import (
 	"database/sql"
 )
 
+const createAccount = `-- name: CreateAccount :one
+insert into accounts (connection_id, provider_account_id, name, type, currency, account_number, balance)
+values ($1, $2, $3, $4, $5, $6, $7)
+returning id, connection_id, provider_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
+`
+
+type CreateAccountParams struct {
+	ConnectionID      int32          `db:"connection_id"`
+	ProviderAccountID string         `db:"provider_account_id"`
+	Name              sql.NullString `db:"name"`
+	Type              sql.NullString `db:"type"`
+	Currency          sql.NullString `db:"currency"`
+	AccountNumber     sql.NullString `db:"account_number"`
+	Balance           string         `db:"balance"`
+}
+
+func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
+	row := q.db.QueryRowContext(ctx, createAccount,
+		arg.ConnectionID,
+		arg.ProviderAccountID,
+		arg.Name,
+		arg.Type,
+		arg.Currency,
+		arg.AccountNumber,
+		arg.Balance,
+	)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.ConnectionID,
+		&i.ProviderAccountID,
+		&i.Name,
+		&i.Type,
+		&i.Currency,
+		&i.AccountNumber,
+		&i.Balance,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const createConnection = `-- name: CreateConnection :one
+insert into connections (provider_users_id, provider_connection_id, connector_id, status, renew_consent_before,
+                         error_message, last_successful_sync)
+values ($1, $2, $3, $4, $5, $6, $7)
+returning id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
+`
+
+type CreateConnectionParams struct {
+	ProviderUsersID      int32          `db:"provider_users_id"`
+	ProviderConnectionID string         `db:"provider_connection_id"`
+	ConnectorID          int32          `db:"connector_id"`
+	Status               string         `db:"status"`
+	RenewConsentBefore   sql.NullTime   `db:"renew_consent_before"`
+	ErrorMessage         sql.NullString `db:"error_message"`
+	LastSuccessfulSync   sql.NullTime   `db:"last_successful_sync"`
+}
+
+func (q *Queries) CreateConnection(ctx context.Context, arg CreateConnectionParams) (Connection, error) {
+	row := q.db.QueryRowContext(ctx, createConnection,
+		arg.ProviderUsersID,
+		arg.ProviderConnectionID,
+		arg.ConnectorID,
+		arg.Status,
+		arg.RenewConsentBefore,
+		arg.ErrorMessage,
+		arg.LastSuccessfulSync,
+	)
+	var i Connection
+	err := row.Scan(
+		&i.ID,
+		&i.ProviderUsersID,
+		&i.ProviderConnectionID,
+		&i.ConnectorID,
+		&i.Status,
+		&i.RenewConsentBefore,
+		&i.ErrorMessage,
+		&i.LastSuccessfulSync,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const createProviderUser = `-- name: CreateProviderUser :one
 insert into provider_users (provider_id, user_id, provider_user_id)
 values ($1, $2, $3)
@@ -104,6 +191,96 @@ func (q *Queries) FuzzySearchConnectorsByName(ctx context.Context, name string) 
 	return items, nil
 }
 
+const getAccountByConnectionIDAndProviderAccountID = `-- name: GetAccountByConnectionIDAndProviderAccountID :one
+select id, connection_id, provider_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
+from accounts
+where connection_id = $1
+  and provider_account_id = $2
+  and deleted_at is null
+`
+
+type GetAccountByConnectionIDAndProviderAccountIDParams struct {
+	ConnectionID      int32  `db:"connection_id"`
+	ProviderAccountID string `db:"provider_account_id"`
+}
+
+func (q *Queries) GetAccountByConnectionIDAndProviderAccountID(ctx context.Context, arg GetAccountByConnectionIDAndProviderAccountIDParams) (Account, error) {
+	row := q.db.QueryRowContext(ctx, getAccountByConnectionIDAndProviderAccountID, arg.ConnectionID, arg.ProviderAccountID)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.ConnectionID,
+		&i.ProviderAccountID,
+		&i.Name,
+		&i.Type,
+		&i.Currency,
+		&i.AccountNumber,
+		&i.Balance,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getConnectionByID = `-- name: GetConnectionByID :one
+select id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
+from connections
+where id = $1
+  and deleted_at is null
+`
+
+func (q *Queries) GetConnectionByID(ctx context.Context, id int32) (Connection, error) {
+	row := q.db.QueryRowContext(ctx, getConnectionByID, id)
+	var i Connection
+	err := row.Scan(
+		&i.ID,
+		&i.ProviderUsersID,
+		&i.ProviderConnectionID,
+		&i.ConnectorID,
+		&i.Status,
+		&i.RenewConsentBefore,
+		&i.ErrorMessage,
+		&i.LastSuccessfulSync,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getConnectionByProviderUserIDAndProviderConnectionID = `-- name: GetConnectionByProviderUserIDAndProviderConnectionID :one
+select id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
+from connections
+where provider_users_id = $1
+  and provider_connection_id = $2
+  and deleted_at is null
+`
+
+type GetConnectionByProviderUserIDAndProviderConnectionIDParams struct {
+	ProviderUsersID      int32  `db:"provider_users_id"`
+	ProviderConnectionID string `db:"provider_connection_id"`
+}
+
+func (q *Queries) GetConnectionByProviderUserIDAndProviderConnectionID(ctx context.Context, arg GetConnectionByProviderUserIDAndProviderConnectionIDParams) (Connection, error) {
+	row := q.db.QueryRowContext(ctx, getConnectionByProviderUserIDAndProviderConnectionID, arg.ProviderUsersID, arg.ProviderConnectionID)
+	var i Connection
+	err := row.Scan(
+		&i.ID,
+		&i.ProviderUsersID,
+		&i.ProviderConnectionID,
+		&i.ConnectorID,
+		&i.Status,
+		&i.RenewConsentBefore,
+		&i.ErrorMessage,
+		&i.LastSuccessfulSync,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getConnectorByID = `-- name: GetConnectorByID :one
 select id, name, logo_url, provider_connector_id, provider_id, created_at, updated_at, deleted_at
 from connectors
@@ -173,6 +350,28 @@ func (q *Queries) GetProviderByName(ctx context.Context, name string) (Provider,
 	return i, err
 }
 
+const getProviderUserByID = `-- name: GetProviderUserByID :one
+select id, provider_id, provider_user_id, user_id, created_at, updated_at, deleted_at
+from provider_users
+where id = $1
+  and deleted_at is null
+`
+
+func (q *Queries) GetProviderUserByID(ctx context.Context, id int32) (ProviderUser, error) {
+	row := q.db.QueryRowContext(ctx, getProviderUserByID, id)
+	var i ProviderUser
+	err := row.Scan(
+		&i.ID,
+		&i.ProviderID,
+		&i.ProviderUserID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getProviderUserByProviderIDAndUserID = `-- name: GetProviderUserByProviderIDAndUserID :one
 select id, provider_id, provider_user_id, user_id, created_at, updated_at, deleted_at
 from provider_users
@@ -197,6 +396,24 @@ func (q *Queries) GetProviderUserByProviderIDAndUserID(ctx context.Context, arg 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getRedirectSessionByID = `-- name: GetRedirectSessionByID :one
+select id, provider_connection_id, internal_connection_id, created_at
+from redirect_sessions
+where id = $1
+`
+
+func (q *Queries) GetRedirectSessionByID(ctx context.Context, id string) (RedirectSession, error) {
+	row := q.db.QueryRowContext(ctx, getRedirectSessionByID, id)
+	var i RedirectSession
+	err := row.Scan(
+		&i.ID,
+		&i.ProviderConnectionID,
+		&i.InternalConnectionID,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -327,6 +544,119 @@ func (q *Queries) ListProviders(ctx context.Context) ([]Provider, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const storeRedirectSessions = `-- name: StoreRedirectSessions :exec
+insert into redirect_sessions (id, provider_connection_id, internal_connection_id)
+values ($1, $2, $3)
+`
+
+type StoreRedirectSessionsParams struct {
+	ID                   string         `db:"id"`
+	ProviderConnectionID sql.NullString `db:"provider_connection_id"`
+	InternalConnectionID sql.NullInt32  `db:"internal_connection_id"`
+}
+
+func (q *Queries) StoreRedirectSessions(ctx context.Context, arg StoreRedirectSessionsParams) error {
+	_, err := q.db.ExecContext(ctx, storeRedirectSessions, arg.ID, arg.ProviderConnectionID, arg.InternalConnectionID)
+	return err
+}
+
+const updateAccount = `-- name: UpdateAccount :one
+update accounts
+set name                = $2,
+    type                = $3,
+    currency            = $4,
+    account_number      = $5,
+    balance             = $6,
+    provider_account_id = $7,
+    updated_at          = now()
+where id = $1
+returning id, connection_id, provider_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
+`
+
+type UpdateAccountParams struct {
+	ID                int32          `db:"id"`
+	Name              sql.NullString `db:"name"`
+	Type              sql.NullString `db:"type"`
+	Currency          sql.NullString `db:"currency"`
+	AccountNumber     sql.NullString `db:"account_number"`
+	Balance           string         `db:"balance"`
+	ProviderAccountID string         `db:"provider_account_id"`
+}
+
+func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
+	row := q.db.QueryRowContext(ctx, updateAccount,
+		arg.ID,
+		arg.Name,
+		arg.Type,
+		arg.Currency,
+		arg.AccountNumber,
+		arg.Balance,
+		arg.ProviderAccountID,
+	)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.ConnectionID,
+		&i.ProviderAccountID,
+		&i.Name,
+		&i.Type,
+		&i.Currency,
+		&i.AccountNumber,
+		&i.Balance,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const updateConnection = `-- name: UpdateConnection :one
+update connections
+set status                 = $2,
+    renew_consent_before   = $3,
+    error_message          = $4,
+    last_successful_sync   = $5,
+    provider_connection_id = $6,
+    updated_at             = now()
+where id = $1
+returning id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
+`
+
+type UpdateConnectionParams struct {
+	ID                   int32          `db:"id"`
+	Status               string         `db:"status"`
+	RenewConsentBefore   sql.NullTime   `db:"renew_consent_before"`
+	ErrorMessage         sql.NullString `db:"error_message"`
+	LastSuccessfulSync   sql.NullTime   `db:"last_successful_sync"`
+	ProviderConnectionID string         `db:"provider_connection_id"`
+}
+
+func (q *Queries) UpdateConnection(ctx context.Context, arg UpdateConnectionParams) (Connection, error) {
+	row := q.db.QueryRowContext(ctx, updateConnection,
+		arg.ID,
+		arg.Status,
+		arg.RenewConsentBefore,
+		arg.ErrorMessage,
+		arg.LastSuccessfulSync,
+		arg.ProviderConnectionID,
+	)
+	var i Connection
+	err := row.Scan(
+		&i.ID,
+		&i.ProviderUsersID,
+		&i.ProviderConnectionID,
+		&i.ConnectorID,
+		&i.Status,
+		&i.RenewConsentBefore,
+		&i.ErrorMessage,
+		&i.LastSuccessfulSync,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
 const updateProvider = `-- name: UpdateProvider :one

@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -68,4 +69,18 @@ func DecryptString(ciphertextHex *string, keyString string) (*string, error) {
 func Generate32ByteKey(input string) string {
 	hash := sha256.Sum256([]byte(input))
 	return string(hash[:])
+}
+
+func FromSqlNullString(s sql.NullString) *string {
+	if !s.Valid {
+		return nil
+	}
+	return &s.String
+}
+
+func ToSqlNullString(s *string) sql.NullString {
+	if s == nil {
+		return sql.NullString{}
+	}
+	return sql.NullString{String: *s, Valid: true}
 }

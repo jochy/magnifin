@@ -48,7 +48,7 @@ func (s *UserService) GenerateJWT(_ context.Context, user *model.User) (string, 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"sub": strconv.Itoa(int(user.ID)),
-			"exp": time.Now().Add(time.Hour * 24).Unix(),
+			"exp": time.Now().Add(time.Hour * 14 * 24).Unix(),
 		})
 
 	tokenString, err := token.SignedString([]byte(s.jwtSignKey))

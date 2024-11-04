@@ -9,17 +9,32 @@ import (
 	"time"
 )
 
+type Account struct {
+	ID                int32          `db:"id"`
+	ConnectionID      int32          `db:"connection_id"`
+	ProviderAccountID string         `db:"provider_account_id"`
+	Name              sql.NullString `db:"name"`
+	Type              sql.NullString `db:"type"`
+	Currency          sql.NullString `db:"currency"`
+	AccountNumber     sql.NullString `db:"account_number"`
+	Balance           string         `db:"balance"`
+	CreatedAt         time.Time      `db:"created_at"`
+	UpdatedAt         time.Time      `db:"updated_at"`
+	DeletedAt         sql.NullTime   `db:"deleted_at"`
+}
+
 type Connection struct {
-	ID                 int32          `db:"id"`
-	ProviderUsersID    int32          `db:"provider_users_id"`
-	ConnectorID        int32          `db:"connector_id"`
-	Status             string         `db:"status"`
-	RenewConsentBefore sql.NullTime   `db:"renew_consent_before"`
-	ErrorMessage       sql.NullString `db:"error_message"`
-	LastSuccessfulSync sql.NullTime   `db:"last_successful_sync"`
-	CreatedAt          time.Time      `db:"created_at"`
-	UpdatedAt          time.Time      `db:"updated_at"`
-	DeletedAt          sql.NullTime   `db:"deleted_at"`
+	ID                   int32          `db:"id"`
+	ProviderUsersID      int32          `db:"provider_users_id"`
+	ProviderConnectionID string         `db:"provider_connection_id"`
+	ConnectorID          int32          `db:"connector_id"`
+	Status               string         `db:"status"`
+	RenewConsentBefore   sql.NullTime   `db:"renew_consent_before"`
+	ErrorMessage         sql.NullString `db:"error_message"`
+	LastSuccessfulSync   sql.NullTime   `db:"last_successful_sync"`
+	CreatedAt            time.Time      `db:"created_at"`
+	UpdatedAt            time.Time      `db:"updated_at"`
+	DeletedAt            sql.NullTime   `db:"deleted_at"`
 }
 
 type Connector struct {
@@ -52,6 +67,13 @@ type ProviderUser struct {
 	CreatedAt      time.Time    `db:"created_at"`
 	UpdatedAt      time.Time    `db:"updated_at"`
 	DeletedAt      sql.NullTime `db:"deleted_at"`
+}
+
+type RedirectSession struct {
+	ID                   string         `db:"id"`
+	ProviderConnectionID sql.NullString `db:"provider_connection_id"`
+	InternalConnectionID sql.NullInt32  `db:"internal_connection_id"`
+	CreatedAt            time.Time      `db:"created_at"`
 }
 
 type User struct {

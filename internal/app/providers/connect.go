@@ -4,9 +4,20 @@ import (
 	"context"
 	"errors"
 	"magnifin/internal/app/model"
+
+	"github.com/google/uuid"
 )
 
-func (s *ProviderService) Connect(ctx context.Context, user *model.User, connector *model.Connector, params *model.ConnectParams) (*model.ConnectInstruction, error) {
+func (s *ProviderService) Connect(
+	ctx context.Context,
+	user *model.User,
+	connector *model.Connector,
+	params *model.ConnectParams,
+) (*model.ConnectInstruction, error) {
+	if params.SID == uuid.Nil {
+		params.SID = uuid.New()
+	}
+
 	provider, err := s.providerRepository.GetByID(ctx, connector.ProviderID)
 	if err != nil {
 		return nil, err
@@ -43,6 +54,16 @@ func (s *ProviderService) Connect(ctx context.Context, user *model.User, connect
 
 	// Second: create connection
 	connectInstruction, err := providerPort.Connect(ctx, provider, providerUser, connector, params)
+	if err != nil {
+		return nil, err
+	}
+
+	// Third: save redirect session
+	err = s.redirectSessionsRepository.SaveRedirectSession(ctx, model.RedirectSession{
+		ID:                   params.SID.String(),
+		ProviderConnectionID: &connectInstruction.ID,
+		InternalConnectionID: nil,
+	})
 	if err != nil {
 		return nil, err
 	}

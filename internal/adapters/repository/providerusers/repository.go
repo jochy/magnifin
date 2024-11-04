@@ -45,3 +45,14 @@ func (r *Repository) Save(ctx context.Context, providerID int32, userID int32, p
 
 	return toDomain(&p), nil
 }
+
+func (r *Repository) GetByID(ctx context.Context, id int32) (*model.ProviderUser, error) {
+	p, err := r.db.GetProviderUserByID(ctx, id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	return toDomain(&p), nil
+}

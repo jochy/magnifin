@@ -7,6 +7,7 @@ import (
 	"magnifin/internal/app/model"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 const (
@@ -25,8 +26,12 @@ func (g *GoCardless) Connect(
 		return nil, err
 	}
 
-	u.Query().Add("s", params.SuccessURL)
-	u.Query().Add("e", params.ErrorURL)
+	queryParams := url.Values{}
+	queryParams.Add("s", params.SuccessURL)
+	queryParams.Add("e", params.ErrorURL)
+	queryParams.Add("c", strconv.Itoa(int(connector.ID)))
+	queryParams.Add("sid", params.SID.String())
+	u.RawQuery = queryParams.Encode()
 
 	reqBody := requisitionRequest{
 		Redirect:         u.String(),
@@ -69,9 +74,4 @@ type requisitionRequest struct {
 	Redirect         string `json:"redirect"`
 	InstitutionId    string `json:"institution_id"`
 	AccountSelection bool   `json:"account_selection"`
-}
-
-type requisitionResponse struct {
-	Id   string `json:"id" required:"true"`
-	Link string `json:"link" required:"true"`
 }

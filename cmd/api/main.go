@@ -11,16 +11,21 @@ import (
 	"magnifin/internal/adapters/http/handlers/providers"
 	usershandlers "magnifin/internal/adapters/http/handlers/users"
 	"magnifin/internal/adapters/http/middlewares"
+	"magnifin/internal/adapters/jobs"
 	"magnifin/internal/adapters/providers/gocardless"
 	"magnifin/internal/adapters/repository"
+	"magnifin/internal/adapters/repository/accounts"
+	"magnifin/internal/adapters/repository/connections"
 	"magnifin/internal/adapters/repository/connectors"
 	providersrepo "magnifin/internal/adapters/repository/providers"
 	"magnifin/internal/adapters/repository/providerusers"
+	"magnifin/internal/adapters/repository/redirect_sessions"
 	usersrepo "magnifin/internal/adapters/repository/users"
 	"magnifin/internal/app"
 	connectors2 "magnifin/internal/app/connectors"
 	providers2 "magnifin/internal/app/providers"
 	"magnifin/internal/infra/database"
+	scheduler2 "magnifin/internal/infra/scheduler"
 	"magnifin/internal/infra/server"
 	"net/http"
 	"os"
@@ -80,6 +85,9 @@ func main() {
 	providerRepository := providersrepo.NewRepository(db, cypherKey)
 	connectorsRepository := connectors.NewRepository(db)
 	providerUserRepository := providerusers.NewRepository(db)
+	connectionsRepository := connections.NewRepository(db)
+	redirectionSessionsRepository := redirect_sessions.NewRepository(db)
+	accountsRepository := accounts.NewRepository(db)
 
 	// Ports
 	providerPorts := []providers2.ProviderPort{
@@ -88,13 +96,27 @@ func main() {
 
 	// Services
 	userService := app.NewUserService(userRepository, signKey)
-	providerService := providers2.NewProviderService(providerRepository, connectorsRepository, providerUserRepository, providerPorts)
+	providerService := providers2.NewProviderService(
+		providerRepository,
+		connectorsRepository,
+		providerUserRepository,
+		connectionsRepository,
+		redirectionSessionsRepository,
+		accountsRepository,
+		providerPorts,
+	)
 	connectorsService := connectors2.NewConnectorService(connectorsRepository, providerService)
 
-	// Refresh the connectors list in backgrounds
-	go func() {
-		providerService.UpdateConnectorsList(context.Background())
-	}()
+	scheduler, err := scheduler2.NewScheduler(db, jobs.NewJobs(providerService))
+	if err != nil {
+		panic(fmt.Sprintf("failed to create scheduler: %s", err))
+	}
+
+	// Start the scheduler
+	err = scheduler.Start(context.Background())
+	if err != nil {
+		panic(fmt.Sprintf("failed to start scheduler: %s", err))
+	}
 
 	// Server
 	server := server.NewServer(
@@ -111,12 +133,19 @@ func main() {
 	// Run graceful shutdown in a separate goroutine
 	go gracefulShutdown(server, done)
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		panic(fmt.Sprintf("http server error: %s", err))
 	}
 
 	// Wait for the graceful shutdown to complete
 	<-done
+
+	// Stop the scheduler
+	err = scheduler.Stop(context.Background())
+	if err != nil {
+		panic(fmt.Sprintf("failed to stop scheduler: %s", err))
+	}
+
 	log.Println("Graceful shutdown complete.")
 }

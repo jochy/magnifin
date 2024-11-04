@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type ConnectionStatus string
 
@@ -40,9 +44,10 @@ type Connector struct {
 }
 
 type Connection struct {
-	ID             int32
-	ProviderUserID int32
-	ConnectorID    int32
+	ID                   int32
+	ProviderUserID       int32
+	ConnectorID          int32
+	ProviderConnectionID string
 
 	Status             ConnectionStatus
 	RenewConsentBefore *time.Time
@@ -56,6 +61,24 @@ type ConnectInstruction struct {
 }
 
 type ConnectParams struct {
+	SID        uuid.UUID
 	SuccessURL string
 	ErrorURL   string
+}
+
+type RedirectSession struct {
+	ID                   string
+	ProviderConnectionID *string
+	InternalConnectionID *int32
+}
+
+type Account struct {
+	ID                int32
+	ConnectionID      int32
+	ProviderAccountID string
+	Name              *string
+	Type              *string
+	Currency          *string
+	AccountNumber     *string
+	Balance           float64
 }
