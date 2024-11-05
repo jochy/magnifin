@@ -9,6 +9,7 @@ import (
 	"magnifin/internal/app/model"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 const (
@@ -42,7 +43,11 @@ func (g *GoCardless) GetAccounts(
 	return accounts, nil
 }
 
-func (g *GoCardless) triggerAccountSync(ctx context.Context, provider *model.Provider, _ *model.Connection, accountID string) error {
+func (g *GoCardless) triggerAccountSync(ctx context.Context, provider *model.Provider, cnx *model.Connection, accountID string, remainingAttempts int) error { //nolint: unparam
+	if remainingAttempts == 0 {
+		return errors.New("account not ready after 5 attempts")
+	}
+
 	req, err := g.newRequest(ctx, provider, http.MethodGet, fmt.Sprintf(goCardlessAccountsUpdate, accountID), nil)
 	if err != nil {
 		return err
@@ -58,7 +63,19 @@ func (g *GoCardless) triggerAccountSync(ctx context.Context, provider *model.Pro
 		return errors.New("failed to get sync account: " + resp.Status)
 	}
 
-	slog.Info("Account sync triggered for account: " + accountID)
+	var res accountSyncResponse
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return err
+	}
+
+	if res.Status != "READY" {
+		slog.Info("Account " + accountID + " not ready yet, retrying in 5 seconds")
+
+		time.Sleep(5 * time.Second)
+		return g.triggerAccountSync(ctx, provider, cnx, accountID, remainingAttempts-1)
+	}
+
+	slog.Info("Account " + accountID + " READY for the import")
 	return nil
 }
 
@@ -87,7 +104,7 @@ func (g *GoCardless) getAccountIDs(ctx context.Context, provider *model.Provider
 }
 
 func (g *GoCardless) getAccountByID(ctx context.Context, provider *model.Provider, connection *model.Connection, accountID string) (*model.Account, error) {
-	err := g.triggerAccountSync(ctx, provider, connection, accountID)
+	err := g.triggerAccountSync(ctx, provider, connection, accountID, 5)
 	if err != nil {
 		return nil, err
 	}
@@ -140,6 +157,7 @@ func (g *GoCardless) getAccountByID(ctx context.Context, provider *model.Provide
 		Currency:          res.Account.Currency,
 		AccountNumber:     res.Account.Iban,
 		Balance:           resBalance.getBalance(),
+		BankAccountID:     res.Account.ResourceId,
 	}, nil
 }
 
@@ -148,10 +166,11 @@ type accountMetadata struct {
 }
 
 type accountData struct {
-	Iban     *string `json:"iban"`
-	Currency *string `json:"currency"`
-	Name     *string `json:"name"`
-	Product  *string `json:"product"`
+	Iban       *string `json:"iban"`
+	Currency   *string `json:"currency"`
+	Name       *string `json:"name"`
+	Product    *string `json:"product"`
+	ResourceId *string `json:"resourceId"`
 }
 
 type accountBalance struct {
@@ -184,4 +203,14 @@ func (b *accountBalance) getBalance() float64 {
 
 	slog.Warn("No expected balance found")
 	return 0
+}
+
+type accountSyncResponse struct {
+	Id            string    `json:"id"`
+	Created       time.Time `json:"created"`
+	LastAccessed  time.Time `json:"last_accessed"`
+	Iban          string    `json:"iban"`
+	Status        string    `json:"status"`
+	InstitutionId string    `json:"institution_id"`
+	OwnerName     string    `json:"owner_name"`
 }

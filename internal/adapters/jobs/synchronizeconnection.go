@@ -15,7 +15,7 @@ func (s SynchronizeConnectionInput) Kind() string {
 }
 
 func (s SynchronizeConnectionInput) InsertOpts() river.InsertOpts {
-	return river.InsertOpts{MaxAttempts: 8}
+	return river.InsertOpts{MaxAttempts: 2}
 }
 
 type SynchronizeConnectionWorker struct {

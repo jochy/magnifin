@@ -12,7 +12,9 @@ type Querier interface {
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
 	CreateConnection(ctx context.Context, arg CreateConnectionParams) (Connection, error)
 	CreateProviderUser(ctx context.Context, arg CreateProviderUserParams) (ProviderUser, error)
+	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	FindTransactionByAccountIDAndProviderTransactionID(ctx context.Context, arg FindTransactionByAccountIDAndProviderTransactionIDParams) (Transaction, error)
 	FuzzySearchConnectorsByName(ctx context.Context, name string) ([]Connector, error)
 	GetAccountByConnectionIDAndProviderAccountID(ctx context.Context, arg GetAccountByConnectionIDAndProviderAccountIDParams) (Account, error)
 	GetConnectionByID(ctx context.Context, id int32) (Connection, error)
@@ -31,6 +33,7 @@ type Querier interface {
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateConnection(ctx context.Context, arg UpdateConnectionParams) (Connection, error)
 	UpdateProvider(ctx context.Context, arg UpdateProviderParams) (Provider, error)
+	UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) (Transaction, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpsertConnector(ctx context.Context, arg UpsertConnectorParams) (Connector, error)
 }

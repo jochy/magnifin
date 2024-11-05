@@ -8,12 +8,14 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createAccount = `-- name: CreateAccount :one
-insert into accounts (connection_id, provider_account_id, name, type, currency, account_number, balance)
-values ($1, $2, $3, $4, $5, $6, $7)
-returning id, connection_id, provider_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
+insert into accounts (connection_id, provider_account_id, name, type, currency, account_number, balance,
+                      bank_account_id)
+values ($1, $2, $3, $4, $5, $6, $7, $8)
+returning id, connection_id, provider_account_id, bank_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
 `
 
 type CreateAccountParams struct {
@@ -24,6 +26,7 @@ type CreateAccountParams struct {
 	Currency          sql.NullString `db:"currency"`
 	AccountNumber     sql.NullString `db:"account_number"`
 	Balance           string         `db:"balance"`
+	BankAccountID     sql.NullString `db:"bank_account_id"`
 }
 
 func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
@@ -35,12 +38,14 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 		arg.Currency,
 		arg.AccountNumber,
 		arg.Balance,
+		arg.BankAccountID,
 	)
 	var i Account
 	err := row.Scan(
 		&i.ID,
 		&i.ConnectionID,
 		&i.ProviderAccountID,
+		&i.BankAccountID,
 		&i.Name,
 		&i.Type,
 		&i.Currency,
@@ -124,6 +129,63 @@ func (q *Queries) CreateProviderUser(ctx context.Context, arg CreateProviderUser
 	return i, err
 }
 
+const createTransaction = `-- name: CreateTransaction :one
+insert into transactions (account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status,
+                          operation_at, counterparty_name, counterparty_account,
+                          reference)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+returning id, account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status, operation_at, counterparty_name, counterparty_account, reference, created_at, updated_at, deleted_at
+`
+
+type CreateTransactionParams struct {
+	AccountID             int32          `db:"account_id"`
+	ProviderTransactionID string         `db:"provider_transaction_id"`
+	BankTransactionID     sql.NullString `db:"bank_transaction_id"`
+	Amount                string         `db:"amount"`
+	Currency              string         `db:"currency"`
+	Direction             string         `db:"direction"`
+	Status                string         `db:"status"`
+	OperationAt           time.Time      `db:"operation_at"`
+	CounterpartyName      sql.NullString `db:"counterparty_name"`
+	CounterpartyAccount   sql.NullString `db:"counterparty_account"`
+	Reference             sql.NullString `db:"reference"`
+}
+
+func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
+	row := q.db.QueryRowContext(ctx, createTransaction,
+		arg.AccountID,
+		arg.ProviderTransactionID,
+		arg.BankTransactionID,
+		arg.Amount,
+		arg.Currency,
+		arg.Direction,
+		arg.Status,
+		arg.OperationAt,
+		arg.CounterpartyName,
+		arg.CounterpartyAccount,
+		arg.Reference,
+	)
+	var i Transaction
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.ProviderTransactionID,
+		&i.BankTransactionID,
+		&i.Amount,
+		&i.Currency,
+		&i.Direction,
+		&i.Status,
+		&i.OperationAt,
+		&i.CounterpartyName,
+		&i.CounterpartyAccount,
+		&i.Reference,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 insert into users (username, hashed_password)
 values ($1, $2)
@@ -142,6 +204,42 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.ID,
 		&i.Username,
 		&i.HashedPassword,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const findTransactionByAccountIDAndProviderTransactionID = `-- name: FindTransactionByAccountIDAndProviderTransactionID :one
+select id, account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status, operation_at, counterparty_name, counterparty_account, reference, created_at, updated_at, deleted_at
+from transactions
+where account_id = $1
+  and provider_transaction_id = $2
+  and deleted_at is null
+`
+
+type FindTransactionByAccountIDAndProviderTransactionIDParams struct {
+	AccountID             int32  `db:"account_id"`
+	ProviderTransactionID string `db:"provider_transaction_id"`
+}
+
+func (q *Queries) FindTransactionByAccountIDAndProviderTransactionID(ctx context.Context, arg FindTransactionByAccountIDAndProviderTransactionIDParams) (Transaction, error) {
+	row := q.db.QueryRowContext(ctx, findTransactionByAccountIDAndProviderTransactionID, arg.AccountID, arg.ProviderTransactionID)
+	var i Transaction
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.ProviderTransactionID,
+		&i.BankTransactionID,
+		&i.Amount,
+		&i.Currency,
+		&i.Direction,
+		&i.Status,
+		&i.OperationAt,
+		&i.CounterpartyName,
+		&i.CounterpartyAccount,
+		&i.Reference,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -192,7 +290,7 @@ func (q *Queries) FuzzySearchConnectorsByName(ctx context.Context, name string) 
 }
 
 const getAccountByConnectionIDAndProviderAccountID = `-- name: GetAccountByConnectionIDAndProviderAccountID :one
-select id, connection_id, provider_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
+select id, connection_id, provider_account_id, bank_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
 from accounts
 where connection_id = $1
   and provider_account_id = $2
@@ -211,6 +309,7 @@ func (q *Queries) GetAccountByConnectionIDAndProviderAccountID(ctx context.Conte
 		&i.ID,
 		&i.ConnectionID,
 		&i.ProviderAccountID,
+		&i.BankAccountID,
 		&i.Name,
 		&i.Type,
 		&i.Currency,
@@ -570,9 +669,10 @@ set name                = $2,
     account_number      = $5,
     balance             = $6,
     provider_account_id = $7,
+    bank_account_id     = $8,
     updated_at          = now()
 where id = $1
-returning id, connection_id, provider_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
+returning id, connection_id, provider_account_id, bank_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
 `
 
 type UpdateAccountParams struct {
@@ -583,6 +683,7 @@ type UpdateAccountParams struct {
 	AccountNumber     sql.NullString `db:"account_number"`
 	Balance           string         `db:"balance"`
 	ProviderAccountID string         `db:"provider_account_id"`
+	BankAccountID     sql.NullString `db:"bank_account_id"`
 }
 
 func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
@@ -594,12 +695,14 @@ func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (A
 		arg.AccountNumber,
 		arg.Balance,
 		arg.ProviderAccountID,
+		arg.BankAccountID,
 	)
 	var i Account
 	err := row.Scan(
 		&i.ID,
 		&i.ConnectionID,
 		&i.ProviderAccountID,
+		&i.BankAccountID,
 		&i.Name,
 		&i.Type,
 		&i.Currency,
@@ -693,6 +796,72 @@ func (q *Queries) UpdateProvider(ctx context.Context, arg UpdateProviderParams) 
 		&i.AccessKey,
 		&i.Secret,
 		&i.Enabled,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const updateTransaction = `-- name: UpdateTransaction :one
+update transactions
+set bank_transaction_id     = $2,
+    amount                  = $3,
+    currency                = $4,
+    direction               = $5,
+    status                  = $6,
+    operation_at            = $7,
+    counterparty_name       = $8,
+    counterparty_account    = $9,
+    reference               = $10,
+    provider_transaction_id = $11,
+    updated_at              = now()
+where id = $1
+returning id, account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status, operation_at, counterparty_name, counterparty_account, reference, created_at, updated_at, deleted_at
+`
+
+type UpdateTransactionParams struct {
+	ID                    int32          `db:"id"`
+	BankTransactionID     sql.NullString `db:"bank_transaction_id"`
+	Amount                string         `db:"amount"`
+	Currency              string         `db:"currency"`
+	Direction             string         `db:"direction"`
+	Status                string         `db:"status"`
+	OperationAt           time.Time      `db:"operation_at"`
+	CounterpartyName      sql.NullString `db:"counterparty_name"`
+	CounterpartyAccount   sql.NullString `db:"counterparty_account"`
+	Reference             sql.NullString `db:"reference"`
+	ProviderTransactionID string         `db:"provider_transaction_id"`
+}
+
+func (q *Queries) UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) (Transaction, error) {
+	row := q.db.QueryRowContext(ctx, updateTransaction,
+		arg.ID,
+		arg.BankTransactionID,
+		arg.Amount,
+		arg.Currency,
+		arg.Direction,
+		arg.Status,
+		arg.OperationAt,
+		arg.CounterpartyName,
+		arg.CounterpartyAccount,
+		arg.Reference,
+		arg.ProviderTransactionID,
+	)
+	var i Transaction
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.ProviderTransactionID,
+		&i.BankTransactionID,
+		&i.Amount,
+		&i.Currency,
+		&i.Direction,
+		&i.Status,
+		&i.OperationAt,
+		&i.CounterpartyName,
+		&i.CounterpartyAccount,
+		&i.Reference,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,

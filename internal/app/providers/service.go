@@ -43,12 +43,19 @@ type ProviderPort interface {
 	Connect(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connector *model.Connector, params *model.ConnectParams) (*model.ConnectInstruction, error)
 	GetConnectionByID(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connector *model.Connector, connectionID string) (*model.Connection, error)
 	GetAccounts(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connection *model.Connection) ([]model.Account, error)
+	GetTransactions(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connection *model.Connection, account *model.Account) ([]model.Transaction, error)
 }
 
 type AccountRepository interface {
 	GetByConnectionIDAndProviderAccountID(ctx context.Context, connectionID int32, providerAccountID string) (*model.Account, error)
 	Create(ctx context.Context, account *model.Account) (*model.Account, error)
 	Update(ctx context.Context, account *model.Account) (*model.Account, error)
+}
+
+type TransactionRepository interface {
+	GetByAccountIDAndProviderTransactionID(ctx context.Context, accountID int32, providerTransactionID string) (*model.Transaction, error)
+	Create(ctx context.Context, transaction *model.Transaction) (*model.Transaction, error)
+	Update(ctx context.Context, transaction *model.Transaction) (*model.Transaction, error)
 }
 
 type ProviderService struct {
@@ -58,6 +65,7 @@ type ProviderService struct {
 	connectionRepository       ConnectionRepository
 	redirectSessionsRepository RedirectSessionsRepository
 	accountsRepository         AccountRepository
+	transactionsRepository     TransactionRepository
 	ports                      map[string]ProviderPort
 }
 
@@ -68,6 +76,7 @@ func NewProviderService(
 	connectionRepository ConnectionRepository,
 	redirectSessionsRepository RedirectSessionsRepository,
 	accountsRepository AccountRepository,
+	transactionsRepository TransactionRepository,
 	ports []ProviderPort,
 ) *ProviderService {
 	p := make(map[string]ProviderPort)
@@ -82,6 +91,7 @@ func NewProviderService(
 		connectionRepository:       connectionRepository,
 		redirectSessionsRepository: redirectSessionsRepository,
 		accountsRepository:         accountsRepository,
+		transactionsRepository:     transactionsRepository,
 		ports:                      p,
 	}
 }

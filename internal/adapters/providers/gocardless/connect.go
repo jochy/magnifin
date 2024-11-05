@@ -21,6 +21,21 @@ func (g *GoCardless) Connect(
 	connector *model.Connector,
 	params *model.ConnectParams,
 ) (*model.ConnectInstruction, error) {
+	// Could be handled better, but it does the job...
+	c, err := g.sendRequisitionRequest(ctx, provider, params, connector, true)
+	if err != nil {
+		return g.sendRequisitionRequest(ctx, provider, params, connector, false)
+	}
+	return c, nil
+}
+
+func (g *GoCardless) sendRequisitionRequest(
+	ctx context.Context,
+	provider *model.Provider,
+	params *model.ConnectParams,
+	connector *model.Connector,
+	withAccountSelection bool,
+) (*model.ConnectInstruction, error) {
 	u, err := url.Parse(g.publicURL + "/v1/providers/gocardless/callback")
 	if err != nil {
 		return nil, err
@@ -36,7 +51,7 @@ func (g *GoCardless) Connect(
 	reqBody := requisitionRequest{
 		Redirect:         u.String(),
 		InstitutionId:    connector.ProviderConnectorID,
-		AccountSelection: true,
+		AccountSelection: withAccountSelection,
 	}
 
 	body, err := json.Marshal(reqBody)

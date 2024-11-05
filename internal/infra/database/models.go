@@ -13,6 +13,7 @@ type Account struct {
 	ID                int32          `db:"id"`
 	ConnectionID      int32          `db:"connection_id"`
 	ProviderAccountID string         `db:"provider_account_id"`
+	BankAccountID     sql.NullString `db:"bank_account_id"`
 	Name              sql.NullString `db:"name"`
 	Type              sql.NullString `db:"type"`
 	Currency          sql.NullString `db:"currency"`
@@ -74,6 +75,34 @@ type RedirectSession struct {
 	ProviderConnectionID sql.NullString `db:"provider_connection_id"`
 	InternalConnectionID sql.NullInt32  `db:"internal_connection_id"`
 	CreatedAt            time.Time      `db:"created_at"`
+}
+
+type Transaction struct {
+	ID                    int32          `db:"id"`
+	AccountID             int32          `db:"account_id"`
+	ProviderTransactionID string         `db:"provider_transaction_id"`
+	BankTransactionID     sql.NullString `db:"bank_transaction_id"`
+	Amount                string         `db:"amount"`
+	Currency              string         `db:"currency"`
+	Direction             string         `db:"direction"`
+	Status                string         `db:"status"`
+	OperationAt           time.Time      `db:"operation_at"`
+	CounterpartyName      sql.NullString `db:"counterparty_name"`
+	CounterpartyAccount   sql.NullString `db:"counterparty_account"`
+	Reference             sql.NullString `db:"reference"`
+	CreatedAt             time.Time      `db:"created_at"`
+	UpdatedAt             time.Time      `db:"updated_at"`
+	DeletedAt             sql.NullTime   `db:"deleted_at"`
+}
+
+type TransactionEnrichment struct {
+	ID                  int32          `db:"id"`
+	TransactionID       int32          `db:"transaction_id"`
+	Category            sql.NullString `db:"category"`
+	Reference           sql.NullString `db:"reference"`
+	CounterpartyName    sql.NullString `db:"counterparty_name"`
+	CounterpartyLogoUrl sql.NullString `db:"counterparty_logo_url"`
+	DeletedAt           sql.NullTime   `db:"deleted_at"`
 }
 
 type User struct {

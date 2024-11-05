@@ -44,6 +44,7 @@ func (r *Repository) Create(ctx context.Context, account *model.Account) (*model
 		Currency:          repository.ToSqlNullString(account.Currency),
 		AccountNumber:     repository.ToSqlNullString(account.AccountNumber),
 		Balance:           fmt.Sprintf("%f", account.Balance),
+		BankAccountID:     repository.ToSqlNullString(account.BankAccountID),
 	})
 	if err != nil {
 		return nil, err
@@ -61,6 +62,7 @@ func (r *Repository) Update(ctx context.Context, account *model.Account) (*model
 		Currency:          repository.ToSqlNullString(account.Currency),
 		AccountNumber:     repository.ToSqlNullString(account.AccountNumber),
 		Balance:           fmt.Sprintf("%f", account.Balance),
+		BankAccountID:     repository.ToSqlNullString(account.BankAccountID),
 	})
 	if err != nil {
 		return nil, err

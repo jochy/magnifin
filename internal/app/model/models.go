@@ -15,6 +15,20 @@ const (
 	ConnectionStatusDeleted        ConnectionStatus = "DELETED"
 )
 
+type TransactionDirection string
+
+const (
+	TransactionDirectionCredit TransactionDirection = "CREDIT"
+	TransactionDirectionDebit  TransactionDirection = "DEBIT"
+)
+
+type TransactionStatus string
+
+const (
+	TransactionStatusPending   TransactionStatus = "PENDING"
+	TransactionStatusCompleted TransactionStatus = "SETTLED"
+)
+
 type User struct {
 	ID       int32
 	Username string
@@ -76,9 +90,38 @@ type Account struct {
 	ID                int32
 	ConnectionID      int32
 	ProviderAccountID string
+	BankAccountID     *string
 	Name              *string
 	Type              *string
 	Currency          *string
 	AccountNumber     *string
 	Balance           float64
+}
+
+type Transaction struct {
+	ID                    int32
+	AccountID             int32
+	ProviderTransactionID string
+	BankTransactionID     *string
+	Amount                float64
+	Currency              string
+	Direction             TransactionDirection
+	Status                TransactionStatus
+	OperationAt           time.Time
+
+	CounterpartyName    *string
+	CounterpartyAccount *string
+	Reference           *string
+
+	Enrichment *TransactionEnrichment
+}
+
+type TransactionEnrichment struct {
+	ID            int32
+	TransactionID int32
+
+	CounterpartyLogoURL *string
+	Category            *string
+	CounterpartyName    *string
+	Reference           *string
 }

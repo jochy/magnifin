@@ -22,5 +22,6 @@ func toDomainAccount(account database.Account) *model.Account {
 		Currency:          repository.FromSqlNullString(account.Currency),
 		AccountNumber:     repository.FromSqlNullString(account.AccountNumber),
 		Balance:           balance,
+		BankAccountID:     repository.FromSqlNullString(account.BankAccountID),
 	}
 }

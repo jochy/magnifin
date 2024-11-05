@@ -20,6 +20,7 @@ import (
 	providersrepo "magnifin/internal/adapters/repository/providers"
 	"magnifin/internal/adapters/repository/providerusers"
 	"magnifin/internal/adapters/repository/redirect_sessions"
+	"magnifin/internal/adapters/repository/transactions"
 	usersrepo "magnifin/internal/adapters/repository/users"
 	"magnifin/internal/app"
 	connectors2 "magnifin/internal/app/connectors"
@@ -88,6 +89,7 @@ func main() {
 	connectionsRepository := connections.NewRepository(db)
 	redirectionSessionsRepository := redirect_sessions.NewRepository(db)
 	accountsRepository := accounts.NewRepository(db)
+	transactionsRepository := transactions.NewRepository(db)
 
 	// Ports
 	providerPorts := []providers2.ProviderPort{
@@ -103,6 +105,7 @@ func main() {
 		connectionsRepository,
 		redirectionSessionsRepository,
 		accountsRepository,
+		transactionsRepository,
 		providerPorts,
 	)
 	connectorsService := connectors2.NewConnectorService(connectorsRepository, providerService)

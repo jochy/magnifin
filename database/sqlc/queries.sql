@@ -147,8 +147,9 @@ where connection_id = $1
   and deleted_at is null;
 
 -- name: CreateAccount :one
-insert into accounts (connection_id, provider_account_id, name, type, currency, account_number, balance)
-values ($1, $2, $3, $4, $5, $6, $7)
+insert into accounts (connection_id, provider_account_id, name, type, currency, account_number, balance,
+                      bank_account_id)
+values ($1, $2, $3, $4, $5, $6, $7, $8)
 returning *;
 
 -- name: UpdateAccount :one
@@ -159,6 +160,37 @@ set name                = $2,
     account_number      = $5,
     balance             = $6,
     provider_account_id = $7,
+    bank_account_id     = $8,
     updated_at          = now()
+where id = $1
+returning *;
+
+-- name: FindTransactionByAccountIDAndProviderTransactionID :one
+select *
+from transactions
+where account_id = $1
+  and provider_transaction_id = $2
+  and deleted_at is null;
+
+-- name: CreateTransaction :one
+insert into transactions (account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status,
+                          operation_at, counterparty_name, counterparty_account,
+                          reference)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+returning *;
+
+-- name: UpdateTransaction :one
+update transactions
+set bank_transaction_id     = $2,
+    amount                  = $3,
+    currency                = $4,
+    direction               = $5,
+    status                  = $6,
+    operation_at            = $7,
+    counterparty_name       = $8,
+    counterparty_account    = $9,
+    reference               = $10,
+    provider_transaction_id = $11,
+    updated_at              = now()
 where id = $1
 returning *;
