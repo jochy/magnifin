@@ -1,4 +1,44 @@
 services:
+
+  migrations:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    command: [ "./migrate" ]
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: psql_bp
+      DB_PORT: ${DB_PORT:-5432}
+      DB_DATABASE: ${DB_DATABASE:-magnifin}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+    depends_on:
+      psql_bp:
+        condition: service_healthy
+
+  back:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: psql_bp
+      DB_PORT: ${DB_PORT:-5432}
+      DB_DATABASE: ${DB_DATABASE:-magnifin}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-postgres}
+      PORT: 8080
+      JWT_SIGN_KEY: my-secret
+      CYPHER_KEY: B3F1A9C7D8E4F6B2
+      PUBLIC_URL: http://127.0.0.1:8080
+    ports:
+      - "${PORT}:8080"
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+
   psql_bp:
     image: postgres:latest
     restart: unless-stopped
@@ -10,6 +50,11 @@ services:
       - "${DB_PORT}:5432"
     volumes:
       - psql_volume_bp:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   psql_volume_bp:
