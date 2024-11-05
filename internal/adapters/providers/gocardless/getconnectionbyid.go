@@ -31,6 +31,10 @@ func (g *GoCardless) GetConnectionByID(
 	}
 	defer resp.Body.Close() //nolint: errcheck
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return nil, model.ErrRateLimited
+	}
+	
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to get connection: " + resp.Status)
 	}
@@ -51,6 +55,9 @@ func (g *GoCardless) GetConnectionByID(
 	}
 	defer respAgreement.Body.Close() //nolint: errcheck
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return nil, model.ErrRateLimited
+	}
 	if respAgreement.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to get agreement: " + respAgreement.Status)
 	}

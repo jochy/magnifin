@@ -32,6 +32,7 @@ type Querier interface {
 	StoreRedirectSessions(ctx context.Context, arg StoreRedirectSessionsParams) error
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateConnection(ctx context.Context, arg UpdateConnectionParams) (Connection, error)
+	UpdateConnectionStatus(ctx context.Context, arg UpdateConnectionStatusParams) (Connection, error)
 	UpdateProvider(ctx context.Context, arg UpdateProviderParams) (Provider, error)
 	UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) (Transaction, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)

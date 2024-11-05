@@ -762,6 +762,37 @@ func (q *Queries) UpdateConnection(ctx context.Context, arg UpdateConnectionPara
 	return i, err
 }
 
+const updateConnectionStatus = `-- name: UpdateConnectionStatus :one
+update connections
+set status = $2
+where id = $1
+returning id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
+`
+
+type UpdateConnectionStatusParams struct {
+	ID     int32  `db:"id"`
+	Status string `db:"status"`
+}
+
+func (q *Queries) UpdateConnectionStatus(ctx context.Context, arg UpdateConnectionStatusParams) (Connection, error) {
+	row := q.db.QueryRowContext(ctx, updateConnectionStatus, arg.ID, arg.Status)
+	var i Connection
+	err := row.Scan(
+		&i.ID,
+		&i.ProviderUsersID,
+		&i.ProviderConnectionID,
+		&i.ConnectorID,
+		&i.Status,
+		&i.RenewConsentBefore,
+		&i.ErrorMessage,
+		&i.LastSuccessfulSync,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const updateProvider = `-- name: UpdateProvider :one
 update providers
 set name       = $2,

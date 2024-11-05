@@ -31,5 +31,10 @@ func (j *Jobs) NewSynchronizeConnectionWorker() *SynchronizeConnectionWorker {
 }
 
 func (w *SynchronizeConnectionWorker) Work(ctx context.Context, job *river.Job[SynchronizeConnectionInput]) error {
-	return w.service.SynchronizeConnection(ctx, job.Args.ConnectionID)
+	err := w.service.SynchronizeConnection(ctx, job.Args.ConnectionID)
+	if err != nil {
+		err = w.service.HandleSyncError(ctx, job.Args.ConnectionID, err)
+	}
+
+	return err
 }

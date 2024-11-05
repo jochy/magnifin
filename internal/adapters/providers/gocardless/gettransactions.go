@@ -36,6 +36,10 @@ func (g *GoCardless) GetTransactions(
 	}
 	defer resp.Body.Close() //nolint: errcheck
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return nil, model.ErrRateLimited
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to get transactions: %s", resp.Status)
 	}

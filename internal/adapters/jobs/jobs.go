@@ -7,6 +7,7 @@ import (
 
 type Service interface {
 	SynchronizeConnection(ctx context.Context, connectionID int32) error
+	HandleSyncError(ctx context.Context, connectionID int32, syncErr error) error
 	UpdateConnectorsList(ctx context.Context) ([]model.Connector, []error)
 }
 

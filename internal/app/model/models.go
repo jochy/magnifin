@@ -1,10 +1,13 @@
 package model
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+var ErrRateLimited error = errors.New("rate limited")
 
 type ConnectionStatus string
 
@@ -13,6 +16,7 @@ const (
 	ConnectionStatusSyncInProgress ConnectionStatus = "SYNC_IN_PROGRESS"
 	ConnectionStatusSuspended      ConnectionStatus = "SUSPENDED"
 	ConnectionStatusDeleted        ConnectionStatus = "DELETED"
+	ConnectionStatusRateLimited    ConnectionStatus = "RATE_LIMITED"
 )
 
 type TransactionDirection string

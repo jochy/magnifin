@@ -24,6 +24,10 @@ func (g *GoCardless) ListConnectors(ctx context.Context, provider *model.Provide
 	}
 	defer resp.Body.Close() //nolint: errcheck
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return nil, model.ErrRateLimited
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to list connectors http status code is " + resp.Status)
 	}

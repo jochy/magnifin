@@ -59,6 +59,10 @@ func (g *GoCardless) triggerAccountSync(ctx context.Context, provider *model.Pro
 	}
 	defer resp.Body.Close() //nolint: errcheck
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return model.ErrRateLimited
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return errors.New("failed to get sync account: " + resp.Status)
 	}
@@ -91,6 +95,9 @@ func (g *GoCardless) getAccountIDs(ctx context.Context, provider *model.Provider
 	}
 	defer resp.Body.Close() //nolint: errcheck
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return nil, model.ErrRateLimited
+	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to get connection: " + resp.Status)
 	}
@@ -120,6 +127,9 @@ func (g *GoCardless) getAccountByID(ctx context.Context, provider *model.Provide
 	}
 	defer resp.Body.Close() //nolint: errcheck
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return nil, model.ErrRateLimited
+	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to get account: " + resp.Status)
 	}
@@ -140,6 +150,9 @@ func (g *GoCardless) getAccountByID(ctx context.Context, provider *model.Provide
 	}
 	defer respBalance.Body.Close() //nolint: errcheck
 
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return nil, model.ErrRateLimited
+	}
 	if respBalance.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to get account balance: " + respBalance.Status)
 	}

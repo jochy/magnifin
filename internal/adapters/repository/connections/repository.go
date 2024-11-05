@@ -79,6 +79,18 @@ func (r *Repository) GetByID(ctx context.Context, id int32) (*model.Connection, 
 	return toDomainModel(&connection), nil
 }
 
+func (r *Repository) UpdateStatus(ctx context.Context, id int32, status model.ConnectionStatus) error {
+	_, err := r.db.UpdateConnectionStatus(ctx, database.UpdateConnectionStatusParams{
+		ID:     id,
+		Status: string(status),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func toSqlNullString(s *string) sql.NullString {
 	if s != nil {
 		return sql.NullString{

@@ -51,6 +51,8 @@ func (s *ProviderService) ConnectCallback(
 		return errors.New("provider connection not found")
 	}
 
+	providerConnection.Status = model.ConnectionStatusSyncInProgress
+
 	var savedConnection *model.Connection
 	if redirectSession.InternalConnectionID != nil {
 		savedConnection, err = s.connectionRepository.GetByID(ctx, *redirectSession.InternalConnectionID)

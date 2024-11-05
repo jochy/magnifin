@@ -27,6 +27,7 @@ type ConnectionRepository interface {
 	Create(ctx context.Context, connection *model.Connection) (*model.Connection, error)
 	Update(ctx context.Context, connection *model.Connection) (*model.Connection, error)
 	GetByID(ctx context.Context, id int32) (*model.Connection, error)
+	UpdateStatus(ctx context.Context, connectionID int32, status model.ConnectionStatus) error
 }
 
 type ProviderUserRepository interface {
