@@ -34,7 +34,7 @@ func (g *GoCardless) GetConnectionByID(
 	if resp.StatusCode == http.StatusTooManyRequests {
 		return nil, model.ErrRateLimited
 	}
-	
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to get connection: " + resp.Status)
 	}

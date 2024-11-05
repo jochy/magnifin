@@ -10,6 +10,8 @@ import (
 	"github.com/riverqueue/river/riverdriver/riverpgxv5"
 )
 
+var Scheduler Client
+
 type Client interface {
 	Start(ctx context.Context) error
 	Stop(ctx context.Context) error
@@ -36,10 +38,13 @@ func NewScheduler(db database.Service, jobs *jobs.Jobs) (Client, error) {
 		return nil, err
 	}
 
-	return &sched{
+	Scheduler = &sched{
 		workers: workers,
 		client:  riverClient,
-	}, nil
+	}
+	jobs.Scheduler = Scheduler
+
+	return Scheduler, nil
 }
 
 func (s *sched) Start(ctx context.Context) error {

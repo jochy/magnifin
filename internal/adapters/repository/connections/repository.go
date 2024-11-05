@@ -91,6 +91,22 @@ func (r *Repository) UpdateStatus(ctx context.Context, id int32, status model.Co
 	return nil
 }
 
+func (r *Repository) ListConnectionsToSync(ctx context.Context) ([]model.Connection, error) {
+	c, err := r.db.ListConnectionsToSync(ctx)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	connections := make([]model.Connection, len(c))
+	for i, connection := range c {
+		connections[i] = *toDomainModel(&connection)
+	}
+
+	return connections, nil
+}
+
 func toSqlNullString(s *string) sql.NullString {
 	if s != nil {
 		return sql.NullString{

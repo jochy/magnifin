@@ -200,3 +200,9 @@ update connections
 set status = $2
 where id = $1
 returning *;
+
+-- name: ListConnectionsToSync :many
+select *
+from connections
+where last_successful_sync < now() - interval '11 hours'
+  and deleted_at is null;

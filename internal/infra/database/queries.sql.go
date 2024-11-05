@@ -607,6 +607,48 @@ func (q *Queries) LikeSearchConnectorsByName(ctx context.Context, name string) (
 	return items, nil
 }
 
+const listConnectionsToSync = `-- name: ListConnectionsToSync :many
+select id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
+from connections
+where last_successful_sync < now() - interval '11 hours'
+  and deleted_at is null
+`
+
+func (q *Queries) ListConnectionsToSync(ctx context.Context) ([]Connection, error) {
+	rows, err := q.db.QueryContext(ctx, listConnectionsToSync)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Connection{}
+	for rows.Next() {
+		var i Connection
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProviderUsersID,
+			&i.ProviderConnectionID,
+			&i.ConnectorID,
+			&i.Status,
+			&i.RenewConsentBefore,
+			&i.ErrorMessage,
+			&i.LastSuccessfulSync,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listProviders = `-- name: ListProviders :many
 select id, name, access_key, secret, enabled, created_at, updated_at, deleted_at
 from providers

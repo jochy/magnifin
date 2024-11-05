@@ -110,7 +110,7 @@ func main() {
 	)
 	connectorsService := connectors2.NewConnectorService(connectorsRepository, providerService)
 
-	scheduler, err := scheduler2.NewScheduler(db, jobs.NewJobs(providerService))
+	scheduler, err := scheduler2.NewScheduler(db, jobs.NewJobs(providerService, connectionsRepository))
 	if err != nil {
 		panic(fmt.Sprintf("failed to create scheduler: %s", err))
 	}

@@ -28,6 +28,7 @@ type Querier interface {
 	GetUserByID(ctx context.Context, id int32) (User, error)
 	GetUserByUsernameAndHashedPassword(ctx context.Context, arg GetUserByUsernameAndHashedPasswordParams) (User, error)
 	LikeSearchConnectorsByName(ctx context.Context, name string) ([]Connector, error)
+	ListConnectionsToSync(ctx context.Context) ([]Connection, error)
 	ListProviders(ctx context.Context) ([]Provider, error)
 	StoreRedirectSessions(ctx context.Context, arg StoreRedirectSessionsParams) error
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
