@@ -14,8 +14,7 @@ import (
 const createAccount = `-- name: CreateAccount :one
 insert into accounts (connection_id, provider_account_id, name, type, currency, account_number, balance,
                       bank_account_id)
-values ($1, $2, $3, $4, $5, $6, $7, $8)
-returning id, connection_id, provider_account_id, bank_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
+values ($1, $2, $3, $4, $5, $6, $7, $8) returning id, connection_id, provider_account_id, bank_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
 `
 
 type CreateAccountParams struct {
@@ -61,8 +60,7 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 const createConnection = `-- name: CreateConnection :one
 insert into connections (provider_users_id, provider_connection_id, connector_id, status, renew_consent_before,
                          error_message, last_successful_sync)
-values ($1, $2, $3, $4, $5, $6, $7)
-returning id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
+values ($1, $2, $3, $4, $5, $6, $7) returning id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
 `
 
 type CreateConnectionParams struct {
@@ -104,8 +102,7 @@ func (q *Queries) CreateConnection(ctx context.Context, arg CreateConnectionPara
 
 const createProviderUser = `-- name: CreateProviderUser :one
 insert into provider_users (provider_id, user_id, provider_user_id)
-values ($1, $2, $3)
-returning id, provider_id, provider_user_id, user_id, created_at, updated_at, deleted_at
+values ($1, $2, $3) returning id, provider_id, provider_user_id, user_id, created_at, updated_at, deleted_at
 `
 
 type CreateProviderUserParams struct {
@@ -133,8 +130,7 @@ const createTransaction = `-- name: CreateTransaction :one
 insert into transactions (account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status,
                           operation_at, counterparty_name, counterparty_account,
                           reference)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-returning id, account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status, operation_at, counterparty_name, counterparty_account, reference, created_at, updated_at, deleted_at
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning id, account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status, operation_at, counterparty_name, counterparty_account, reference, created_at, updated_at, deleted_at
 `
 
 type CreateTransactionParams struct {
@@ -188,8 +184,7 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 
 const createUser = `-- name: CreateUser :one
 insert into users (username, hashed_password)
-values ($1, $2)
-returning id, username, hashed_password, created_at, updated_at, deleted_at
+values ($1, $2) returning id, username, hashed_password, created_at, updated_at, deleted_at
 `
 
 type CreateUserParams struct {
@@ -209,6 +204,51 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const deleteAccountByConnectionID = `-- name: DeleteAccountByConnectionID :exec
+update accounts
+set deleted_at = now()
+where connection_id = $1
+`
+
+func (q *Queries) DeleteAccountByConnectionID(ctx context.Context, connectionID int32) error {
+	_, err := q.db.ExecContext(ctx, deleteAccountByConnectionID, connectionID)
+	return err
+}
+
+const deleteConnectionByID = `-- name: DeleteConnectionByID :exec
+update connections
+set deleted_at = now()
+where id = $1
+`
+
+func (q *Queries) DeleteConnectionByID(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteConnectionByID, id)
+	return err
+}
+
+const deleteTransactionsByConnectionID = `-- name: DeleteTransactionsByConnectionID :exec
+update transactions
+set deleted_at = now()
+where account_id in (select id from accounts where connection_id = $1)
+`
+
+func (q *Queries) DeleteTransactionsByConnectionID(ctx context.Context, connectionID int32) error {
+	_, err := q.db.ExecContext(ctx, deleteTransactionsByConnectionID, connectionID)
+	return err
+}
+
+const deleteTransactionsEnrichmentsByConnectionID = `-- name: DeleteTransactionsEnrichmentsByConnectionID :exec
+update transaction_enrichments
+set deleted_at = now()
+where transaction_id in
+      (select id from transactions where account_id in (select id from accounts where connection_id = $1))
+`
+
+func (q *Queries) DeleteTransactionsEnrichmentsByConnectionID(ctx context.Context, connectionID int32) error {
+	_, err := q.db.ExecContext(ctx, deleteTransactionsEnrichmentsByConnectionID, connectionID)
+	return err
 }
 
 const findTransactionByAccountIDAndProviderTransactionID = `-- name: FindTransactionByAccountIDAndProviderTransactionID :one
@@ -331,6 +371,38 @@ where id = $1
 
 func (q *Queries) GetConnectionByID(ctx context.Context, id int32) (Connection, error) {
 	row := q.db.QueryRowContext(ctx, getConnectionByID, id)
+	var i Connection
+	err := row.Scan(
+		&i.ID,
+		&i.ProviderUsersID,
+		&i.ProviderConnectionID,
+		&i.ConnectorID,
+		&i.Status,
+		&i.RenewConsentBefore,
+		&i.ErrorMessage,
+		&i.LastSuccessfulSync,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getConnectionByIDAndUserID = `-- name: GetConnectionByIDAndUserID :one
+select id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
+from connections
+where connections.id = $1
+  and provider_users_id in (select provider_users.id from provider_users where user_id = $2 and deleted_at is null)
+  and deleted_at is null
+`
+
+type GetConnectionByIDAndUserIDParams struct {
+	ID     int32 `db:"id"`
+	UserID int32 `db:"user_id"`
+}
+
+func (q *Queries) GetConnectionByIDAndUserID(ctx context.Context, arg GetConnectionByIDAndUserIDParams) (Connection, error) {
+	row := q.db.QueryRowContext(ctx, getConnectionByIDAndUserID, arg.ID, arg.UserID)
 	var i Connection
 	err := row.Scan(
 		&i.ID,
@@ -500,7 +572,7 @@ func (q *Queries) GetProviderUserByProviderIDAndUserID(ctx context.Context, arg 
 }
 
 const getRedirectSessionByID = `-- name: GetRedirectSessionByID :one
-select id, provider_connection_id, internal_connection_id, created_at
+select id, provider_connection_id, internal_connection_id, user_id, created_at
 from redirect_sessions
 where id = $1
 `
@@ -512,6 +584,7 @@ func (q *Queries) GetRedirectSessionByID(ctx context.Context, id string) (Redire
 		&i.ID,
 		&i.ProviderConnectionID,
 		&i.InternalConnectionID,
+		&i.UserID,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -538,21 +611,15 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
 	return i, err
 }
 
-const getUserByUsernameAndHashedPassword = `-- name: GetUserByUsernameAndHashedPassword :one
+const getUserByUsername = `-- name: GetUserByUsername :one
 select id, username, hashed_password, created_at, updated_at, deleted_at
 from users
 where username = $1
-  and hashed_password = $2
   and deleted_at is null
 `
 
-type GetUserByUsernameAndHashedPasswordParams struct {
-	Username       string `db:"username"`
-	HashedPassword string `db:"hashed_password"`
-}
-
-func (q *Queries) GetUserByUsernameAndHashedPassword(ctx context.Context, arg GetUserByUsernameAndHashedPasswordParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUserByUsernameAndHashedPassword, arg.Username, arg.HashedPassword)
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByUsername, username)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -607,10 +674,96 @@ func (q *Queries) LikeSearchConnectorsByName(ctx context.Context, name string) (
 	return items, nil
 }
 
+const listAccountsByConnectionID = `-- name: ListAccountsByConnectionID :many
+select id, connection_id, provider_account_id, bank_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
+from accounts
+where connection_id = $1
+  and deleted_at is null
+`
+
+func (q *Queries) ListAccountsByConnectionID(ctx context.Context, connectionID int32) ([]Account, error) {
+	rows, err := q.db.QueryContext(ctx, listAccountsByConnectionID, connectionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Account{}
+	for rows.Next() {
+		var i Account
+		if err := rows.Scan(
+			&i.ID,
+			&i.ConnectionID,
+			&i.ProviderAccountID,
+			&i.BankAccountID,
+			&i.Name,
+			&i.Type,
+			&i.Currency,
+			&i.AccountNumber,
+			&i.Balance,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listConnectionsByUserID = `-- name: ListConnectionsByUserID :many
+select id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
+from connections
+where provider_users_id in (select id from provider_users where user_id = $1 and deleted_at is null)
+  and deleted_at is null
+`
+
+func (q *Queries) ListConnectionsByUserID(ctx context.Context, userID int32) ([]Connection, error) {
+	rows, err := q.db.QueryContext(ctx, listConnectionsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Connection{}
+	for rows.Next() {
+		var i Connection
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProviderUsersID,
+			&i.ProviderConnectionID,
+			&i.ConnectorID,
+			&i.Status,
+			&i.RenewConsentBefore,
+			&i.ErrorMessage,
+			&i.LastSuccessfulSync,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listConnectionsToSync = `-- name: ListConnectionsToSync :many
 select id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
 from connections
-where last_successful_sync < now() - interval '11 hours'
+where ((last_successful_sync is null and created_at < now() - interval '1 hour') or
+       (last_successful_sync < now() - interval '11 hours'))
   and deleted_at is null
 `
 
@@ -688,18 +841,24 @@ func (q *Queries) ListProviders(ctx context.Context) ([]Provider, error) {
 }
 
 const storeRedirectSessions = `-- name: StoreRedirectSessions :exec
-insert into redirect_sessions (id, provider_connection_id, internal_connection_id)
-values ($1, $2, $3)
+insert into redirect_sessions (id, provider_connection_id, internal_connection_id, user_id)
+values ($1, $2, $3, $4)
 `
 
 type StoreRedirectSessionsParams struct {
 	ID                   string         `db:"id"`
 	ProviderConnectionID sql.NullString `db:"provider_connection_id"`
 	InternalConnectionID sql.NullInt32  `db:"internal_connection_id"`
+	UserID               sql.NullInt32  `db:"user_id"`
 }
 
 func (q *Queries) StoreRedirectSessions(ctx context.Context, arg StoreRedirectSessionsParams) error {
-	_, err := q.db.ExecContext(ctx, storeRedirectSessions, arg.ID, arg.ProviderConnectionID, arg.InternalConnectionID)
+	_, err := q.db.ExecContext(ctx, storeRedirectSessions,
+		arg.ID,
+		arg.ProviderConnectionID,
+		arg.InternalConnectionID,
+		arg.UserID,
+	)
 	return err
 }
 
@@ -713,8 +872,7 @@ set name                = $2,
     provider_account_id = $7,
     bank_account_id     = $8,
     updated_at          = now()
-where id = $1
-returning id, connection_id, provider_account_id, bank_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
+where id = $1 returning id, connection_id, provider_account_id, bank_account_id, name, type, currency, account_number, balance, created_at, updated_at, deleted_at
 `
 
 type UpdateAccountParams struct {
@@ -765,8 +923,7 @@ set status                 = $2,
     last_successful_sync   = $5,
     provider_connection_id = $6,
     updated_at             = now()
-where id = $1
-returning id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
+where id = $1 returning id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
 `
 
 type UpdateConnectionParams struct {
@@ -807,8 +964,7 @@ func (q *Queries) UpdateConnection(ctx context.Context, arg UpdateConnectionPara
 const updateConnectionStatus = `-- name: UpdateConnectionStatus :one
 update connections
 set status = $2
-where id = $1
-returning id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
+where id = $1 returning id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
 `
 
 type UpdateConnectionStatusParams struct {
@@ -842,8 +998,7 @@ set name       = $2,
     secret     = $4,
     enabled    = $5,
     updated_at = now()
-where id = $1
-returning id, name, access_key, secret, enabled, created_at, updated_at, deleted_at
+where id = $1 returning id, name, access_key, secret, enabled, created_at, updated_at, deleted_at
 `
 
 type UpdateProviderParams struct {
@@ -889,8 +1044,7 @@ set bank_transaction_id     = $2,
     reference               = $10,
     provider_transaction_id = $11,
     updated_at              = now()
-where id = $1
-returning id, account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status, operation_at, counterparty_name, counterparty_account, reference, created_at, updated_at, deleted_at
+where id = $1 returning id, account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status, operation_at, counterparty_name, counterparty_account, reference, created_at, updated_at, deleted_at
 `
 
 type UpdateTransactionParams struct {
@@ -946,8 +1100,7 @@ const updateUser = `-- name: UpdateUser :one
 update users
 set hashed_password = $2,
     updated_at      = now()
-where id = $1
-returning id, username, hashed_password, created_at, updated_at, deleted_at
+where id = $1 returning id, username, hashed_password, created_at, updated_at, deleted_at
 `
 
 type UpdateUserParams struct {
@@ -971,11 +1124,11 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 
 const upsertConnector = `-- name: UpsertConnector :one
 insert into connectors (name, logo_url, provider_connector_id, provider_id)
-values ($1, $2, $3, $4)
-on conflict (provider_id, provider_connector_id) do update
-    set name     = excluded.name,
-        logo_url = excluded.logo_url
-returning id, name, logo_url, provider_connector_id, provider_id, created_at, updated_at, deleted_at
+values ($1, $2, $3, $4) on conflict (provider_id, provider_connector_id) do
+update
+    set name = excluded.name,
+    logo_url = excluded.logo_url
+    returning id, name, logo_url, provider_connector_id, provider_id, created_at, updated_at, deleted_at
 `
 
 type UpsertConnectorParams struct {

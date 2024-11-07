@@ -76,3 +76,17 @@ func (r *Repository) Update(ctx context.Context, transaction *model.Transaction)
 
 	return toDomain(trs, nil), nil
 }
+
+func (r *Repository) DeleteByConnectionID(ctx context.Context, connectionID int32) error {
+	err := r.db.DeleteTransactionsEnrichmentsByConnectionID(ctx, connectionID)
+	if err != nil {
+		return err
+	}
+
+	err = r.db.DeleteTransactionsByConnectionID(ctx, connectionID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

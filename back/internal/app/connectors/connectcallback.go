@@ -3,12 +3,10 @@ package connectors
 import (
 	"context"
 	"errors"
-	"magnifin/internal/app/model"
 )
 
 func (s *Service) ConnectCallback(
 	ctx context.Context,
-	user *model.User,
 	connectorID int32,
 	sid string,
 	providerConnectionID *string,
@@ -20,5 +18,5 @@ func (s *Service) ConnectCallback(
 		return errors.New("connector not found in db")
 	}
 
-	return s.providerService.ConnectCallback(ctx, user, connector, sid, providerConnectionID)
+	return s.providerService.ConnectCallback(ctx, connector, sid, providerConnectionID)
 }

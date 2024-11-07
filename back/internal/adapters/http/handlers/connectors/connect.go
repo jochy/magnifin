@@ -1,6 +1,7 @@
 package connectors
 
 import (
+	"log/slog"
 	"magnifin/internal/adapters/http/middlewares"
 	"magnifin/internal/app/model"
 	"math"
@@ -41,6 +42,7 @@ func (h *Handler) Connect(c *gin.Context) {
 		},
 	)
 	if err != nil {
+		slog.Error("unable to connect to connector: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

@@ -22,6 +22,65 @@ func (_m *ProviderRepository) EXPECT() *ProviderRepository_Expecter {
 	return &ProviderRepository_Expecter{mock: &_m.Mock}
 }
 
+// GetByID provides a mock function with given fields: ctx, id
+func (_m *ProviderRepository) GetByID(ctx context.Context, id int32) (*model.Provider, error) {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByID")
+	}
+
+	var r0 *model.Provider
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int32) (*model.Provider, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int32) *model.Provider); ok {
+		r0 = rf(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.Provider)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ProviderRepository_GetByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByID'
+type ProviderRepository_GetByID_Call struct {
+	*mock.Call
+}
+
+// GetByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int32
+func (_e *ProviderRepository_Expecter) GetByID(ctx interface{}, id interface{}) *ProviderRepository_GetByID_Call {
+	return &ProviderRepository_GetByID_Call{Call: _e.mock.On("GetByID", ctx, id)}
+}
+
+func (_c *ProviderRepository_GetByID_Call) Run(run func(ctx context.Context, id int32)) *ProviderRepository_GetByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *ProviderRepository_GetByID_Call) Return(_a0 *model.Provider, _a1 error) *ProviderRepository_GetByID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ProviderRepository_GetByID_Call) RunAndReturn(run func(context.Context, int32) (*model.Provider, error)) *ProviderRepository_GetByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetByName provides a mock function with given fields: ctx, name
 func (_m *ProviderRepository) GetByName(ctx context.Context, name string) (*model.Provider, error) {
 	ret := _m.Called(ctx, name)

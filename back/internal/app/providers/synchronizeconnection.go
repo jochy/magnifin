@@ -10,6 +10,7 @@ import (
 )
 
 func (s *ProviderService) HandleSyncError(ctx context.Context, connectionID int32, syncErr error) error {
+	slog.Warn(fmt.Sprintf("handling sync error for connection %d: %s", connectionID, syncErr))
 	connection, err := s.connectionRepository.GetByID(ctx, connectionID)
 	if err != nil {
 		return fmt.Errorf("unable to get connection: %w", err)
@@ -79,6 +80,7 @@ func (s *ProviderService) SynchronizeConnection(ctx context.Context, connectionI
 	connection.Status = model.ConnectionStatusSynchronized
 	now := time.Now()
 	connection.LastSuccessfulSync = &now
+	connection.ErrorMessage = nil
 	_, err = s.connectionRepository.Update(ctx, connection)
 	if err != nil {
 		return fmt.Errorf("unable to update connection: %w", err)

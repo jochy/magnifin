@@ -3,13 +3,15 @@ package providers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
+	"magnifin/internal/adapters/jobs"
 	"magnifin/internal/app/model"
+	"magnifin/internal/infra/scheduler"
 )
 
 func (s *ProviderService) ConnectCallback(
 	ctx context.Context,
-	user *model.User,
 	connector *model.Connector,
 	sid string,
 	providerConnectionID *string,
@@ -19,6 +21,13 @@ func (s *ProviderService) ConnectCallback(
 		return err
 	} else if redirectSession == nil {
 		return errors.New("redirect session not found")
+	}
+
+	user, err := s.userRepository.GetUserByID(ctx, redirectSession.UserID)
+	if err != nil {
+		return fmt.Errorf("failed to get user by id: %w", err)
+	} else if user == nil {
+		return errors.New("user not found in db")
 	}
 
 	provider, err := s.providerRepository.GetByID(ctx, connector.ProviderID)
@@ -76,6 +85,11 @@ func (s *ProviderService) ConnectCallback(
 	}
 
 	slog.Info("Connection upserted " + string(savedConnection.ID))
+
+	err = scheduler.Scheduler.Trigger(context.Background(), jobs.SynchronizeConnectionInput{ConnectionID: savedConnection.ID})
+	if err != nil {
+		slog.Warn("Failed to trigger connection synchronization: " + err.Error())
+	}
 
 	return nil
 }

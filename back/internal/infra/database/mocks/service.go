@@ -8,6 +8,8 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	pgxpool "github.com/jackc/pgx/v5/pgxpool"
+
 	sql "database/sql"
 )
 
@@ -65,6 +67,234 @@ func (_c *Service_Close_Call) Return(_a0 error) *Service_Close_Call {
 }
 
 func (_c *Service_Close_Call) RunAndReturn(run func() error) *Service_Close_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateAccount provides a mock function with given fields: ctx, arg
+func (_m *Service) CreateAccount(ctx context.Context, arg database.CreateAccountParams) (database.Account, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateAccount")
+	}
+
+	var r0 database.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.CreateAccountParams) (database.Account, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.CreateAccountParams) database.Account); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Account)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.CreateAccountParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_CreateAccount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateAccount'
+type Service_CreateAccount_Call struct {
+	*mock.Call
+}
+
+// CreateAccount is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.CreateAccountParams
+func (_e *Service_Expecter) CreateAccount(ctx interface{}, arg interface{}) *Service_CreateAccount_Call {
+	return &Service_CreateAccount_Call{Call: _e.mock.On("CreateAccount", ctx, arg)}
+}
+
+func (_c *Service_CreateAccount_Call) Run(run func(ctx context.Context, arg database.CreateAccountParams)) *Service_CreateAccount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.CreateAccountParams))
+	})
+	return _c
+}
+
+func (_c *Service_CreateAccount_Call) Return(_a0 database.Account, _a1 error) *Service_CreateAccount_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_CreateAccount_Call) RunAndReturn(run func(context.Context, database.CreateAccountParams) (database.Account, error)) *Service_CreateAccount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateConnection provides a mock function with given fields: ctx, arg
+func (_m *Service) CreateConnection(ctx context.Context, arg database.CreateConnectionParams) (database.Connection, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateConnection")
+	}
+
+	var r0 database.Connection
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.CreateConnectionParams) (database.Connection, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.CreateConnectionParams) database.Connection); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Connection)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.CreateConnectionParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_CreateConnection_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateConnection'
+type Service_CreateConnection_Call struct {
+	*mock.Call
+}
+
+// CreateConnection is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.CreateConnectionParams
+func (_e *Service_Expecter) CreateConnection(ctx interface{}, arg interface{}) *Service_CreateConnection_Call {
+	return &Service_CreateConnection_Call{Call: _e.mock.On("CreateConnection", ctx, arg)}
+}
+
+func (_c *Service_CreateConnection_Call) Run(run func(ctx context.Context, arg database.CreateConnectionParams)) *Service_CreateConnection_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.CreateConnectionParams))
+	})
+	return _c
+}
+
+func (_c *Service_CreateConnection_Call) Return(_a0 database.Connection, _a1 error) *Service_CreateConnection_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_CreateConnection_Call) RunAndReturn(run func(context.Context, database.CreateConnectionParams) (database.Connection, error)) *Service_CreateConnection_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateProviderUser provides a mock function with given fields: ctx, arg
+func (_m *Service) CreateProviderUser(ctx context.Context, arg database.CreateProviderUserParams) (database.ProviderUser, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateProviderUser")
+	}
+
+	var r0 database.ProviderUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.CreateProviderUserParams) (database.ProviderUser, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.CreateProviderUserParams) database.ProviderUser); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.ProviderUser)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.CreateProviderUserParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_CreateProviderUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateProviderUser'
+type Service_CreateProviderUser_Call struct {
+	*mock.Call
+}
+
+// CreateProviderUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.CreateProviderUserParams
+func (_e *Service_Expecter) CreateProviderUser(ctx interface{}, arg interface{}) *Service_CreateProviderUser_Call {
+	return &Service_CreateProviderUser_Call{Call: _e.mock.On("CreateProviderUser", ctx, arg)}
+}
+
+func (_c *Service_CreateProviderUser_Call) Run(run func(ctx context.Context, arg database.CreateProviderUserParams)) *Service_CreateProviderUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.CreateProviderUserParams))
+	})
+	return _c
+}
+
+func (_c *Service_CreateProviderUser_Call) Return(_a0 database.ProviderUser, _a1 error) *Service_CreateProviderUser_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_CreateProviderUser_Call) RunAndReturn(run func(context.Context, database.CreateProviderUserParams) (database.ProviderUser, error)) *Service_CreateProviderUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateTransaction provides a mock function with given fields: ctx, arg
+func (_m *Service) CreateTransaction(ctx context.Context, arg database.CreateTransactionParams) (database.Transaction, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateTransaction")
+	}
+
+	var r0 database.Transaction
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.CreateTransactionParams) (database.Transaction, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.CreateTransactionParams) database.Transaction); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Transaction)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.CreateTransactionParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_CreateTransaction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateTransaction'
+type Service_CreateTransaction_Call struct {
+	*mock.Call
+}
+
+// CreateTransaction is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.CreateTransactionParams
+func (_e *Service_Expecter) CreateTransaction(ctx interface{}, arg interface{}) *Service_CreateTransaction_Call {
+	return &Service_CreateTransaction_Call{Call: _e.mock.On("CreateTransaction", ctx, arg)}
+}
+
+func (_c *Service_CreateTransaction_Call) Run(run func(ctx context.Context, arg database.CreateTransactionParams)) *Service_CreateTransaction_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.CreateTransactionParams))
+	})
+	return _c
+}
+
+func (_c *Service_CreateTransaction_Call) Return(_a0 database.Transaction, _a1 error) *Service_CreateTransaction_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_CreateTransaction_Call) RunAndReturn(run func(context.Context, database.CreateTransactionParams) (database.Transaction, error)) *Service_CreateTransaction_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -169,6 +399,350 @@ func (_c *Service_Driver_Call) Return(_a0 *sql.DB) *Service_Driver_Call {
 }
 
 func (_c *Service_Driver_Call) RunAndReturn(run func() *sql.DB) *Service_Driver_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FindTransactionByAccountIDAndProviderTransactionID provides a mock function with given fields: ctx, arg
+func (_m *Service) FindTransactionByAccountIDAndProviderTransactionID(ctx context.Context, arg database.FindTransactionByAccountIDAndProviderTransactionIDParams) (database.Transaction, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindTransactionByAccountIDAndProviderTransactionID")
+	}
+
+	var r0 database.Transaction
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.FindTransactionByAccountIDAndProviderTransactionIDParams) (database.Transaction, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.FindTransactionByAccountIDAndProviderTransactionIDParams) database.Transaction); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Transaction)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.FindTransactionByAccountIDAndProviderTransactionIDParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_FindTransactionByAccountIDAndProviderTransactionID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FindTransactionByAccountIDAndProviderTransactionID'
+type Service_FindTransactionByAccountIDAndProviderTransactionID_Call struct {
+	*mock.Call
+}
+
+// FindTransactionByAccountIDAndProviderTransactionID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.FindTransactionByAccountIDAndProviderTransactionIDParams
+func (_e *Service_Expecter) FindTransactionByAccountIDAndProviderTransactionID(ctx interface{}, arg interface{}) *Service_FindTransactionByAccountIDAndProviderTransactionID_Call {
+	return &Service_FindTransactionByAccountIDAndProviderTransactionID_Call{Call: _e.mock.On("FindTransactionByAccountIDAndProviderTransactionID", ctx, arg)}
+}
+
+func (_c *Service_FindTransactionByAccountIDAndProviderTransactionID_Call) Run(run func(ctx context.Context, arg database.FindTransactionByAccountIDAndProviderTransactionIDParams)) *Service_FindTransactionByAccountIDAndProviderTransactionID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.FindTransactionByAccountIDAndProviderTransactionIDParams))
+	})
+	return _c
+}
+
+func (_c *Service_FindTransactionByAccountIDAndProviderTransactionID_Call) Return(_a0 database.Transaction, _a1 error) *Service_FindTransactionByAccountIDAndProviderTransactionID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_FindTransactionByAccountIDAndProviderTransactionID_Call) RunAndReturn(run func(context.Context, database.FindTransactionByAccountIDAndProviderTransactionIDParams) (database.Transaction, error)) *Service_FindTransactionByAccountIDAndProviderTransactionID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FuzzySearchConnectorsByName provides a mock function with given fields: ctx, name
+func (_m *Service) FuzzySearchConnectorsByName(ctx context.Context, name string) ([]database.Connector, error) {
+	ret := _m.Called(ctx, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FuzzySearchConnectorsByName")
+	}
+
+	var r0 []database.Connector
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]database.Connector, error)); ok {
+		return rf(ctx, name)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) []database.Connector); ok {
+		r0 = rf(ctx, name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]database.Connector)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_FuzzySearchConnectorsByName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FuzzySearchConnectorsByName'
+type Service_FuzzySearchConnectorsByName_Call struct {
+	*mock.Call
+}
+
+// FuzzySearchConnectorsByName is a helper method to define mock.On call
+//   - ctx context.Context
+//   - name string
+func (_e *Service_Expecter) FuzzySearchConnectorsByName(ctx interface{}, name interface{}) *Service_FuzzySearchConnectorsByName_Call {
+	return &Service_FuzzySearchConnectorsByName_Call{Call: _e.mock.On("FuzzySearchConnectorsByName", ctx, name)}
+}
+
+func (_c *Service_FuzzySearchConnectorsByName_Call) Run(run func(ctx context.Context, name string)) *Service_FuzzySearchConnectorsByName_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *Service_FuzzySearchConnectorsByName_Call) Return(_a0 []database.Connector, _a1 error) *Service_FuzzySearchConnectorsByName_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_FuzzySearchConnectorsByName_Call) RunAndReturn(run func(context.Context, string) ([]database.Connector, error)) *Service_FuzzySearchConnectorsByName_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAccountByConnectionIDAndProviderAccountID provides a mock function with given fields: ctx, arg
+func (_m *Service) GetAccountByConnectionIDAndProviderAccountID(ctx context.Context, arg database.GetAccountByConnectionIDAndProviderAccountIDParams) (database.Account, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAccountByConnectionIDAndProviderAccountID")
+	}
+
+	var r0 database.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.GetAccountByConnectionIDAndProviderAccountIDParams) (database.Account, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.GetAccountByConnectionIDAndProviderAccountIDParams) database.Account); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Account)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.GetAccountByConnectionIDAndProviderAccountIDParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_GetAccountByConnectionIDAndProviderAccountID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAccountByConnectionIDAndProviderAccountID'
+type Service_GetAccountByConnectionIDAndProviderAccountID_Call struct {
+	*mock.Call
+}
+
+// GetAccountByConnectionIDAndProviderAccountID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.GetAccountByConnectionIDAndProviderAccountIDParams
+func (_e *Service_Expecter) GetAccountByConnectionIDAndProviderAccountID(ctx interface{}, arg interface{}) *Service_GetAccountByConnectionIDAndProviderAccountID_Call {
+	return &Service_GetAccountByConnectionIDAndProviderAccountID_Call{Call: _e.mock.On("GetAccountByConnectionIDAndProviderAccountID", ctx, arg)}
+}
+
+func (_c *Service_GetAccountByConnectionIDAndProviderAccountID_Call) Run(run func(ctx context.Context, arg database.GetAccountByConnectionIDAndProviderAccountIDParams)) *Service_GetAccountByConnectionIDAndProviderAccountID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.GetAccountByConnectionIDAndProviderAccountIDParams))
+	})
+	return _c
+}
+
+func (_c *Service_GetAccountByConnectionIDAndProviderAccountID_Call) Return(_a0 database.Account, _a1 error) *Service_GetAccountByConnectionIDAndProviderAccountID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_GetAccountByConnectionIDAndProviderAccountID_Call) RunAndReturn(run func(context.Context, database.GetAccountByConnectionIDAndProviderAccountIDParams) (database.Account, error)) *Service_GetAccountByConnectionIDAndProviderAccountID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetConnectionByID provides a mock function with given fields: ctx, id
+func (_m *Service) GetConnectionByID(ctx context.Context, id int32) (database.Connection, error) {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetConnectionByID")
+	}
+
+	var r0 database.Connection
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int32) (database.Connection, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int32) database.Connection); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Get(0).(database.Connection)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_GetConnectionByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetConnectionByID'
+type Service_GetConnectionByID_Call struct {
+	*mock.Call
+}
+
+// GetConnectionByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int32
+func (_e *Service_Expecter) GetConnectionByID(ctx interface{}, id interface{}) *Service_GetConnectionByID_Call {
+	return &Service_GetConnectionByID_Call{Call: _e.mock.On("GetConnectionByID", ctx, id)}
+}
+
+func (_c *Service_GetConnectionByID_Call) Run(run func(ctx context.Context, id int32)) *Service_GetConnectionByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *Service_GetConnectionByID_Call) Return(_a0 database.Connection, _a1 error) *Service_GetConnectionByID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_GetConnectionByID_Call) RunAndReturn(run func(context.Context, int32) (database.Connection, error)) *Service_GetConnectionByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetConnectionByProviderUserIDAndProviderConnectionID provides a mock function with given fields: ctx, arg
+func (_m *Service) GetConnectionByProviderUserIDAndProviderConnectionID(ctx context.Context, arg database.GetConnectionByProviderUserIDAndProviderConnectionIDParams) (database.Connection, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetConnectionByProviderUserIDAndProviderConnectionID")
+	}
+
+	var r0 database.Connection
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.GetConnectionByProviderUserIDAndProviderConnectionIDParams) (database.Connection, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.GetConnectionByProviderUserIDAndProviderConnectionIDParams) database.Connection); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Connection)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.GetConnectionByProviderUserIDAndProviderConnectionIDParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_GetConnectionByProviderUserIDAndProviderConnectionID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetConnectionByProviderUserIDAndProviderConnectionID'
+type Service_GetConnectionByProviderUserIDAndProviderConnectionID_Call struct {
+	*mock.Call
+}
+
+// GetConnectionByProviderUserIDAndProviderConnectionID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.GetConnectionByProviderUserIDAndProviderConnectionIDParams
+func (_e *Service_Expecter) GetConnectionByProviderUserIDAndProviderConnectionID(ctx interface{}, arg interface{}) *Service_GetConnectionByProviderUserIDAndProviderConnectionID_Call {
+	return &Service_GetConnectionByProviderUserIDAndProviderConnectionID_Call{Call: _e.mock.On("GetConnectionByProviderUserIDAndProviderConnectionID", ctx, arg)}
+}
+
+func (_c *Service_GetConnectionByProviderUserIDAndProviderConnectionID_Call) Run(run func(ctx context.Context, arg database.GetConnectionByProviderUserIDAndProviderConnectionIDParams)) *Service_GetConnectionByProviderUserIDAndProviderConnectionID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.GetConnectionByProviderUserIDAndProviderConnectionIDParams))
+	})
+	return _c
+}
+
+func (_c *Service_GetConnectionByProviderUserIDAndProviderConnectionID_Call) Return(_a0 database.Connection, _a1 error) *Service_GetConnectionByProviderUserIDAndProviderConnectionID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_GetConnectionByProviderUserIDAndProviderConnectionID_Call) RunAndReturn(run func(context.Context, database.GetConnectionByProviderUserIDAndProviderConnectionIDParams) (database.Connection, error)) *Service_GetConnectionByProviderUserIDAndProviderConnectionID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetConnectorByID provides a mock function with given fields: ctx, id
+func (_m *Service) GetConnectorByID(ctx context.Context, id int32) (database.Connector, error) {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetConnectorByID")
+	}
+
+	var r0 database.Connector
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int32) (database.Connector, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int32) database.Connector); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Get(0).(database.Connector)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_GetConnectorByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetConnectorByID'
+type Service_GetConnectorByID_Call struct {
+	*mock.Call
+}
+
+// GetConnectorByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int32
+func (_e *Service_Expecter) GetConnectorByID(ctx interface{}, id interface{}) *Service_GetConnectorByID_Call {
+	return &Service_GetConnectorByID_Call{Call: _e.mock.On("GetConnectorByID", ctx, id)}
+}
+
+func (_c *Service_GetConnectorByID_Call) Run(run func(ctx context.Context, id int32)) *Service_GetConnectorByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *Service_GetConnectorByID_Call) Return(_a0 database.Connector, _a1 error) *Service_GetConnectorByID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_GetConnectorByID_Call) RunAndReturn(run func(context.Context, int32) (database.Connector, error)) *Service_GetConnectorByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -287,6 +861,177 @@ func (_c *Service_GetProviderByName_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
+// GetProviderUserByID provides a mock function with given fields: ctx, id
+func (_m *Service) GetProviderUserByID(ctx context.Context, id int32) (database.ProviderUser, error) {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetProviderUserByID")
+	}
+
+	var r0 database.ProviderUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int32) (database.ProviderUser, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int32) database.ProviderUser); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Get(0).(database.ProviderUser)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_GetProviderUserByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetProviderUserByID'
+type Service_GetProviderUserByID_Call struct {
+	*mock.Call
+}
+
+// GetProviderUserByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int32
+func (_e *Service_Expecter) GetProviderUserByID(ctx interface{}, id interface{}) *Service_GetProviderUserByID_Call {
+	return &Service_GetProviderUserByID_Call{Call: _e.mock.On("GetProviderUserByID", ctx, id)}
+}
+
+func (_c *Service_GetProviderUserByID_Call) Run(run func(ctx context.Context, id int32)) *Service_GetProviderUserByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *Service_GetProviderUserByID_Call) Return(_a0 database.ProviderUser, _a1 error) *Service_GetProviderUserByID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_GetProviderUserByID_Call) RunAndReturn(run func(context.Context, int32) (database.ProviderUser, error)) *Service_GetProviderUserByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetProviderUserByProviderIDAndUserID provides a mock function with given fields: ctx, arg
+func (_m *Service) GetProviderUserByProviderIDAndUserID(ctx context.Context, arg database.GetProviderUserByProviderIDAndUserIDParams) (database.ProviderUser, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetProviderUserByProviderIDAndUserID")
+	}
+
+	var r0 database.ProviderUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.GetProviderUserByProviderIDAndUserIDParams) (database.ProviderUser, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.GetProviderUserByProviderIDAndUserIDParams) database.ProviderUser); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.ProviderUser)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.GetProviderUserByProviderIDAndUserIDParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_GetProviderUserByProviderIDAndUserID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetProviderUserByProviderIDAndUserID'
+type Service_GetProviderUserByProviderIDAndUserID_Call struct {
+	*mock.Call
+}
+
+// GetProviderUserByProviderIDAndUserID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.GetProviderUserByProviderIDAndUserIDParams
+func (_e *Service_Expecter) GetProviderUserByProviderIDAndUserID(ctx interface{}, arg interface{}) *Service_GetProviderUserByProviderIDAndUserID_Call {
+	return &Service_GetProviderUserByProviderIDAndUserID_Call{Call: _e.mock.On("GetProviderUserByProviderIDAndUserID", ctx, arg)}
+}
+
+func (_c *Service_GetProviderUserByProviderIDAndUserID_Call) Run(run func(ctx context.Context, arg database.GetProviderUserByProviderIDAndUserIDParams)) *Service_GetProviderUserByProviderIDAndUserID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.GetProviderUserByProviderIDAndUserIDParams))
+	})
+	return _c
+}
+
+func (_c *Service_GetProviderUserByProviderIDAndUserID_Call) Return(_a0 database.ProviderUser, _a1 error) *Service_GetProviderUserByProviderIDAndUserID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_GetProviderUserByProviderIDAndUserID_Call) RunAndReturn(run func(context.Context, database.GetProviderUserByProviderIDAndUserIDParams) (database.ProviderUser, error)) *Service_GetProviderUserByProviderIDAndUserID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetRedirectSessionByID provides a mock function with given fields: ctx, id
+func (_m *Service) GetRedirectSessionByID(ctx context.Context, id string) (database.RedirectSession, error) {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetRedirectSessionByID")
+	}
+
+	var r0 database.RedirectSession
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (database.RedirectSession, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) database.RedirectSession); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Get(0).(database.RedirectSession)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_GetRedirectSessionByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRedirectSessionByID'
+type Service_GetRedirectSessionByID_Call struct {
+	*mock.Call
+}
+
+// GetRedirectSessionByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+func (_e *Service_Expecter) GetRedirectSessionByID(ctx interface{}, id interface{}) *Service_GetRedirectSessionByID_Call {
+	return &Service_GetRedirectSessionByID_Call{Call: _e.mock.On("GetRedirectSessionByID", ctx, id)}
+}
+
+func (_c *Service_GetRedirectSessionByID_Call) Run(run func(ctx context.Context, id string)) *Service_GetRedirectSessionByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *Service_GetRedirectSessionByID_Call) Return(_a0 database.RedirectSession, _a1 error) *Service_GetRedirectSessionByID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_GetRedirectSessionByID_Call) RunAndReturn(run func(context.Context, string) (database.RedirectSession, error)) *Service_GetRedirectSessionByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUserByID provides a mock function with given fields: ctx, id
 func (_m *Service) GetUserByID(ctx context.Context, id int32) (database.User, error) {
 	ret := _m.Called(ctx, id)
@@ -344,27 +1089,27 @@ func (_c *Service_GetUserByID_Call) RunAndReturn(run func(context.Context, int32
 	return _c
 }
 
-// GetUserByUsernameAndHashedPassword provides a mock function with given fields: ctx, arg
-func (_m *Service) GetUserByUsernameAndHashedPassword(ctx context.Context, arg database.GetUserByUsernameAndHashedPasswordParams) (database.User, error) {
-	ret := _m.Called(ctx, arg)
+// GetUserByUsername provides a mock function with given fields: ctx, username
+func (_m *Service) GetUserByUsername(ctx context.Context, username string) (database.User, error) {
+	ret := _m.Called(ctx, username)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetUserByUsernameAndHashedPassword")
+		panic("no return value specified for GetUserByUsername")
 	}
 
 	var r0 database.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, database.GetUserByUsernameAndHashedPasswordParams) (database.User, error)); ok {
-		return rf(ctx, arg)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (database.User, error)); ok {
+		return rf(ctx, username)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, database.GetUserByUsernameAndHashedPasswordParams) database.User); ok {
-		r0 = rf(ctx, arg)
+	if rf, ok := ret.Get(0).(func(context.Context, string) database.User); ok {
+		r0 = rf(ctx, username)
 	} else {
 		r0 = ret.Get(0).(database.User)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, database.GetUserByUsernameAndHashedPasswordParams) error); ok {
-		r1 = rf(ctx, arg)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, username)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -372,31 +1117,31 @@ func (_m *Service) GetUserByUsernameAndHashedPassword(ctx context.Context, arg d
 	return r0, r1
 }
 
-// Service_GetUserByUsernameAndHashedPassword_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserByUsernameAndHashedPassword'
-type Service_GetUserByUsernameAndHashedPassword_Call struct {
+// Service_GetUserByUsername_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserByUsername'
+type Service_GetUserByUsername_Call struct {
 	*mock.Call
 }
 
-// GetUserByUsernameAndHashedPassword is a helper method to define mock.On call
+// GetUserByUsername is a helper method to define mock.On call
 //   - ctx context.Context
-//   - arg database.GetUserByUsernameAndHashedPasswordParams
-func (_e *Service_Expecter) GetUserByUsernameAndHashedPassword(ctx interface{}, arg interface{}) *Service_GetUserByUsernameAndHashedPassword_Call {
-	return &Service_GetUserByUsernameAndHashedPassword_Call{Call: _e.mock.On("GetUserByUsernameAndHashedPassword", ctx, arg)}
+//   - username string
+func (_e *Service_Expecter) GetUserByUsername(ctx interface{}, username interface{}) *Service_GetUserByUsername_Call {
+	return &Service_GetUserByUsername_Call{Call: _e.mock.On("GetUserByUsername", ctx, username)}
 }
 
-func (_c *Service_GetUserByUsernameAndHashedPassword_Call) Run(run func(ctx context.Context, arg database.GetUserByUsernameAndHashedPasswordParams)) *Service_GetUserByUsernameAndHashedPassword_Call {
+func (_c *Service_GetUserByUsername_Call) Run(run func(ctx context.Context, username string)) *Service_GetUserByUsername_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(database.GetUserByUsernameAndHashedPasswordParams))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
 
-func (_c *Service_GetUserByUsernameAndHashedPassword_Call) Return(_a0 database.User, _a1 error) *Service_GetUserByUsernameAndHashedPassword_Call {
+func (_c *Service_GetUserByUsername_Call) Return(_a0 database.User, _a1 error) *Service_GetUserByUsername_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Service_GetUserByUsernameAndHashedPassword_Call) RunAndReturn(run func(context.Context, database.GetUserByUsernameAndHashedPasswordParams) (database.User, error)) *Service_GetUserByUsernameAndHashedPassword_Call {
+func (_c *Service_GetUserByUsername_Call) RunAndReturn(run func(context.Context, string) (database.User, error)) *Service_GetUserByUsername_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -444,6 +1189,241 @@ func (_c *Service_Health_Call) Return(_a0 map[string]string) *Service_Health_Cal
 }
 
 func (_c *Service_Health_Call) RunAndReturn(run func() map[string]string) *Service_Health_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LikeSearchConnectorsByName provides a mock function with given fields: ctx, name
+func (_m *Service) LikeSearchConnectorsByName(ctx context.Context, name string) ([]database.Connector, error) {
+	ret := _m.Called(ctx, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LikeSearchConnectorsByName")
+	}
+
+	var r0 []database.Connector
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]database.Connector, error)); ok {
+		return rf(ctx, name)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) []database.Connector); ok {
+		r0 = rf(ctx, name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]database.Connector)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_LikeSearchConnectorsByName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LikeSearchConnectorsByName'
+type Service_LikeSearchConnectorsByName_Call struct {
+	*mock.Call
+}
+
+// LikeSearchConnectorsByName is a helper method to define mock.On call
+//   - ctx context.Context
+//   - name string
+func (_e *Service_Expecter) LikeSearchConnectorsByName(ctx interface{}, name interface{}) *Service_LikeSearchConnectorsByName_Call {
+	return &Service_LikeSearchConnectorsByName_Call{Call: _e.mock.On("LikeSearchConnectorsByName", ctx, name)}
+}
+
+func (_c *Service_LikeSearchConnectorsByName_Call) Run(run func(ctx context.Context, name string)) *Service_LikeSearchConnectorsByName_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *Service_LikeSearchConnectorsByName_Call) Return(_a0 []database.Connector, _a1 error) *Service_LikeSearchConnectorsByName_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_LikeSearchConnectorsByName_Call) RunAndReturn(run func(context.Context, string) ([]database.Connector, error)) *Service_LikeSearchConnectorsByName_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListAccountsByConnectionID provides a mock function with given fields: ctx, connectionID
+func (_m *Service) ListAccountsByConnectionID(ctx context.Context, connectionID int32) ([]database.Account, error) {
+	ret := _m.Called(ctx, connectionID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListAccountsByConnectionID")
+	}
+
+	var r0 []database.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int32) ([]database.Account, error)); ok {
+		return rf(ctx, connectionID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int32) []database.Account); ok {
+		r0 = rf(ctx, connectionID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]database.Account)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = rf(ctx, connectionID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_ListAccountsByConnectionID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAccountsByConnectionID'
+type Service_ListAccountsByConnectionID_Call struct {
+	*mock.Call
+}
+
+// ListAccountsByConnectionID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - connectionID int32
+func (_e *Service_Expecter) ListAccountsByConnectionID(ctx interface{}, connectionID interface{}) *Service_ListAccountsByConnectionID_Call {
+	return &Service_ListAccountsByConnectionID_Call{Call: _e.mock.On("ListAccountsByConnectionID", ctx, connectionID)}
+}
+
+func (_c *Service_ListAccountsByConnectionID_Call) Run(run func(ctx context.Context, connectionID int32)) *Service_ListAccountsByConnectionID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *Service_ListAccountsByConnectionID_Call) Return(_a0 []database.Account, _a1 error) *Service_ListAccountsByConnectionID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_ListAccountsByConnectionID_Call) RunAndReturn(run func(context.Context, int32) ([]database.Account, error)) *Service_ListAccountsByConnectionID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListConnectionsByUserID provides a mock function with given fields: ctx, userID
+func (_m *Service) ListConnectionsByUserID(ctx context.Context, userID int32) ([]database.Connection, error) {
+	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListConnectionsByUserID")
+	}
+
+	var r0 []database.Connection
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int32) ([]database.Connection, error)); ok {
+		return rf(ctx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int32) []database.Connection); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]database.Connection)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = rf(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_ListConnectionsByUserID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListConnectionsByUserID'
+type Service_ListConnectionsByUserID_Call struct {
+	*mock.Call
+}
+
+// ListConnectionsByUserID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID int32
+func (_e *Service_Expecter) ListConnectionsByUserID(ctx interface{}, userID interface{}) *Service_ListConnectionsByUserID_Call {
+	return &Service_ListConnectionsByUserID_Call{Call: _e.mock.On("ListConnectionsByUserID", ctx, userID)}
+}
+
+func (_c *Service_ListConnectionsByUserID_Call) Run(run func(ctx context.Context, userID int32)) *Service_ListConnectionsByUserID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *Service_ListConnectionsByUserID_Call) Return(_a0 []database.Connection, _a1 error) *Service_ListConnectionsByUserID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_ListConnectionsByUserID_Call) RunAndReturn(run func(context.Context, int32) ([]database.Connection, error)) *Service_ListConnectionsByUserID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListConnectionsToSync provides a mock function with given fields: ctx
+func (_m *Service) ListConnectionsToSync(ctx context.Context) ([]database.Connection, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListConnectionsToSync")
+	}
+
+	var r0 []database.Connection
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]database.Connection, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []database.Connection); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]database.Connection)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_ListConnectionsToSync_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListConnectionsToSync'
+type Service_ListConnectionsToSync_Call struct {
+	*mock.Call
+}
+
+// ListConnectionsToSync is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *Service_Expecter) ListConnectionsToSync(ctx interface{}) *Service_ListConnectionsToSync_Call {
+	return &Service_ListConnectionsToSync_Call{Call: _e.mock.On("ListConnectionsToSync", ctx)}
+}
+
+func (_c *Service_ListConnectionsToSync_Call) Run(run func(ctx context.Context)) *Service_ListConnectionsToSync_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *Service_ListConnectionsToSync_Call) Return(_a0 []database.Connection, _a1 error) *Service_ListConnectionsToSync_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_ListConnectionsToSync_Call) RunAndReturn(run func(context.Context) ([]database.Connection, error)) *Service_ListConnectionsToSync_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -506,6 +1486,271 @@ func (_c *Service_ListProviders_Call) RunAndReturn(run func(context.Context) ([]
 	return _c
 }
 
+// PgxPool provides a mock function with given fields:
+func (_m *Service) PgxPool() *pgxpool.Pool {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for PgxPool")
+	}
+
+	var r0 *pgxpool.Pool
+	if rf, ok := ret.Get(0).(func() *pgxpool.Pool); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*pgxpool.Pool)
+		}
+	}
+
+	return r0
+}
+
+// Service_PgxPool_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PgxPool'
+type Service_PgxPool_Call struct {
+	*mock.Call
+}
+
+// PgxPool is a helper method to define mock.On call
+func (_e *Service_Expecter) PgxPool() *Service_PgxPool_Call {
+	return &Service_PgxPool_Call{Call: _e.mock.On("PgxPool")}
+}
+
+func (_c *Service_PgxPool_Call) Run(run func()) *Service_PgxPool_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Service_PgxPool_Call) Return(_a0 *pgxpool.Pool) *Service_PgxPool_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Service_PgxPool_Call) RunAndReturn(run func() *pgxpool.Pool) *Service_PgxPool_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// StoreRedirectSessions provides a mock function with given fields: ctx, arg
+func (_m *Service) StoreRedirectSessions(ctx context.Context, arg database.StoreRedirectSessionsParams) error {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for StoreRedirectSessions")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.StoreRedirectSessionsParams) error); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Service_StoreRedirectSessions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'StoreRedirectSessions'
+type Service_StoreRedirectSessions_Call struct {
+	*mock.Call
+}
+
+// StoreRedirectSessions is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.StoreRedirectSessionsParams
+func (_e *Service_Expecter) StoreRedirectSessions(ctx interface{}, arg interface{}) *Service_StoreRedirectSessions_Call {
+	return &Service_StoreRedirectSessions_Call{Call: _e.mock.On("StoreRedirectSessions", ctx, arg)}
+}
+
+func (_c *Service_StoreRedirectSessions_Call) Run(run func(ctx context.Context, arg database.StoreRedirectSessionsParams)) *Service_StoreRedirectSessions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.StoreRedirectSessionsParams))
+	})
+	return _c
+}
+
+func (_c *Service_StoreRedirectSessions_Call) Return(_a0 error) *Service_StoreRedirectSessions_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Service_StoreRedirectSessions_Call) RunAndReturn(run func(context.Context, database.StoreRedirectSessionsParams) error) *Service_StoreRedirectSessions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateAccount provides a mock function with given fields: ctx, arg
+func (_m *Service) UpdateAccount(ctx context.Context, arg database.UpdateAccountParams) (database.Account, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateAccount")
+	}
+
+	var r0 database.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateAccountParams) (database.Account, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateAccountParams) database.Account); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Account)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.UpdateAccountParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_UpdateAccount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateAccount'
+type Service_UpdateAccount_Call struct {
+	*mock.Call
+}
+
+// UpdateAccount is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.UpdateAccountParams
+func (_e *Service_Expecter) UpdateAccount(ctx interface{}, arg interface{}) *Service_UpdateAccount_Call {
+	return &Service_UpdateAccount_Call{Call: _e.mock.On("UpdateAccount", ctx, arg)}
+}
+
+func (_c *Service_UpdateAccount_Call) Run(run func(ctx context.Context, arg database.UpdateAccountParams)) *Service_UpdateAccount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.UpdateAccountParams))
+	})
+	return _c
+}
+
+func (_c *Service_UpdateAccount_Call) Return(_a0 database.Account, _a1 error) *Service_UpdateAccount_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_UpdateAccount_Call) RunAndReturn(run func(context.Context, database.UpdateAccountParams) (database.Account, error)) *Service_UpdateAccount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateConnection provides a mock function with given fields: ctx, arg
+func (_m *Service) UpdateConnection(ctx context.Context, arg database.UpdateConnectionParams) (database.Connection, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateConnection")
+	}
+
+	var r0 database.Connection
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateConnectionParams) (database.Connection, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateConnectionParams) database.Connection); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Connection)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.UpdateConnectionParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_UpdateConnection_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateConnection'
+type Service_UpdateConnection_Call struct {
+	*mock.Call
+}
+
+// UpdateConnection is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.UpdateConnectionParams
+func (_e *Service_Expecter) UpdateConnection(ctx interface{}, arg interface{}) *Service_UpdateConnection_Call {
+	return &Service_UpdateConnection_Call{Call: _e.mock.On("UpdateConnection", ctx, arg)}
+}
+
+func (_c *Service_UpdateConnection_Call) Run(run func(ctx context.Context, arg database.UpdateConnectionParams)) *Service_UpdateConnection_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.UpdateConnectionParams))
+	})
+	return _c
+}
+
+func (_c *Service_UpdateConnection_Call) Return(_a0 database.Connection, _a1 error) *Service_UpdateConnection_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_UpdateConnection_Call) RunAndReturn(run func(context.Context, database.UpdateConnectionParams) (database.Connection, error)) *Service_UpdateConnection_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateConnectionStatus provides a mock function with given fields: ctx, arg
+func (_m *Service) UpdateConnectionStatus(ctx context.Context, arg database.UpdateConnectionStatusParams) (database.Connection, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateConnectionStatus")
+	}
+
+	var r0 database.Connection
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateConnectionStatusParams) (database.Connection, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateConnectionStatusParams) database.Connection); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Connection)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.UpdateConnectionStatusParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_UpdateConnectionStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateConnectionStatus'
+type Service_UpdateConnectionStatus_Call struct {
+	*mock.Call
+}
+
+// UpdateConnectionStatus is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.UpdateConnectionStatusParams
+func (_e *Service_Expecter) UpdateConnectionStatus(ctx interface{}, arg interface{}) *Service_UpdateConnectionStatus_Call {
+	return &Service_UpdateConnectionStatus_Call{Call: _e.mock.On("UpdateConnectionStatus", ctx, arg)}
+}
+
+func (_c *Service_UpdateConnectionStatus_Call) Run(run func(ctx context.Context, arg database.UpdateConnectionStatusParams)) *Service_UpdateConnectionStatus_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.UpdateConnectionStatusParams))
+	})
+	return _c
+}
+
+func (_c *Service_UpdateConnectionStatus_Call) Return(_a0 database.Connection, _a1 error) *Service_UpdateConnectionStatus_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_UpdateConnectionStatus_Call) RunAndReturn(run func(context.Context, database.UpdateConnectionStatusParams) (database.Connection, error)) *Service_UpdateConnectionStatus_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateProvider provides a mock function with given fields: ctx, arg
 func (_m *Service) UpdateProvider(ctx context.Context, arg database.UpdateProviderParams) (database.Provider, error) {
 	ret := _m.Called(ctx, arg)
@@ -559,6 +1804,63 @@ func (_c *Service_UpdateProvider_Call) Return(_a0 database.Provider, _a1 error) 
 }
 
 func (_c *Service_UpdateProvider_Call) RunAndReturn(run func(context.Context, database.UpdateProviderParams) (database.Provider, error)) *Service_UpdateProvider_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateTransaction provides a mock function with given fields: ctx, arg
+func (_m *Service) UpdateTransaction(ctx context.Context, arg database.UpdateTransactionParams) (database.Transaction, error) {
+	ret := _m.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateTransaction")
+	}
+
+	var r0 database.Transaction
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateTransactionParams) (database.Transaction, error)); ok {
+		return rf(ctx, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, database.UpdateTransactionParams) database.Transaction); ok {
+		r0 = rf(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(database.Transaction)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, database.UpdateTransactionParams) error); ok {
+		r1 = rf(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Service_UpdateTransaction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateTransaction'
+type Service_UpdateTransaction_Call struct {
+	*mock.Call
+}
+
+// UpdateTransaction is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg database.UpdateTransactionParams
+func (_e *Service_Expecter) UpdateTransaction(ctx interface{}, arg interface{}) *Service_UpdateTransaction_Call {
+	return &Service_UpdateTransaction_Call{Call: _e.mock.On("UpdateTransaction", ctx, arg)}
+}
+
+func (_c *Service_UpdateTransaction_Call) Run(run func(ctx context.Context, arg database.UpdateTransactionParams)) *Service_UpdateTransaction_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.UpdateTransactionParams))
+	})
+	return _c
+}
+
+func (_c *Service_UpdateTransaction_Call) Return(_a0 database.Transaction, _a1 error) *Service_UpdateTransaction_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Service_UpdateTransaction_Call) RunAndReturn(run func(context.Context, database.UpdateTransactionParams) (database.Transaction, error)) *Service_UpdateTransaction_Call {
 	_c.Call.Return(run)
 	return _c
 }

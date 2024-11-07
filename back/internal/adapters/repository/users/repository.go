@@ -2,9 +2,7 @@ package users
 
 import (
 	"context"
-	"crypto/sha256"
 	"database/sql"
-	"encoding/hex"
 	"errors"
 	"magnifin/internal/adapters/repository"
 	"magnifin/internal/app/model"
@@ -24,24 +22,21 @@ func NewRepository(db database.Service, cypherKey string) *Repository {
 }
 
 func (r *Repository) GetUserByUsernameAndPassword(ctx context.Context, username string, password string) (*model.User, error) {
-	cryptedPassword, err := repository.EncryptString(&password, r.CypherKey)
-	if err != nil {
-		return nil, err
-	}
-
-	hasher := sha256.New()
-	hasher.Write([]byte(*cryptedPassword))
-	hashedPassword := hex.EncodeToString(hasher.Sum(nil))
-
-	u, err := r.db.GetUserByUsernameAndHashedPassword(ctx, database.GetUserByUsernameAndHashedPasswordParams{
-		Username:       username,
-		HashedPassword: hashedPassword,
-	})
+	u, err := r.db.GetUserByUsername(ctx, username)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
+	}
+
+	uncryptPassword, err := repository.DecryptString(&u.HashedPassword, r.CypherKey)
+	if err != nil {
+		return nil, err
+	}
+
+	if *uncryptPassword != password {
+		return nil, nil
 	}
 
 	return toDomain(&u), nil
@@ -53,13 +48,9 @@ func (r *Repository) CreateUser(ctx context.Context, username string, password s
 		return nil, err
 	}
 
-	hasher := sha256.New()
-	hasher.Write([]byte(*cryptedPassword))
-	hashedPassword := hex.EncodeToString(hasher.Sum(nil))
-
 	u, err := r.db.CreateUser(ctx, database.CreateUserParams{
 		Username:       username,
-		HashedPassword: hashedPassword,
+		HashedPassword: *cryptedPassword,
 	})
 	if err != nil {
 		return nil, err

@@ -70,3 +70,26 @@ func (r *Repository) Update(ctx context.Context, account *model.Account) (*model
 
 	return toDomainAccount(accountEntity), nil
 }
+
+func (r *Repository) ListByConnection(ctx context.Context, connectionID int32) ([]model.Account, error) {
+	accounts, err := r.db.ListAccountsByConnectionID(ctx, connectionID)
+	if err != nil {
+		return nil, err
+	}
+
+	domainAccounts := make([]model.Account, len(accounts))
+	for i, a := range accounts {
+		domainAccounts[i] = *toDomainAccount(a)
+	}
+
+	return domainAccounts, nil
+}
+
+func (r *Repository) DeleteByConnectionID(ctx context.Context, connectionID int32) error {
+	err := r.db.DeleteAccountByConnectionID(ctx, connectionID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

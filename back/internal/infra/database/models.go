@@ -74,6 +74,7 @@ type RedirectSession struct {
 	ID                   string         `db:"id"`
 	ProviderConnectionID sql.NullString `db:"provider_connection_id"`
 	InternalConnectionID sql.NullInt32  `db:"internal_connection_id"`
+	UserID               sql.NullInt32  `db:"user_id"`
 	CreatedAt            time.Time      `db:"created_at"`
 }
 

@@ -13,7 +13,7 @@ type Repository interface {
 
 type ProviderService interface {
 	Connect(ctx context.Context, user *model.User, connector *model.Connector, params *model.ConnectParams) (*model.ConnectInstruction, error)
-	ConnectCallback(ctx context.Context, user *model.User, connector *model.Connector, connectionID string, providerConnectionID *string) error
+	ConnectCallback(ctx context.Context, connector *model.Connector, connectionID string, providerConnectionID *string) error
 }
 
 type Service struct {

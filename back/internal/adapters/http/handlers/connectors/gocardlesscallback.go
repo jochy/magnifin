@@ -3,7 +3,6 @@ package connectors
 import (
 	"fmt"
 	"log/slog"
-	"magnifin/internal/adapters/http/middlewares"
 	"math"
 	"net/http"
 	"strconv"
@@ -45,7 +44,7 @@ func (h *Handler) GoCardlessCallback(c *gin.Context) {
 
 	cID := int32(connectorIDInt) //nolint:gosec
 
-	err = h.service.ConnectCallback(c.Request.Context(), middlewares.GetUser(c.Request.Context()), cID, sid, &connectionID)
+	err = h.service.ConnectCallback(c.Request.Context(), cID, sid, &connectionID)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to connect callback: %s", err))
 

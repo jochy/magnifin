@@ -21,6 +21,10 @@ func (r *Repository) SaveRedirectSession(ctx context.Context, session model.Redi
 		ID:                   session.ID,
 		ProviderConnectionID: sqlNullString(session.ProviderConnectionID),
 		InternalConnectionID: sqlNullInt32(session.InternalConnectionID),
+		UserID: sql.NullInt32{
+			Int32: session.UserID,
+			Valid: true,
+		},
 	})
 }
 
@@ -36,6 +40,7 @@ func (r *Repository) GetRedirectSessionByID(ctx context.Context, id string) (*mo
 		ID:                   session.ID,
 		ProviderConnectionID: fromSqlNullString(session.ProviderConnectionID),
 		InternalConnectionID: fromSqlNullInt32(session.InternalConnectionID),
+		UserID:               session.UserID.Int32,
 	}, nil
 }
 

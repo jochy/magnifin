@@ -63,6 +63,7 @@ func (s *ProviderService) Connect(
 		ID:                   params.SID.String(),
 		ProviderConnectionID: &connectInstruction.ID,
 		InternalConnectionID: nil,
+		UserID:               user.ID,
 	})
 	if err != nil {
 		return nil, err

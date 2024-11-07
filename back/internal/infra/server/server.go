@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"magnifin/internal/adapters/http/handlers"
+	"magnifin/internal/adapters/http/handlers/connections"
 	"magnifin/internal/adapters/http/handlers/connectors"
 	"magnifin/internal/adapters/http/handlers/providers"
 	"magnifin/internal/adapters/http/handlers/users"
@@ -16,11 +17,12 @@ import (
 type Server struct {
 	port int
 
-	healthHandler      *handlers.HealthHandler
-	usersHandlers      *users.Handler
-	authMiddleware     *middlewares.AuthMiddleware
-	providersHandlers  *providers.Handler
-	connectorsHandlers *connectors.Handler
+	healthHandler       *handlers.HealthHandler
+	usersHandlers       *users.Handler
+	authMiddleware      *middlewares.AuthMiddleware
+	providersHandlers   *providers.Handler
+	connectorsHandlers  *connectors.Handler
+	connectionsHandlers *connections.Handlers
 }
 
 func NewServer(
@@ -29,15 +31,17 @@ func NewServer(
 	authMiddleware *middlewares.AuthMiddleware,
 	providersHandlers *providers.Handler,
 	connectorsHandlers *connectors.Handler,
+	connectionsHandlers *connections.Handlers,
 ) *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	NewServer := &Server{
-		port:               port,
-		healthHandler:      healthHandler,
-		usersHandlers:      usersHandlers,
-		authMiddleware:     authMiddleware,
-		providersHandlers:  providersHandlers,
-		connectorsHandlers: connectorsHandlers,
+		port:                port,
+		healthHandler:       healthHandler,
+		usersHandlers:       usersHandlers,
+		authMiddleware:      authMiddleware,
+		providersHandlers:   providersHandlers,
+		connectorsHandlers:  connectorsHandlers,
+		connectionsHandlers: connectionsHandlers,
 	}
 
 	// Declare Server config

@@ -45,6 +45,7 @@ type ProviderPort interface {
 	GetConnectionByID(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connector *model.Connector, connectionID string) (*model.Connection, error)
 	GetAccounts(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connection *model.Connection) ([]model.Account, error)
 	GetTransactions(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connection *model.Connection, account *model.Account) ([]model.Transaction, error)
+	DeleteConnection(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connection *model.Connection) error
 }
 
 type AccountRepository interface {
@@ -59,6 +60,10 @@ type TransactionRepository interface {
 	Update(ctx context.Context, transaction *model.Transaction) (*model.Transaction, error)
 }
 
+type UserRepository interface {
+	GetUserByID(ctx context.Context, id int32) (*model.User, error)
+}
+
 type ProviderService struct {
 	providerRepository         ProviderRepository
 	connectorRepository        ConnectorRepository
@@ -67,6 +72,7 @@ type ProviderService struct {
 	redirectSessionsRepository RedirectSessionsRepository
 	accountsRepository         AccountRepository
 	transactionsRepository     TransactionRepository
+	userRepository             UserRepository
 	ports                      map[string]ProviderPort
 }
 
@@ -78,6 +84,7 @@ func NewProviderService(
 	redirectSessionsRepository RedirectSessionsRepository,
 	accountsRepository AccountRepository,
 	transactionsRepository TransactionRepository,
+	userRepository UserRepository,
 	ports []ProviderPort,
 ) *ProviderService {
 	p := make(map[string]ProviderPort)
@@ -93,6 +100,7 @@ func NewProviderService(
 		redirectSessionsRepository: redirectSessionsRepository,
 		accountsRepository:         accountsRepository,
 		transactionsRepository:     transactionsRepository,
+		userRepository:             userRepository,
 		ports:                      p,
 	}
 }

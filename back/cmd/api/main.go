@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"magnifin/internal/adapters/http/handlers"
+	connections2 "magnifin/internal/adapters/http/handlers/connections"
 	connectorshandlers "magnifin/internal/adapters/http/handlers/connectors"
 	"magnifin/internal/adapters/http/handlers/providers"
 	usershandlers "magnifin/internal/adapters/http/handlers/users"
@@ -23,6 +24,7 @@ import (
 	"magnifin/internal/adapters/repository/transactions"
 	usersrepo "magnifin/internal/adapters/repository/users"
 	"magnifin/internal/app"
+	connections3 "magnifin/internal/app/connections"
 	connectors2 "magnifin/internal/app/connectors"
 	providers2 "magnifin/internal/app/providers"
 	"magnifin/internal/infra/database"
@@ -106,9 +108,17 @@ func main() {
 		redirectionSessionsRepository,
 		accountsRepository,
 		transactionsRepository,
+		userRepository,
 		providerPorts,
 	)
 	connectorsService := connectors2.NewConnectorService(connectorsRepository, providerService)
+	connectionsService := connections3.NewConnectionsService(
+		connectionsRepository,
+		accountsRepository,
+		connectorsRepository,
+		transactionsRepository,
+		providerService,
+	)
 
 	scheduler, err := scheduler2.NewScheduler(db, jobs.NewJobs(providerService, connectionsRepository))
 	if err != nil {
@@ -128,6 +138,7 @@ func main() {
 		middlewares.NewAuthMiddleware(userService),
 		providers.NewHandler(providerService),
 		connectorshandlers.NewHandler(connectorsService),
+		connections2.NewHandlers(connectionsService),
 	)
 
 	// Create a done channel to signal when the shutdown is complete

@@ -91,6 +91,22 @@ func (r *Repository) UpdateStatus(ctx context.Context, id int32, status model.Co
 	return nil
 }
 
+func (r *Repository) ListActiveByUser(ctx context.Context, user *model.User) ([]model.Connection, error) {
+	c, err := r.db.ListConnectionsByUserID(ctx, user.ID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	connections := make([]model.Connection, len(c))
+	for i, connection := range c {
+		connections[i] = *toDomainModel(&connection)
+	}
+
+	return connections, nil
+}
+
 func (r *Repository) ListConnectionsToSync(ctx context.Context) ([]model.Connection, error) {
 	c, err := r.db.ListConnectionsToSync(ctx)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -105,6 +121,29 @@ func (r *Repository) ListConnectionsToSync(ctx context.Context) ([]model.Connect
 	}
 
 	return connections, nil
+}
+
+func (r *Repository) GetByIDAndUser(ctx context.Context, id int32, user *model.User) (*model.Connection, error) {
+	connection, err := r.db.GetConnectionByIDAndUserID(ctx, database.GetConnectionByIDAndUserIDParams{
+		ID:     id,
+		UserID: user.ID,
+	})
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	return toDomainModel(&connection), nil
+}
+
+func (r *Repository) DeleteByID(ctx context.Context, id int32) error {
+	err := r.db.DeleteConnectionByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func toSqlNullString(s *string) sql.NullString {

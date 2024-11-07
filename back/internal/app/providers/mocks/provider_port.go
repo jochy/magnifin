@@ -22,6 +22,313 @@ func (_m *ProviderPort) EXPECT() *ProviderPort_Expecter {
 	return &ProviderPort_Expecter{mock: &_m.Mock}
 }
 
+// Connect provides a mock function with given fields: ctx, provider, providerUser, connector, params
+func (_m *ProviderPort) Connect(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connector *model.Connector, params *model.ConnectParams) (*model.ConnectInstruction, error) {
+	ret := _m.Called(ctx, provider, providerUser, connector, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Connect")
+	}
+
+	var r0 *model.ConnectInstruction
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connector, *model.ConnectParams) (*model.ConnectInstruction, error)); ok {
+		return rf(ctx, provider, providerUser, connector, params)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connector, *model.ConnectParams) *model.ConnectInstruction); ok {
+		r0 = rf(ctx, provider, providerUser, connector, params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.ConnectInstruction)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connector, *model.ConnectParams) error); ok {
+		r1 = rf(ctx, provider, providerUser, connector, params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ProviderPort_Connect_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Connect'
+type ProviderPort_Connect_Call struct {
+	*mock.Call
+}
+
+// Connect is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider *model.Provider
+//   - providerUser *model.ProviderUser
+//   - connector *model.Connector
+//   - params *model.ConnectParams
+func (_e *ProviderPort_Expecter) Connect(ctx interface{}, provider interface{}, providerUser interface{}, connector interface{}, params interface{}) *ProviderPort_Connect_Call {
+	return &ProviderPort_Connect_Call{Call: _e.mock.On("Connect", ctx, provider, providerUser, connector, params)}
+}
+
+func (_c *ProviderPort_Connect_Call) Run(run func(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connector *model.Connector, params *model.ConnectParams)) *ProviderPort_Connect_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*model.Provider), args[2].(*model.ProviderUser), args[3].(*model.Connector), args[4].(*model.ConnectParams))
+	})
+	return _c
+}
+
+func (_c *ProviderPort_Connect_Call) Return(_a0 *model.ConnectInstruction, _a1 error) *ProviderPort_Connect_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ProviderPort_Connect_Call) RunAndReturn(run func(context.Context, *model.Provider, *model.ProviderUser, *model.Connector, *model.ConnectParams) (*model.ConnectInstruction, error)) *ProviderPort_Connect_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateProviderUser provides a mock function with given fields: ctx, provider, user
+func (_m *ProviderPort) CreateProviderUser(ctx context.Context, provider *model.Provider, user *model.User) (*model.ProviderUser, error) {
+	ret := _m.Called(ctx, provider, user)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateProviderUser")
+	}
+
+	var r0 *model.ProviderUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Provider, *model.User) (*model.ProviderUser, error)); ok {
+		return rf(ctx, provider, user)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Provider, *model.User) *model.ProviderUser); ok {
+		r0 = rf(ctx, provider, user)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.ProviderUser)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *model.Provider, *model.User) error); ok {
+		r1 = rf(ctx, provider, user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ProviderPort_CreateProviderUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateProviderUser'
+type ProviderPort_CreateProviderUser_Call struct {
+	*mock.Call
+}
+
+// CreateProviderUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider *model.Provider
+//   - user *model.User
+func (_e *ProviderPort_Expecter) CreateProviderUser(ctx interface{}, provider interface{}, user interface{}) *ProviderPort_CreateProviderUser_Call {
+	return &ProviderPort_CreateProviderUser_Call{Call: _e.mock.On("CreateProviderUser", ctx, provider, user)}
+}
+
+func (_c *ProviderPort_CreateProviderUser_Call) Run(run func(ctx context.Context, provider *model.Provider, user *model.User)) *ProviderPort_CreateProviderUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*model.Provider), args[2].(*model.User))
+	})
+	return _c
+}
+
+func (_c *ProviderPort_CreateProviderUser_Call) Return(_a0 *model.ProviderUser, _a1 error) *ProviderPort_CreateProviderUser_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ProviderPort_CreateProviderUser_Call) RunAndReturn(run func(context.Context, *model.Provider, *model.User) (*model.ProviderUser, error)) *ProviderPort_CreateProviderUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAccounts provides a mock function with given fields: ctx, provider, providerUser, connection
+func (_m *ProviderPort) GetAccounts(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connection *model.Connection) ([]model.Account, error) {
+	ret := _m.Called(ctx, provider, providerUser, connection)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAccounts")
+	}
+
+	var r0 []model.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connection) ([]model.Account, error)); ok {
+		return rf(ctx, provider, providerUser, connection)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connection) []model.Account); ok {
+		r0 = rf(ctx, provider, providerUser, connection)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Account)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connection) error); ok {
+		r1 = rf(ctx, provider, providerUser, connection)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ProviderPort_GetAccounts_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAccounts'
+type ProviderPort_GetAccounts_Call struct {
+	*mock.Call
+}
+
+// GetAccounts is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider *model.Provider
+//   - providerUser *model.ProviderUser
+//   - connection *model.Connection
+func (_e *ProviderPort_Expecter) GetAccounts(ctx interface{}, provider interface{}, providerUser interface{}, connection interface{}) *ProviderPort_GetAccounts_Call {
+	return &ProviderPort_GetAccounts_Call{Call: _e.mock.On("GetAccounts", ctx, provider, providerUser, connection)}
+}
+
+func (_c *ProviderPort_GetAccounts_Call) Run(run func(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connection *model.Connection)) *ProviderPort_GetAccounts_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*model.Provider), args[2].(*model.ProviderUser), args[3].(*model.Connection))
+	})
+	return _c
+}
+
+func (_c *ProviderPort_GetAccounts_Call) Return(_a0 []model.Account, _a1 error) *ProviderPort_GetAccounts_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ProviderPort_GetAccounts_Call) RunAndReturn(run func(context.Context, *model.Provider, *model.ProviderUser, *model.Connection) ([]model.Account, error)) *ProviderPort_GetAccounts_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetConnectionByID provides a mock function with given fields: ctx, provider, providerUser, connector, connectionID
+func (_m *ProviderPort) GetConnectionByID(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connector *model.Connector, connectionID string) (*model.Connection, error) {
+	ret := _m.Called(ctx, provider, providerUser, connector, connectionID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetConnectionByID")
+	}
+
+	var r0 *model.Connection
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connector, string) (*model.Connection, error)); ok {
+		return rf(ctx, provider, providerUser, connector, connectionID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connector, string) *model.Connection); ok {
+		r0 = rf(ctx, provider, providerUser, connector, connectionID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.Connection)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connector, string) error); ok {
+		r1 = rf(ctx, provider, providerUser, connector, connectionID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ProviderPort_GetConnectionByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetConnectionByID'
+type ProviderPort_GetConnectionByID_Call struct {
+	*mock.Call
+}
+
+// GetConnectionByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider *model.Provider
+//   - providerUser *model.ProviderUser
+//   - connector *model.Connector
+//   - connectionID string
+func (_e *ProviderPort_Expecter) GetConnectionByID(ctx interface{}, provider interface{}, providerUser interface{}, connector interface{}, connectionID interface{}) *ProviderPort_GetConnectionByID_Call {
+	return &ProviderPort_GetConnectionByID_Call{Call: _e.mock.On("GetConnectionByID", ctx, provider, providerUser, connector, connectionID)}
+}
+
+func (_c *ProviderPort_GetConnectionByID_Call) Run(run func(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connector *model.Connector, connectionID string)) *ProviderPort_GetConnectionByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*model.Provider), args[2].(*model.ProviderUser), args[3].(*model.Connector), args[4].(string))
+	})
+	return _c
+}
+
+func (_c *ProviderPort_GetConnectionByID_Call) Return(_a0 *model.Connection, _a1 error) *ProviderPort_GetConnectionByID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ProviderPort_GetConnectionByID_Call) RunAndReturn(run func(context.Context, *model.Provider, *model.ProviderUser, *model.Connector, string) (*model.Connection, error)) *ProviderPort_GetConnectionByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTransactions provides a mock function with given fields: ctx, provider, providerUser, connection, account
+func (_m *ProviderPort) GetTransactions(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connection *model.Connection, account *model.Account) ([]model.Transaction, error) {
+	ret := _m.Called(ctx, provider, providerUser, connection, account)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTransactions")
+	}
+
+	var r0 []model.Transaction
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connection, *model.Account) ([]model.Transaction, error)); ok {
+		return rf(ctx, provider, providerUser, connection, account)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connection, *model.Account) []model.Transaction); ok {
+		r0 = rf(ctx, provider, providerUser, connection, account)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Transaction)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *model.Provider, *model.ProviderUser, *model.Connection, *model.Account) error); ok {
+		r1 = rf(ctx, provider, providerUser, connection, account)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ProviderPort_GetTransactions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTransactions'
+type ProviderPort_GetTransactions_Call struct {
+	*mock.Call
+}
+
+// GetTransactions is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider *model.Provider
+//   - providerUser *model.ProviderUser
+//   - connection *model.Connection
+//   - account *model.Account
+func (_e *ProviderPort_Expecter) GetTransactions(ctx interface{}, provider interface{}, providerUser interface{}, connection interface{}, account interface{}) *ProviderPort_GetTransactions_Call {
+	return &ProviderPort_GetTransactions_Call{Call: _e.mock.On("GetTransactions", ctx, provider, providerUser, connection, account)}
+}
+
+func (_c *ProviderPort_GetTransactions_Call) Run(run func(ctx context.Context, provider *model.Provider, providerUser *model.ProviderUser, connection *model.Connection, account *model.Account)) *ProviderPort_GetTransactions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*model.Provider), args[2].(*model.ProviderUser), args[3].(*model.Connection), args[4].(*model.Account))
+	})
+	return _c
+}
+
+func (_c *ProviderPort_GetTransactions_Call) Return(_a0 []model.Transaction, _a1 error) *ProviderPort_GetTransactions_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ProviderPort_GetTransactions_Call) RunAndReturn(run func(context.Context, *model.Provider, *model.ProviderUser, *model.Connection, *model.Account) ([]model.Transaction, error)) *ProviderPort_GetTransactions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListConnectors provides a mock function with given fields: ctx, provider
 func (_m *ProviderPort) ListConnectors(ctx context.Context, provider *model.Provider) ([]model.Connector, error) {
 	ret := _m.Called(ctx, provider)

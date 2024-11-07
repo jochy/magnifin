@@ -14,10 +14,15 @@ type Querier interface {
 	CreateProviderUser(ctx context.Context, arg CreateProviderUserParams) (ProviderUser, error)
 	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteAccountByConnectionID(ctx context.Context, connectionID int32) error
+	DeleteConnectionByID(ctx context.Context, id int32) error
+	DeleteTransactionsByConnectionID(ctx context.Context, connectionID int32) error
+	DeleteTransactionsEnrichmentsByConnectionID(ctx context.Context, connectionID int32) error
 	FindTransactionByAccountIDAndProviderTransactionID(ctx context.Context, arg FindTransactionByAccountIDAndProviderTransactionIDParams) (Transaction, error)
 	FuzzySearchConnectorsByName(ctx context.Context, name string) ([]Connector, error)
 	GetAccountByConnectionIDAndProviderAccountID(ctx context.Context, arg GetAccountByConnectionIDAndProviderAccountIDParams) (Account, error)
 	GetConnectionByID(ctx context.Context, id int32) (Connection, error)
+	GetConnectionByIDAndUserID(ctx context.Context, arg GetConnectionByIDAndUserIDParams) (Connection, error)
 	GetConnectionByProviderUserIDAndProviderConnectionID(ctx context.Context, arg GetConnectionByProviderUserIDAndProviderConnectionIDParams) (Connection, error)
 	GetConnectorByID(ctx context.Context, id int32) (Connector, error)
 	GetProviderByID(ctx context.Context, id int32) (Provider, error)
@@ -26,8 +31,10 @@ type Querier interface {
 	GetProviderUserByProviderIDAndUserID(ctx context.Context, arg GetProviderUserByProviderIDAndUserIDParams) (ProviderUser, error)
 	GetRedirectSessionByID(ctx context.Context, id string) (RedirectSession, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
-	GetUserByUsernameAndHashedPassword(ctx context.Context, arg GetUserByUsernameAndHashedPasswordParams) (User, error)
+	GetUserByUsername(ctx context.Context, username string) (User, error)
 	LikeSearchConnectorsByName(ctx context.Context, name string) ([]Connector, error)
+	ListAccountsByConnectionID(ctx context.Context, connectionID int32) ([]Account, error)
+	ListConnectionsByUserID(ctx context.Context, userID int32) ([]Connection, error)
 	ListConnectionsToSync(ctx context.Context) ([]Connection, error)
 	ListProviders(ctx context.Context) ([]Provider, error)
 	StoreRedirectSessions(ctx context.Context, arg StoreRedirectSessionsParams) error

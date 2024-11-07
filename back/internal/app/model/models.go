@@ -88,6 +88,7 @@ type RedirectSession struct {
 	ID                   string
 	ProviderConnectionID *string
 	InternalConnectionID *int32
+	UserID               int32
 }
 
 type Account struct {
@@ -128,4 +129,10 @@ type TransactionEnrichment struct {
 	Category            *string
 	CounterpartyName    *string
 	Reference           *string
+}
+
+type ConnectionWithAccounts struct {
+	Connection *Connection
+	Connector  *Connector
+	Accounts   []Account
 }
