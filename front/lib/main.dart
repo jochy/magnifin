@@ -6,13 +6,14 @@ import 'package:front/components/scaffold.dart';
 import 'package:front/config.dart';
 import 'package:front/cubit/auth/auth_cubit.dart';
 import 'package:front/cubit/connections/connections_cubit.dart';
+import 'package:front/cubit/transactions/transactions_cubit.dart';
 import 'package:front/generated/l10n.dart';
 import 'package:front/screens/accounts/accounts_screen.dart';
 import 'package:front/screens/accounts/add_account_screen.dart';
 import 'package:front/screens/auth/signin_screen.dart';
+import 'package:front/screens/budget/budget_screen.dart';
 import 'package:front/screens/home/home_screen.dart';
 import 'package:front/screens/auth/login_screen.dart';
-import 'package:front/screens/transactions_screen.dart';
 import 'package:front/screens/url_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -22,10 +23,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
   var authCubit = AuthCubit();
-  var connectionsCubit = ConnectionsCubit(authCubit);
+  var transactionsCubit = TransactionsCubit(authCubit);
+  var connectionsCubit = ConnectionsCubit(authCubit, transactionsCubit);
   runApp(MyApp(
     authCubit: authCubit,
     connectionsCubit: connectionsCubit,
+    transactionsCubit: transactionsCubit,
     savedThemeMode: savedThemeMode,
   ));
 }
@@ -41,9 +44,9 @@ final GoRouter _router = GoRouter(
           },
         ),
         GoRoute(
-          path: '/transactions',
+          path: '/budget',
           builder: (BuildContext context, GoRouterState state) {
-            return const TransactionsScreen();
+            return const BudgetScreen();
           },
         ),
         GoRoute(
@@ -103,12 +106,14 @@ final GoRouter _router = GoRouter(
 class MyApp extends StatelessWidget {
   final AuthCubit authCubit;
   final ConnectionsCubit connectionsCubit;
+  final TransactionsCubit transactionsCubit;
   final AdaptiveThemeMode? savedThemeMode;
 
   const MyApp({
     super.key,
     required this.authCubit,
     required this.connectionsCubit,
+    required this.transactionsCubit,
     this.savedThemeMode,
   });
 
@@ -119,6 +124,8 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider<AuthCubit>(create: (context) => authCubit),
           BlocProvider<ConnectionsCubit>(create: (context) => connectionsCubit),
+          BlocProvider<TransactionsCubit>(
+              create: (context) => transactionsCubit),
         ],
         child: AdaptiveTheme(
           light: ThemeData(

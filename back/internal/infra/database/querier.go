@@ -30,6 +30,8 @@ type Querier interface {
 	GetProviderUserByID(ctx context.Context, id int32) (ProviderUser, error)
 	GetProviderUserByProviderIDAndUserID(ctx context.Context, arg GetProviderUserByProviderIDAndUserIDParams) (ProviderUser, error)
 	GetRedirectSessionByID(ctx context.Context, id string) (RedirectSession, error)
+	GetTransactionsByUserIDAndBetweenDates(ctx context.Context, arg GetTransactionsByUserIDAndBetweenDatesParams) ([]GetTransactionsByUserIDAndBetweenDatesRow, error)
+	GetTransactionsMinAndMaxDateByUserID(ctx context.Context, userID int32) (GetTransactionsMinAndMaxDateByUserIDRow, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
 	LikeSearchConnectorsByName(ctx context.Context, name string) ([]Connector, error)

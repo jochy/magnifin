@@ -590,6 +590,118 @@ func (q *Queries) GetRedirectSessionByID(ctx context.Context, id string) (Redire
 	return i, err
 }
 
+const getTransactionsByUserIDAndBetweenDates = `-- name: GetTransactionsByUserIDAndBetweenDates :many
+select transactions.id, transactions.account_id, transactions.provider_transaction_id, transactions.bank_transaction_id, transactions.amount, transactions.currency, transactions.direction, transactions.status, transactions.operation_at, transactions.counterparty_name, transactions.counterparty_account, transactions.reference, transactions.created_at, transactions.updated_at, transactions.deleted_at, transaction_enrichments.id, transaction_enrichments.transaction_id, transaction_enrichments.category, transaction_enrichments.reference, transaction_enrichments.counterparty_name, transaction_enrichments.counterparty_logo_url, transaction_enrichments.deleted_at
+from transactions
+         inner join accounts on transactions.account_id = accounts.id
+         inner join connections on accounts.connection_id = connections.id
+         inner join provider_users on connections.provider_users_id = provider_users.id
+         left join transaction_enrichments on transactions.id = transaction_enrichments.transaction_id
+where provider_users.user_id = $1
+  and operation_at >= $2
+  and operation_at <= $3
+  and transactions.deleted_at is null
+`
+
+type GetTransactionsByUserIDAndBetweenDatesParams struct {
+	UserID        int32     `db:"user_id"`
+	OperationAt   time.Time `db:"operation_at"`
+	OperationAt_2 time.Time `db:"operation_at_2"`
+}
+
+type GetTransactionsByUserIDAndBetweenDatesRow struct {
+	ID                    int32          `db:"id"`
+	AccountID             int32          `db:"account_id"`
+	ProviderTransactionID string         `db:"provider_transaction_id"`
+	BankTransactionID     sql.NullString `db:"bank_transaction_id"`
+	Amount                string         `db:"amount"`
+	Currency              string         `db:"currency"`
+	Direction             string         `db:"direction"`
+	Status                string         `db:"status"`
+	OperationAt           time.Time      `db:"operation_at"`
+	CounterpartyName      sql.NullString `db:"counterparty_name"`
+	CounterpartyAccount   sql.NullString `db:"counterparty_account"`
+	Reference             sql.NullString `db:"reference"`
+	CreatedAt             time.Time      `db:"created_at"`
+	UpdatedAt             time.Time      `db:"updated_at"`
+	DeletedAt             sql.NullTime   `db:"deleted_at"`
+	ID_2                  sql.NullInt32  `db:"id_2"`
+	TransactionID         sql.NullInt32  `db:"transaction_id"`
+	Category              sql.NullString `db:"category"`
+	Reference_2           sql.NullString `db:"reference_2"`
+	CounterpartyName_2    sql.NullString `db:"counterparty_name_2"`
+	CounterpartyLogoUrl   sql.NullString `db:"counterparty_logo_url"`
+	DeletedAt_2           sql.NullTime   `db:"deleted_at_2"`
+}
+
+func (q *Queries) GetTransactionsByUserIDAndBetweenDates(ctx context.Context, arg GetTransactionsByUserIDAndBetweenDatesParams) ([]GetTransactionsByUserIDAndBetweenDatesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTransactionsByUserIDAndBetweenDates, arg.UserID, arg.OperationAt, arg.OperationAt_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetTransactionsByUserIDAndBetweenDatesRow{}
+	for rows.Next() {
+		var i GetTransactionsByUserIDAndBetweenDatesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.AccountID,
+			&i.ProviderTransactionID,
+			&i.BankTransactionID,
+			&i.Amount,
+			&i.Currency,
+			&i.Direction,
+			&i.Status,
+			&i.OperationAt,
+			&i.CounterpartyName,
+			&i.CounterpartyAccount,
+			&i.Reference,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.ID_2,
+			&i.TransactionID,
+			&i.Category,
+			&i.Reference_2,
+			&i.CounterpartyName_2,
+			&i.CounterpartyLogoUrl,
+			&i.DeletedAt_2,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTransactionsMinAndMaxDateByUserID = `-- name: GetTransactionsMinAndMaxDateByUserID :one
+select min(operation_at) as min_date, max(operation_at) as max_date
+from transactions
+         inner join accounts on transactions.account_id = accounts.id
+         inner join connections on accounts.connection_id = connections.id
+         inner join provider_users on connections.provider_users_id = provider_users.id
+where provider_users.user_id = $1
+  and transactions.deleted_at is null
+`
+
+type GetTransactionsMinAndMaxDateByUserIDRow struct {
+	MinDate interface{} `db:"min_date"`
+	MaxDate interface{} `db:"max_date"`
+}
+
+func (q *Queries) GetTransactionsMinAndMaxDateByUserID(ctx context.Context, userID int32) (GetTransactionsMinAndMaxDateByUserIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getTransactionsMinAndMaxDateByUserID, userID)
+	var i GetTransactionsMinAndMaxDateByUserIDRow
+	err := row.Scan(&i.MinDate, &i.MaxDate)
+	return i, err
+}
+
 const getUserByID = `-- name: GetUserByID :one
 select id, username, hashed_password, created_at, updated_at, deleted_at
 from users

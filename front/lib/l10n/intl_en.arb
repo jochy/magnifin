@@ -35,5 +35,9 @@
   "deleteConnection": "Delete connection",
   "areYouSureYouWantToDeleteThisConnectionnthisCan": "Are you sure you want to delete this connection?\nThis can not be undone and all data will be lost.",
   "unableToDeleteConnection": "Unable to delete connection",
-  "addANewAccount": "Add a new Account"
+  "addANewAccount": "Add a new Account",
+  "income": "Income",
+  "expenses": "Expenses",
+  "balance": "Balance",
+  "transaction": "Transaction"
 }

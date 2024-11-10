@@ -235,3 +235,24 @@ update transaction_enrichments
 set deleted_at = now()
 where transaction_id in
       (select id from transactions where account_id in (select id from accounts where connection_id = $1));
+
+-- name: GetTransactionsByUserIDAndBetweenDates :many
+select transactions.*, transaction_enrichments.*
+from transactions
+         inner join accounts on transactions.account_id = accounts.id
+         inner join connections on accounts.connection_id = connections.id
+         inner join provider_users on connections.provider_users_id = provider_users.id
+         left join transaction_enrichments on transactions.id = transaction_enrichments.transaction_id
+where provider_users.user_id = $1
+  and operation_at >= $2
+  and operation_at <= $3
+  and transactions.deleted_at is null;
+
+-- name: GetTransactionsMinAndMaxDateByUserID :one
+select min(operation_at) as min_date, max(operation_at) as max_date
+from transactions
+         inner join accounts on transactions.account_id = accounts.id
+         inner join connections on accounts.connection_id = connections.id
+         inner join provider_users on connections.provider_users_id = provider_users.id
+where provider_users.user_id = $1
+  and transactions.deleted_at is null;

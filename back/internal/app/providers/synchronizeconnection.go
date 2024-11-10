@@ -143,6 +143,10 @@ func (s *ProviderService) syncTransactions(
 	}
 
 	for _, transaction := range transactions {
+		if transaction.Currency == "" && account.Currency != nil {
+			transaction.Currency = *account.Currency
+		}
+
 		dbTransaction, err := s.transactionsRepository.GetByAccountIDAndProviderTransactionID(ctx, account.ID, transaction.ProviderTransactionID)
 		if err != nil {
 			return fmt.Errorf("unable to get transaction: %w", err)

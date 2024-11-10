@@ -37,6 +37,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage(
                 "Are you sure you want to delete this connection?\nThis can not be undone and all data will be lost."),
         "backendUrl": MessageLookupByLibrary.simpleMessage("Backend url"),
+        "balance": MessageLookupByLibrary.simpleMessage("Balance"),
         "bankName": MessageLookupByLibrary.simpleMessage("Bank name"),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "connect": MessageLookupByLibrary.simpleMessage("Connect"),
@@ -50,6 +51,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "deleteConnection":
             MessageLookupByLibrary.simpleMessage("Delete connection"),
         "distribution": MessageLookupByLibrary.simpleMessage("Distribution"),
+        "expenses": MessageLookupByLibrary.simpleMessage("Expenses"),
+        "income": MessageLookupByLibrary.simpleMessage("Income"),
         "lastSuccessfulSync": m0,
         "login": MessageLookupByLibrary.simpleMessage("Login"),
         "loginError": MessageLookupByLibrary.simpleMessage("Login error"),
@@ -69,6 +72,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "syncInProgress":
             MessageLookupByLibrary.simpleMessage("Sync in Progress"),
         "synced": MessageLookupByLibrary.simpleMessage("Synced"),
+        "transaction": MessageLookupByLibrary.simpleMessage("Transaction"),
         "tryAgain": MessageLookupByLibrary.simpleMessage("Try again"),
         "unableToConnectToConnectorname": m1,
         "unableToDeleteConnection":

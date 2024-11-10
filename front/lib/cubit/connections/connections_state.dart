@@ -54,3 +54,20 @@ class Connector with _$Connector {
   factory Connector.fromJson(Map<String, dynamic> json) =>
       _$ConnectorFromJson(json);
 }
+
+extension ConnectionExtension on ConnectionsState {
+  String accountNameById(int id) {
+    return connections.expand((e) => e.accounts).firstWhere((element) => element.id == id).name;
+  }
+
+  String? accountLogoById(int id) {
+    for (var c in connections) {
+      for (var a in c.accounts) {
+        if (a.id == id) {
+          return c.connector.logoUrl;
+        }
+      }
+    }
+    return null;
+  }
+}

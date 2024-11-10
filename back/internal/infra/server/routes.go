@@ -33,6 +33,8 @@ func (s *Server) registerRoutes() http.Handler {
 	// User's data
 	auth.GET("/connections", s.connectionsHandlers.List)
 	auth.DELETE("/connections/:id", s.connectionsHandlers.Delete)
+	auth.GET("/transactions", s.transactionsHandler.List)
+	auth.GET("/transactions/minmax", s.transactionsHandler.MinMax)
 
 	// Provider callbacks - No auth because webview on browser / desktop app, so no auth context
 	r.GET("/v1/providers/gocardless/callback", s.connectorsHandlers.GoCardlessCallback)

@@ -47,3 +47,39 @@ func enrichmentToDomain(enrichment *database.TransactionEnrichment) *model.Trans
 		Reference:           repository.FromSqlNullString(enrichment.Reference),
 	}
 }
+
+func toEnrichedDomain(trs *database.GetTransactionsByUserIDAndBetweenDatesRow) *model.Transaction {
+	var enrichment *model.TransactionEnrichment
+	if trs.ID_2.Valid {
+		enrichment = &model.TransactionEnrichment{
+			ID:                  trs.ID,
+			TransactionID:       *repository.FromSqlNullInt32(trs.TransactionID),
+			CounterpartyLogoURL: repository.FromSqlNullString(trs.CounterpartyLogoUrl),
+			Category:            repository.FromSqlNullString(trs.Category),
+			CounterpartyName:    repository.FromSqlNullString(trs.CounterpartyName_2),
+			Reference:           repository.FromSqlNullString(trs.Reference_2),
+		}
+	}
+
+	amount, err := strconv.ParseFloat(trs.Amount, 64)
+	if err != nil {
+		slog.Error(fmt.Sprintf("failed to parse transaction amount: %s", err))
+		amount = 0
+	}
+
+	return &model.Transaction{
+		ID:                    trs.ID,
+		AccountID:             trs.AccountID,
+		ProviderTransactionID: trs.ProviderTransactionID,
+		BankTransactionID:     repository.FromSqlNullString(trs.BankTransactionID),
+		Amount:                amount,
+		Currency:              trs.Currency,
+		Direction:             model.TransactionDirection(trs.Direction),
+		Status:                model.TransactionStatus(trs.Status),
+		OperationAt:           trs.OperationAt,
+		CounterpartyName:      repository.FromSqlNullString(trs.CounterpartyName),
+		CounterpartyAccount:   repository.FromSqlNullString(trs.CounterpartyAccount),
+		Reference:             repository.FromSqlNullString(trs.Reference),
+		Enrichment:            enrichment,
+	}
+}

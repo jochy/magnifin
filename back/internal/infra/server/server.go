@@ -6,6 +6,7 @@ import (
 	"magnifin/internal/adapters/http/handlers/connections"
 	"magnifin/internal/adapters/http/handlers/connectors"
 	"magnifin/internal/adapters/http/handlers/providers"
+	"magnifin/internal/adapters/http/handlers/transactions"
 	"magnifin/internal/adapters/http/handlers/users"
 	"magnifin/internal/adapters/http/middlewares"
 	"net/http"
@@ -23,6 +24,7 @@ type Server struct {
 	providersHandlers   *providers.Handler
 	connectorsHandlers  *connectors.Handler
 	connectionsHandlers *connections.Handlers
+	transactionsHandler *transactions.Handlers
 }
 
 func NewServer(
@@ -32,6 +34,7 @@ func NewServer(
 	providersHandlers *providers.Handler,
 	connectorsHandlers *connectors.Handler,
 	connectionsHandlers *connections.Handlers,
+	transactionsHandler *transactions.Handlers,
 ) *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	NewServer := &Server{
@@ -42,6 +45,7 @@ func NewServer(
 		providersHandlers:   providersHandlers,
 		connectorsHandlers:  connectorsHandlers,
 		connectionsHandlers: connectionsHandlers,
+		transactionsHandler: transactionsHandler,
 	}
 
 	// Declare Server config

@@ -78,6 +78,13 @@ func FromSqlNullString(s sql.NullString) *string {
 	return &s.String
 }
 
+func FromSqlNullInt32(i sql.NullInt32) *int32 {
+	if !i.Valid {
+		return nil
+	}
+	return &i.Int32
+}
+
 func ToSqlNullString(s *string) sql.NullString {
 	if s == nil {
 		return sql.NullString{}

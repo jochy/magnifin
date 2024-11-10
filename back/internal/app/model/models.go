@@ -136,3 +136,8 @@ type ConnectionWithAccounts struct {
 	Connector  *Connector
 	Accounts   []Account
 }
+
+type TransactionMinAndMax struct {
+	Min time.Time
+	Max time.Time
+}

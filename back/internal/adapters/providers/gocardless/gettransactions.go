@@ -9,6 +9,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -85,6 +86,7 @@ type goCardlessTransaction struct {
 	DebtorAccount   *goCardlessCounterPartyAccount `json:"debtorAccount"`
 	CreditorAccount *goCardlessCounterPartyAccount `json:"creditorAccount"`
 	Reference       *string                        `json:"remittanceInformationUnstructured"`
+	References      []string                       `json:"remittanceInformationUnstructuredArray"`
 }
 
 type goCardlessTransactionAmount struct {
@@ -132,6 +134,24 @@ func (transaction *goCardlessTransaction) toDomain(accountID int32, isBooked boo
 		}
 	}
 
+	reference := transaction.Reference
+	if reference == nil && len(transaction.References) > 0 {
+		ref := strings.Join(transaction.References, ", ")
+		reference = &ref
+	}
+
+	if reference != nil {
+		cleaned := cleanString(reference)
+		reference = &cleaned
+	}
+
+	if counterpartyName == nil {
+		counterpartyName = reference
+	} else {
+		cleaned := cleanString(counterpartyName)
+		counterpartyName = &cleaned
+	}
+
 	var operationDate time.Time
 	if transaction.ValueDateTime != nil { //nolint:gocritic
 		operationDate = *transaction.ValueDateTime
@@ -157,8 +177,17 @@ func (transaction *goCardlessTransaction) toDomain(accountID int32, isBooked boo
 		OperationAt:           operationDate,
 		CounterpartyName:      counterpartyName,
 		CounterpartyAccount:   counterpartyAccount,
-		Reference:             transaction.Reference,
+		Reference:             reference,
 	}
+}
+
+func cleanString(reference *string) string {
+	cleaned := strings.ReplaceAll(*reference, "\n", " ")
+	cleaned = strings.ReplaceAll(cleaned, "\r", " ")
+	cleaned = strings.ReplaceAll(cleaned, "\t", " ")
+	cleaned = strings.ReplaceAll(cleaned, "  ", " ")
+	cleaned = strings.TrimSpace(cleaned)
+	return cleaned
 }
 
 func (a *goCardlessTransactionAmount) getAmount() float64 {
@@ -171,7 +200,12 @@ func (a *goCardlessTransactionAmount) getAmount() float64 {
 }
 
 func (a *goCardlessTransactionAmount) getDirection() model.TransactionDirection {
-	if a.getAmount() > 0 {
+	amount, err := strconv.ParseFloat(a.Amount, 64)
+	if err != nil {
+		slog.Warn("Failed to parse amount: " + a.Amount)
+		amount = 0
+	}
+	if amount > 0 {
 		return model.TransactionDirectionCredit
 	}
 	return model.TransactionDirectionDebit

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:front/config.dart';
 import 'package:front/cubit/auth/auth_cubit.dart';
+import 'package:front/cubit/transactions/transactions_cubit.dart';
 import 'package:http/http.dart' as http;
 
 part 'connections_state.dart';
@@ -14,11 +15,12 @@ part 'connections_cubit.g.dart';
 
 class ConnectionsCubit extends Cubit<ConnectionsState> {
   final AuthCubit authCubit;
+  final TransactionsCubit transactionsCubit;
 
   static ConnectionsCubit of(context) =>
       BlocProvider.of<ConnectionsCubit>(context);
 
-  ConnectionsCubit(this.authCubit)
+  ConnectionsCubit(this.authCubit, this.transactionsCubit)
       : super(const ConnectionsState(
           isLoading: false,
           hasLoaded: false,
@@ -47,6 +49,8 @@ class ConnectionsCubit extends Cubit<ConnectionsState> {
           isLoading: false,
           hasLoaded: true,
         ));
+
+        transactionsCubit.loadRecentTransactions();
       } else {
         emit(
           state.copyWith(

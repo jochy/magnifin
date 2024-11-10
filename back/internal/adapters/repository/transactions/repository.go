@@ -8,6 +8,7 @@ import (
 	"magnifin/internal/adapters/repository"
 	"magnifin/internal/app/model"
 	"magnifin/internal/infra/database"
+	"time"
 )
 
 type Repository struct {
@@ -89,4 +90,47 @@ func (r *Repository) DeleteByConnectionID(ctx context.Context, connectionID int3
 	}
 
 	return nil
+}
+
+func (r *Repository) GetAllByUserBetweenDates(ctx context.Context, user *model.User, from time.Time, to time.Time) ([]model.Transaction, error) {
+	transactions, err := r.db.GetTransactionsByUserIDAndBetweenDates(ctx, database.GetTransactionsByUserIDAndBetweenDatesParams{
+		UserID:        user.ID,
+		OperationAt:   from,
+		OperationAt_2: to,
+	})
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("error getting transactions: %w", err)
+	}
+
+	trs := make([]model.Transaction, len(transactions))
+	for i, tx := range transactions {
+		trs[i] = *toEnrichedDomain(&tx)
+	}
+
+	return trs, nil
+}
+
+func (r *Repository) GetTransactionMinMaxDateByUser(ctx context.Context, user *model.User) (*model.TransactionMinAndMax, error) {
+	row, err := r.db.GetTransactionsMinAndMaxDateByUserID(ctx, user.ID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("error getting transactions min and max date: %w", err)
+	}
+
+	// check if row.minDate is time.Time
+	if _, ok := (row.MinDate).(time.Time); !ok {
+		return nil, fmt.Errorf("error getting transactions min and max date: %w", err)
+	} else if _, ok := (row.MaxDate).(time.Time); !ok {
+		return nil, fmt.Errorf("error getting transactions min and max date: %w", err)
+	}
+
+	return &model.TransactionMinAndMax{
+		Min: (row.MinDate).(time.Time), //nolint:forcetypeassert
+		Max: (row.MaxDate).(time.Time), //nolint:forcetypeassert
+	}, nil
 }

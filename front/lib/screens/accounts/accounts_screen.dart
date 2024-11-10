@@ -61,7 +61,7 @@ class AccountsScreen extends StatelessWidget {
                     maxRadius: 18,
                     child: connection.connector.logoUrl != ""
                         ? Image.network(connection.connector.logoUrl)
-                        : const Icon(Icons.account_circle),
+                        : const Icon(MdiIcons.bank),
                   ),
                   const SizedBox(width: 12),
                   StyledText.headlineSmall(connection.connector.name),

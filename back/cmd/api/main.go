@@ -7,9 +7,10 @@ import (
 	"log"
 	"log/slog"
 	"magnifin/internal/adapters/http/handlers"
-	connections2 "magnifin/internal/adapters/http/handlers/connections"
+	connectionshandlers "magnifin/internal/adapters/http/handlers/connections"
 	connectorshandlers "magnifin/internal/adapters/http/handlers/connectors"
 	"magnifin/internal/adapters/http/handlers/providers"
+	transactionshandlers "magnifin/internal/adapters/http/handlers/transactions"
 	usershandlers "magnifin/internal/adapters/http/handlers/users"
 	"magnifin/internal/adapters/http/middlewares"
 	"magnifin/internal/adapters/jobs"
@@ -27,6 +28,7 @@ import (
 	connections3 "magnifin/internal/app/connections"
 	connectors2 "magnifin/internal/app/connectors"
 	providers2 "magnifin/internal/app/providers"
+	transactions2 "magnifin/internal/app/transactions"
 	"magnifin/internal/infra/database"
 	scheduler2 "magnifin/internal/infra/scheduler"
 	"magnifin/internal/infra/server"
@@ -119,6 +121,7 @@ func main() {
 		transactionsRepository,
 		providerService,
 	)
+	transactionsService := transactions2.NewTransactionsService(transactionsRepository)
 
 	scheduler, err := scheduler2.NewScheduler(db, jobs.NewJobs(providerService, connectionsRepository))
 	if err != nil {
@@ -138,7 +141,8 @@ func main() {
 		middlewares.NewAuthMiddleware(userService),
 		providers.NewHandler(providerService),
 		connectorshandlers.NewHandler(connectorsService),
-		connections2.NewHandlers(connectionsService),
+		connectionshandlers.NewHandlers(connectionsService),
+		transactionshandlers.NewHandlers(transactionsService),
 	)
 
 	// Create a done channel to signal when the shutdown is complete
