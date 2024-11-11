@@ -329,7 +329,9 @@ mixin _$Transaction {
   @JsonKey(name: 'logo')
   String? get counterpartyLogoUrl => throw _privateConstructorUsedError;
   @JsonKey(name: 'ca')
-  String? get category => throw _privateConstructorUsedError;
+  int? get category => throw _privateConstructorUsedError;
+  @JsonKey(name: 'm')
+  String? get method => throw _privateConstructorUsedError;
 
   /// Serializes this Transaction to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -360,7 +362,8 @@ abstract class $TransactionCopyWith<$Res> {
       @JsonKey(name: 'acc') String? counterpartyAccount,
       @JsonKey(name: 'ref') String? reference,
       @JsonKey(name: 'logo') String? counterpartyLogoUrl,
-      @JsonKey(name: 'ca') String? category});
+      @JsonKey(name: 'ca') int? category,
+      @JsonKey(name: 'm') String? method});
 }
 
 /// @nodoc
@@ -391,6 +394,7 @@ class _$TransactionCopyWithImpl<$Res, $Val extends Transaction>
     Object? reference = freezed,
     Object? counterpartyLogoUrl = freezed,
     Object? category = freezed,
+    Object? method = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -444,6 +448,10 @@ class _$TransactionCopyWithImpl<$Res, $Val extends Transaction>
       category: freezed == category
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
+              as int?,
+      method: freezed == method
+          ? _value.method
+          : method // ignore: cast_nullable_to_non_nullable
               as String?,
     ) as $Val);
   }
@@ -470,7 +478,8 @@ abstract class _$$TransactionImplCopyWith<$Res>
       @JsonKey(name: 'acc') String? counterpartyAccount,
       @JsonKey(name: 'ref') String? reference,
       @JsonKey(name: 'logo') String? counterpartyLogoUrl,
-      @JsonKey(name: 'ca') String? category});
+      @JsonKey(name: 'ca') int? category,
+      @JsonKey(name: 'm') String? method});
 }
 
 /// @nodoc
@@ -499,6 +508,7 @@ class __$$TransactionImplCopyWithImpl<$Res>
     Object? reference = freezed,
     Object? counterpartyLogoUrl = freezed,
     Object? category = freezed,
+    Object? method = freezed,
   }) {
     return _then(_$TransactionImpl(
       id: null == id
@@ -552,6 +562,10 @@ class __$$TransactionImplCopyWithImpl<$Res>
       category: freezed == category
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
+              as int?,
+      method: freezed == method
+          ? _value.method
+          : method // ignore: cast_nullable_to_non_nullable
               as String?,
     ));
   }
@@ -573,7 +587,8 @@ class _$TransactionImpl implements _Transaction {
       @JsonKey(name: 'acc') this.counterpartyAccount,
       @JsonKey(name: 'ref') this.reference,
       @JsonKey(name: 'logo') this.counterpartyLogoUrl,
-      @JsonKey(name: 'ca') this.category});
+      @JsonKey(name: 'ca') this.category,
+      @JsonKey(name: 'm') this.method});
 
   factory _$TransactionImpl.fromJson(Map<String, dynamic> json) =>
       _$$TransactionImplFromJson(json);
@@ -616,11 +631,14 @@ class _$TransactionImpl implements _Transaction {
   final String? counterpartyLogoUrl;
   @override
   @JsonKey(name: 'ca')
-  final String? category;
+  final int? category;
+  @override
+  @JsonKey(name: 'm')
+  final String? method;
 
   @override
   String toString() {
-    return 'Transaction(id: $id, accountId: $accountId, bankTransactionId: $bankTransactionId, amount: $amount, currency: $currency, direction: $direction, status: $status, operationAt: $operationAt, counterpartyName: $counterpartyName, counterpartyAccount: $counterpartyAccount, reference: $reference, counterpartyLogoUrl: $counterpartyLogoUrl, category: $category)';
+    return 'Transaction(id: $id, accountId: $accountId, bankTransactionId: $bankTransactionId, amount: $amount, currency: $currency, direction: $direction, status: $status, operationAt: $operationAt, counterpartyName: $counterpartyName, counterpartyAccount: $counterpartyAccount, reference: $reference, counterpartyLogoUrl: $counterpartyLogoUrl, category: $category, method: $method)';
   }
 
   @override
@@ -650,7 +668,8 @@ class _$TransactionImpl implements _Transaction {
             (identical(other.counterpartyLogoUrl, counterpartyLogoUrl) ||
                 other.counterpartyLogoUrl == counterpartyLogoUrl) &&
             (identical(other.category, category) ||
-                other.category == category));
+                other.category == category) &&
+            (identical(other.method, method) || other.method == method));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -669,7 +688,8 @@ class _$TransactionImpl implements _Transaction {
       counterpartyAccount,
       reference,
       counterpartyLogoUrl,
-      category);
+      category,
+      method);
 
   /// Create a copy of Transaction
   /// with the given fields replaced by the non-null parameter values.
@@ -701,7 +721,8 @@ abstract class _Transaction implements Transaction {
       @JsonKey(name: 'acc') final String? counterpartyAccount,
       @JsonKey(name: 'ref') final String? reference,
       @JsonKey(name: 'logo') final String? counterpartyLogoUrl,
-      @JsonKey(name: 'ca') final String? category}) = _$TransactionImpl;
+      @JsonKey(name: 'ca') final int? category,
+      @JsonKey(name: 'm') final String? method}) = _$TransactionImpl;
 
   factory _Transaction.fromJson(Map<String, dynamic> json) =
       _$TransactionImpl.fromJson;
@@ -744,7 +765,10 @@ abstract class _Transaction implements Transaction {
   String? get counterpartyLogoUrl;
   @override
   @JsonKey(name: 'ca')
-  String? get category;
+  int? get category;
+  @override
+  @JsonKey(name: 'm')
+  String? get method;
 
   /// Create a copy of Transaction
   /// with the given fields replaced by the non-null parameter values.

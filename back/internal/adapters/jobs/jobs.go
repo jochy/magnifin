@@ -13,6 +13,10 @@ type Service interface {
 	UpdateConnectorsList(ctx context.Context) ([]model.Connector, []error)
 }
 
+type TransactionService interface {
+	EnrichTransaction(ctx context.Context, transactionID int32) error
+}
+
 type ConnectionsRepository interface {
 	ListConnectionsToSync(ctx context.Context) ([]model.Connection, error)
 }
@@ -23,13 +27,15 @@ type Scheduler interface {
 
 type Jobs struct {
 	Service               Service
+	TransactionService    TransactionService
 	ConnectionsRepository ConnectionsRepository
 	Scheduler             Scheduler
 }
 
-func NewJobs(service Service, connectionsRepository ConnectionsRepository) *Jobs {
+func NewJobs(service Service, transactionService TransactionService, connectionsRepository ConnectionsRepository) *Jobs {
 	return &Jobs{
 		Service:               service,
+		TransactionService:    transactionService,
 		ConnectionsRepository: connectionsRepository,
 	}
 }

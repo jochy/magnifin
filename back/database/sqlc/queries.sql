@@ -256,3 +256,74 @@ from transactions
          inner join provider_users on connections.provider_users_id = provider_users.id
 where provider_users.user_id = $1
   and transactions.deleted_at is null;
+
+-- name: GetTransactionByID :one
+select *
+from transactions
+where id = $1
+  and deleted_at is null;
+
+-- name: CreateTransactionEnrichment :one
+insert into transaction_enrichments (transaction_id, category, reference, counterparty_name, counterparty_logo_url,
+                                     method, user_counterparty_name)
+values ($1, $2, $3, $4, $5, $6, $7) returning *;
+
+-- name: GetAllRulesByUserID :many
+select category_rules.*
+from category_rules
+         left join categories on category_rules.category_id = categories.id
+where categories.deleted_at is null
+  and category_rules.deleted_at is null
+  and (user_id is null or user_id = $1)
+order by created_at desc;
+
+-- name: GetAllCategoriesByUserID :many
+select *
+from categories
+where categories.deleted_at is null
+  and (user_id is null or user_id = $1);
+
+-- name: DeleteCategoryByID :exec
+update categories
+set deleted_at = now()
+where id = $1;
+
+-- name: DeleteCategoryRuleByCategoryID :exec
+update category_rules
+set deleted_at = now()
+where category_id = $1;
+
+-- name: CreateCategory :one
+insert into categories (name, user_id, color, icon, include_in_budget)
+values ($1, $2, $3, $4, $5) returning *;
+
+-- name: UpdateCategoryByIDAndUserID :one
+update categories
+set name              = $2,
+    color             = $3,
+    icon              = $4,
+    include_in_budget = $5,
+    updated_at        = now()
+where id = $1
+  and user_id = $6
+  and deleted_at is null returning *;
+
+-- name: CreateCategoryRule :one
+insert into category_rules (category_id, rule)
+values ($1, $2) returning *;
+
+-- name: ListAllUserCounterpartiesByTransID :many
+select distinct LOWER(user_counterparty_name)
+from transaction_enrichments
+         inner join transactions on transaction_enrichments.transaction_id = transactions.id
+         inner join accounts on transactions.account_id = accounts.id
+         inner join connections on accounts.connection_id = connections.id
+         inner join provider_users on connections.provider_users_id = provider_users.id
+where provider_users.user_id = (select user_id
+                                from provider_users
+                                         inner join connections on connections.provider_users_id = provider_users.id
+                                         inner join accounts on accounts.connection_id = connections.id
+                                         inner join transactions on accounts.id = transactions.account_id
+                                where transactions.id = $1)
+  and transactions.deleted_at is null
+  and user_counterparty_name is not null;

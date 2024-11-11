@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func toDomain(transaction database.Transaction, enrichment *database.TransactionEnrichment) *model.Transaction {
+func toDomain(transaction database.Transaction, enrichment *database.TransactionEnrichment) *model.Transaction { //nolint:unparam
 	amount, err := strconv.ParseFloat(transaction.Amount, 64)
 	if err != nil {
 		slog.Error(fmt.Sprintf("failed to parse transaction amount: %s", err))
@@ -39,12 +39,14 @@ func enrichmentToDomain(enrichment *database.TransactionEnrichment) *model.Trans
 	}
 
 	return &model.TransactionEnrichment{
-		ID:                  enrichment.ID,
-		TransactionID:       enrichment.TransactionID,
-		CounterpartyLogoURL: repository.FromSqlNullString(enrichment.CounterpartyLogoUrl),
-		Category:            repository.FromSqlNullString(enrichment.Category),
-		CounterpartyName:    repository.FromSqlNullString(enrichment.CounterpartyName),
-		Reference:           repository.FromSqlNullString(enrichment.Reference),
+		ID:                   enrichment.ID,
+		TransactionID:        enrichment.TransactionID,
+		CounterpartyLogoURL:  repository.FromSqlNullString(enrichment.CounterpartyLogoUrl),
+		Category:             repository.FromSqlNullInt32(enrichment.Category),
+		CounterpartyName:     repository.FromSqlNullString(enrichment.CounterpartyName),
+		Reference:            repository.FromSqlNullString(enrichment.Reference),
+		Method:               repository.FromSqlNullString(enrichment.Method),
+		UserCounterpartyName: repository.FromSqlNullString(enrichment.UserCounterpartyName),
 	}
 }
 
@@ -52,12 +54,14 @@ func toEnrichedDomain(trs *database.GetTransactionsByUserIDAndBetweenDatesRow) *
 	var enrichment *model.TransactionEnrichment
 	if trs.ID_2.Valid {
 		enrichment = &model.TransactionEnrichment{
-			ID:                  trs.ID,
-			TransactionID:       *repository.FromSqlNullInt32(trs.TransactionID),
-			CounterpartyLogoURL: repository.FromSqlNullString(trs.CounterpartyLogoUrl),
-			Category:            repository.FromSqlNullString(trs.Category),
-			CounterpartyName:    repository.FromSqlNullString(trs.CounterpartyName_2),
-			Reference:           repository.FromSqlNullString(trs.Reference_2),
+			ID:                   trs.ID,
+			TransactionID:        *repository.FromSqlNullInt32(trs.TransactionID),
+			CounterpartyLogoURL:  repository.FromSqlNullString(trs.CounterpartyLogoUrl),
+			Category:             repository.FromSqlNullInt32(trs.Category),
+			CounterpartyName:     repository.FromSqlNullString(trs.CounterpartyName_2),
+			Reference:            repository.FromSqlNullString(trs.Reference_2),
+			Method:               repository.FromSqlNullString(trs.Method),
+			UserCounterpartyName: repository.FromSqlNullString(trs.UserCounterpartyName),
 		}
 	}
 

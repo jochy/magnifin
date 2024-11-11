@@ -125,10 +125,12 @@ type TransactionEnrichment struct {
 	ID            int32
 	TransactionID int32
 
-	CounterpartyLogoURL *string
-	Category            *string
-	CounterpartyName    *string
-	Reference           *string
+	CounterpartyLogoURL  *string
+	Category             *int32
+	CounterpartyName     *string
+	UserCounterpartyName *string
+	Reference            *string
+	Method               *string
 }
 
 type ConnectionWithAccounts struct {
@@ -140,4 +142,19 @@ type ConnectionWithAccounts struct {
 type TransactionMinAndMax struct {
 	Min time.Time
 	Max time.Time
+}
+
+type Category struct {
+	ID              int32
+	Name            string
+	UserID          *int32
+	Color           string
+	Icon            string
+	IncludeInBudget bool
+}
+
+type CategoryRule struct {
+	ID         int32
+	CategoryID int32
+	Rule       []string
 }

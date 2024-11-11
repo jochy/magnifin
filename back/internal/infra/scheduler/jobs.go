@@ -10,6 +10,7 @@ func addWorkers(workers *river.Workers, jobs *jobs.Jobs) {
 	river.AddWorker(workers, jobs.NewSynchronizeConnectionWorker())
 	river.AddWorker(workers, jobs.NewUpdateConnectorsWorker())
 	river.AddWorker(workers, jobs.NewSynchronizeAllConnectionsWorker())
+	river.AddWorker(workers, jobs.NewTransactionEnrichWorker())
 }
 
 func periodicJobs(jobs *jobs.Jobs) []*river.PeriodicJob {

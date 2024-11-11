@@ -4,6 +4,7 @@ import (
 	"context"
 	"magnifin/internal/adapters/jobs"
 	"magnifin/internal/infra/database"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/riverqueue/river"
@@ -29,10 +30,11 @@ func NewScheduler(db database.Service, jobs *jobs.Jobs) (Client, error) {
 
 	riverClient, err := river.NewClient(riverpgxv5.New(db.PgxPool()), &river.Config{
 		Queues: map[string]river.QueueConfig{
-			river.QueueDefault: {MaxWorkers: 100},
+			river.QueueDefault: {MaxWorkers: 50},
 		},
 		Workers:      workers,
 		PeriodicJobs: periodicJobs(jobs),
+		JobTimeout:   2 * time.Minute,
 	})
 	if err != nil {
 		return nil, err

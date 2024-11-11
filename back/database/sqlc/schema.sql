@@ -121,13 +121,37 @@ create table transactions
 
 create table transaction_enrichments
 (
-    id                    serial primary key,
-    transaction_id        integer not null references transactions (id),
+    id                     serial primary key,
+    transaction_id         integer not null references transactions (id),
 
-    category              text null,
-    reference             text null,
-    counterparty_name     text null,
-    counterparty_logo_url text null,
+    category               integer null references categories (id),
+    reference              text null,
+    method                 text null,
+    counterparty_name      text null,
+    counterparty_logo_url  text null,
+    user_counterparty_name text null,
 
-    deleted_at            timestamp null
+    deleted_at             timestamp null
+);
+
+create table categories
+(
+    id                serial primary key,
+    name              text    not null,
+    user_id           integer null references users (id),
+    color             text    not null,
+    icon              text    not null,
+    include_in_budget boolean not null,
+
+    deleted_at        timestamp null
+);
+
+create table category_rules
+(
+    id          serial primary key,
+    category_id integer   not null references categories (id),
+    rule        text      not null,
+
+    created_at  timestamp not null default now(),
+    deleted_at  timestamp null
 );

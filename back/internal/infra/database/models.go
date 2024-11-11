@@ -24,6 +24,24 @@ type Account struct {
 	DeletedAt         sql.NullTime   `db:"deleted_at"`
 }
 
+type Category struct {
+	ID              int32         `db:"id"`
+	Name            string        `db:"name"`
+	UserID          sql.NullInt32 `db:"user_id"`
+	Color           string        `db:"color"`
+	Icon            string        `db:"icon"`
+	IncludeInBudget bool          `db:"include_in_budget"`
+	DeletedAt       sql.NullTime  `db:"deleted_at"`
+}
+
+type CategoryRule struct {
+	ID         int32        `db:"id"`
+	CategoryID int32        `db:"category_id"`
+	Rule       string       `db:"rule"`
+	CreatedAt  time.Time    `db:"created_at"`
+	DeletedAt  sql.NullTime `db:"deleted_at"`
+}
+
 type Connection struct {
 	ID                   int32          `db:"id"`
 	ProviderUsersID      int32          `db:"provider_users_id"`
@@ -97,13 +115,15 @@ type Transaction struct {
 }
 
 type TransactionEnrichment struct {
-	ID                  int32          `db:"id"`
-	TransactionID       int32          `db:"transaction_id"`
-	Category            sql.NullString `db:"category"`
-	Reference           sql.NullString `db:"reference"`
-	CounterpartyName    sql.NullString `db:"counterparty_name"`
-	CounterpartyLogoUrl sql.NullString `db:"counterparty_logo_url"`
-	DeletedAt           sql.NullTime   `db:"deleted_at"`
+	ID                   int32          `db:"id"`
+	TransactionID        int32          `db:"transaction_id"`
+	Category             sql.NullInt32  `db:"category"`
+	Reference            sql.NullString `db:"reference"`
+	Method               sql.NullString `db:"method"`
+	CounterpartyName     sql.NullString `db:"counterparty_name"`
+	CounterpartyLogoUrl  sql.NullString `db:"counterparty_logo_url"`
+	UserCounterpartyName sql.NullString `db:"user_counterparty_name"`
+	DeletedAt            sql.NullTime   `db:"deleted_at"`
 }
 
 type User struct {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	enricher2 "magnifin/internal/adapters/enricher"
 	"magnifin/internal/adapters/http/handlers"
 	connectionshandlers "magnifin/internal/adapters/http/handlers/connections"
 	connectorshandlers "magnifin/internal/adapters/http/handlers/connectors"
@@ -84,6 +85,13 @@ func main() {
 		panic("PUBLIC_URL is required")
 	}
 
+	openAIKey := os.Getenv("OPENAI_KEY")
+	openAIUrl := os.Getenv("OPENAI_BASE_URL")
+	openAIModel := os.Getenv("OPENAI_MODEL")
+	if (openAIKey == "" && openAIUrl == "") || openAIModel == "" {
+		slog.Warn("OPENAI_KEY not set, some features may not work. Please set either OPENAI_KEY, OPENAI_BASE_URL and OPENAI_MODEL")
+	}
+
 	// Db
 	db := database.NewService()
 	userRepository := usersrepo.NewRepository(db, cypherKey)
@@ -99,6 +107,7 @@ func main() {
 	providerPorts := []providers2.ProviderPort{
 		gocardless.NewGoCardless(publicURL),
 	}
+	enricher := enricher2.NewEnricher(openAIUrl, openAIKey, openAIModel)
 
 	// Services
 	userService := app.NewUserService(userRepository, signKey)
@@ -121,9 +130,9 @@ func main() {
 		transactionsRepository,
 		providerService,
 	)
-	transactionsService := transactions2.NewTransactionsService(transactionsRepository)
+	transactionsService := transactions2.NewTransactionsService(transactionsRepository, enricher)
 
-	scheduler, err := scheduler2.NewScheduler(db, jobs.NewJobs(providerService, connectionsRepository))
+	scheduler, err := scheduler2.NewScheduler(db, jobs.NewJobs(providerService, transactionsService, connectionsRepository))
 	if err != nil {
 		panic(fmt.Sprintf("failed to create scheduler: %s", err))
 	}
@@ -133,6 +142,16 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("failed to start scheduler: %s", err))
 	}
+
+	/*
+		trs, err := transactionsRepository.GetAllByUserBetweenDates(context.Background(), &model.User{ID: 8}, time.Now().Add(-36000*time.Hour), time.Now())
+		for _, tr := range trs {
+			err = scheduler.Trigger(context.Background(), jobs.TransactionEnrichInput{TransactionID: tr.ID})
+			if err != nil {
+				panic(fmt.Sprintf("failed to trigger transaction enrichment job: %s", err))
+			}
+		}
+	*/
 
 	// Server
 	server := server.NewServer(

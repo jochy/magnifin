@@ -141,15 +141,13 @@ func (transaction *goCardlessTransaction) toDomain(accountID int32, isBooked boo
 	}
 
 	if reference != nil {
-		cleaned := cleanString(reference)
-		reference = &cleaned
+		reference = cleanString(reference)
 	}
 
 	if counterpartyName == nil {
 		counterpartyName = reference
 	} else {
-		cleaned := cleanString(counterpartyName)
-		counterpartyName = &cleaned
+		counterpartyName = cleanString(counterpartyName)
 	}
 
 	var operationDate time.Time
@@ -181,13 +179,18 @@ func (transaction *goCardlessTransaction) toDomain(accountID int32, isBooked boo
 	}
 }
 
-func cleanString(reference *string) string {
-	cleaned := strings.ReplaceAll(*reference, "\n", " ")
-	cleaned = strings.ReplaceAll(cleaned, "\r", " ")
-	cleaned = strings.ReplaceAll(cleaned, "\t", " ")
-	cleaned = strings.ReplaceAll(cleaned, "  ", " ")
-	cleaned = strings.TrimSpace(cleaned)
-	return cleaned
+func cleanString(reference *string) *string {
+	if reference == nil {
+		return nil
+	}
+
+	charToRemove := []string{"\n", "\r", "\t", "#", "@", "(", ")", "-", "_", ",", "  "}
+	for _, char := range charToRemove {
+		*reference = strings.ReplaceAll(*reference, char, " ")
+	}
+
+	res := strings.TrimSpace(*reference)
+	return &res
 }
 
 func (a *goCardlessTransactionAmount) getAmount() float64 {

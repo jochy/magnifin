@@ -26,7 +26,7 @@ create table transaction_enrichments
     id                    serial primary key,
     transaction_id        integer not null references transactions (id),
 
-    category              text null,
+    category              integer null references categories (id),
     reference             text null,
     counterparty_name     text null,
     counterparty_logo_url text null,

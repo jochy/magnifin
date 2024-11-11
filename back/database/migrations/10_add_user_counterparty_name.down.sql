@@ -1,0 +1,3 @@
+alter table transaction_enrichments
+drop
+column user_counterparty_name;

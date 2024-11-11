@@ -28,7 +28,8 @@ class Transaction with _$Transaction {
     @JsonKey(name: 'acc') String? counterpartyAccount,
     @JsonKey(name: 'ref') String? reference,
     @JsonKey(name: 'logo') String? counterpartyLogoUrl,
-    @JsonKey(name: 'ca') String? category,
+    @JsonKey(name: 'ca') int? category,
+    @JsonKey(name: 'm') String? method,
   }) = _Transaction;
 
   factory Transaction.fromJson(Map<String, dynamic> json) =>

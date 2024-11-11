@@ -61,9 +61,10 @@ type enrichedTransaction struct {
 	CounterpartyName    *string `json:"name"`
 	CounterpartyAccount *string `json:"acc"`
 	Reference           *string `json:"ref"`
+	Method              *string `json:"m"`
 
 	CounterpartyLogoURL *string `json:"logo"`
-	Category            *string `json:"ca"`
+	Category            *int32  `json:"ca"`
 }
 
 func toPublicFormat(t *model.Transaction) *enrichedTransaction {
@@ -73,8 +74,12 @@ func toPublicFormat(t *model.Transaction) *enrichedTransaction {
 	}
 
 	counterpartyName := t.Enrichment.CounterpartyName
-	if counterpartyName == nil {
+	if counterpartyName == nil || *counterpartyName == "" {
 		counterpartyName = t.CounterpartyName
+	}
+
+	if t.Enrichment.UserCounterpartyName != nil && *t.Enrichment.UserCounterpartyName != "" {
+		counterpartyName = t.Enrichment.UserCounterpartyName
 	}
 
 	reference := t.Enrichment.Reference
@@ -95,6 +100,7 @@ func toPublicFormat(t *model.Transaction) *enrichedTransaction {
 		CounterpartyName:    counterpartyName,
 		CounterpartyAccount: t.CounterpartyAccount,
 		Reference:           reference,
+		Method:              t.Enrichment.Method,
 
 		CounterpartyLogoURL: t.Enrichment.CounterpartyLogoURL,
 		Category:            t.Enrichment.Category,

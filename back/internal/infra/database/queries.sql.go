@@ -57,6 +57,63 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 	return i, err
 }
 
+const createCategory = `-- name: CreateCategory :one
+insert into categories (name, user_id, color, icon, include_in_budget)
+values ($1, $2, $3, $4, $5) returning id, name, user_id, color, icon, include_in_budget, deleted_at
+`
+
+type CreateCategoryParams struct {
+	Name            string        `db:"name"`
+	UserID          sql.NullInt32 `db:"user_id"`
+	Color           string        `db:"color"`
+	Icon            string        `db:"icon"`
+	IncludeInBudget bool          `db:"include_in_budget"`
+}
+
+func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error) {
+	row := q.db.QueryRowContext(ctx, createCategory,
+		arg.Name,
+		arg.UserID,
+		arg.Color,
+		arg.Icon,
+		arg.IncludeInBudget,
+	)
+	var i Category
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.UserID,
+		&i.Color,
+		&i.Icon,
+		&i.IncludeInBudget,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const createCategoryRule = `-- name: CreateCategoryRule :one
+insert into category_rules (category_id, rule)
+values ($1, $2) returning id, category_id, rule, created_at, deleted_at
+`
+
+type CreateCategoryRuleParams struct {
+	CategoryID int32  `db:"category_id"`
+	Rule       string `db:"rule"`
+}
+
+func (q *Queries) CreateCategoryRule(ctx context.Context, arg CreateCategoryRuleParams) (CategoryRule, error) {
+	row := q.db.QueryRowContext(ctx, createCategoryRule, arg.CategoryID, arg.Rule)
+	var i CategoryRule
+	err := row.Scan(
+		&i.ID,
+		&i.CategoryID,
+		&i.Rule,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const createConnection = `-- name: CreateConnection :one
 insert into connections (provider_users_id, provider_connection_id, connector_id, status, renew_consent_before,
                          error_message, last_successful_sync)
@@ -182,6 +239,47 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 	return i, err
 }
 
+const createTransactionEnrichment = `-- name: CreateTransactionEnrichment :one
+insert into transaction_enrichments (transaction_id, category, reference, counterparty_name, counterparty_logo_url,
+                                     method, user_counterparty_name)
+values ($1, $2, $3, $4, $5, $6, $7) returning id, transaction_id, category, reference, method, counterparty_name, counterparty_logo_url, user_counterparty_name, deleted_at
+`
+
+type CreateTransactionEnrichmentParams struct {
+	TransactionID        int32          `db:"transaction_id"`
+	Category             sql.NullInt32  `db:"category"`
+	Reference            sql.NullString `db:"reference"`
+	CounterpartyName     sql.NullString `db:"counterparty_name"`
+	CounterpartyLogoUrl  sql.NullString `db:"counterparty_logo_url"`
+	Method               sql.NullString `db:"method"`
+	UserCounterpartyName sql.NullString `db:"user_counterparty_name"`
+}
+
+func (q *Queries) CreateTransactionEnrichment(ctx context.Context, arg CreateTransactionEnrichmentParams) (TransactionEnrichment, error) {
+	row := q.db.QueryRowContext(ctx, createTransactionEnrichment,
+		arg.TransactionID,
+		arg.Category,
+		arg.Reference,
+		arg.CounterpartyName,
+		arg.CounterpartyLogoUrl,
+		arg.Method,
+		arg.UserCounterpartyName,
+	)
+	var i TransactionEnrichment
+	err := row.Scan(
+		&i.ID,
+		&i.TransactionID,
+		&i.Category,
+		&i.Reference,
+		&i.Method,
+		&i.CounterpartyName,
+		&i.CounterpartyLogoUrl,
+		&i.UserCounterpartyName,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 insert into users (username, hashed_password)
 values ($1, $2) returning id, username, hashed_password, created_at, updated_at, deleted_at
@@ -214,6 +312,28 @@ where connection_id = $1
 
 func (q *Queries) DeleteAccountByConnectionID(ctx context.Context, connectionID int32) error {
 	_, err := q.db.ExecContext(ctx, deleteAccountByConnectionID, connectionID)
+	return err
+}
+
+const deleteCategoryByID = `-- name: DeleteCategoryByID :exec
+update categories
+set deleted_at = now()
+where id = $1
+`
+
+func (q *Queries) DeleteCategoryByID(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteCategoryByID, id)
+	return err
+}
+
+const deleteCategoryRuleByCategoryID = `-- name: DeleteCategoryRuleByCategoryID :exec
+update category_rules
+set deleted_at = now()
+where category_id = $1
+`
+
+func (q *Queries) DeleteCategoryRuleByCategoryID(ctx context.Context, categoryID int32) error {
+	_, err := q.db.ExecContext(ctx, deleteCategoryRuleByCategoryID, categoryID)
 	return err
 }
 
@@ -360,6 +480,83 @@ func (q *Queries) GetAccountByConnectionIDAndProviderAccountID(ctx context.Conte
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const getAllCategoriesByUserID = `-- name: GetAllCategoriesByUserID :many
+select id, name, user_id, color, icon, include_in_budget, deleted_at
+from categories
+where categories.deleted_at is null
+  and (user_id is null or user_id = $1)
+`
+
+func (q *Queries) GetAllCategoriesByUserID(ctx context.Context, userID sql.NullInt32) ([]Category, error) {
+	rows, err := q.db.QueryContext(ctx, getAllCategoriesByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Category{}
+	for rows.Next() {
+		var i Category
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.UserID,
+			&i.Color,
+			&i.Icon,
+			&i.IncludeInBudget,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllRulesByUserID = `-- name: GetAllRulesByUserID :many
+select category_rules.id, category_rules.category_id, category_rules.rule, category_rules.created_at, category_rules.deleted_at
+from category_rules
+         left join categories on category_rules.category_id = categories.id
+where categories.deleted_at is null
+  and category_rules.deleted_at is null
+  and (user_id is null or user_id = $1)
+order by created_at desc
+`
+
+func (q *Queries) GetAllRulesByUserID(ctx context.Context, userID sql.NullInt32) ([]CategoryRule, error) {
+	rows, err := q.db.QueryContext(ctx, getAllRulesByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CategoryRule{}
+	for rows.Next() {
+		var i CategoryRule
+		if err := rows.Scan(
+			&i.ID,
+			&i.CategoryID,
+			&i.Rule,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getConnectionByID = `-- name: GetConnectionByID :one
@@ -590,8 +787,38 @@ func (q *Queries) GetRedirectSessionByID(ctx context.Context, id string) (Redire
 	return i, err
 }
 
+const getTransactionByID = `-- name: GetTransactionByID :one
+select id, account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status, operation_at, counterparty_name, counterparty_account, reference, created_at, updated_at, deleted_at
+from transactions
+where id = $1
+  and deleted_at is null
+`
+
+func (q *Queries) GetTransactionByID(ctx context.Context, id int32) (Transaction, error) {
+	row := q.db.QueryRowContext(ctx, getTransactionByID, id)
+	var i Transaction
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.ProviderTransactionID,
+		&i.BankTransactionID,
+		&i.Amount,
+		&i.Currency,
+		&i.Direction,
+		&i.Status,
+		&i.OperationAt,
+		&i.CounterpartyName,
+		&i.CounterpartyAccount,
+		&i.Reference,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getTransactionsByUserIDAndBetweenDates = `-- name: GetTransactionsByUserIDAndBetweenDates :many
-select transactions.id, transactions.account_id, transactions.provider_transaction_id, transactions.bank_transaction_id, transactions.amount, transactions.currency, transactions.direction, transactions.status, transactions.operation_at, transactions.counterparty_name, transactions.counterparty_account, transactions.reference, transactions.created_at, transactions.updated_at, transactions.deleted_at, transaction_enrichments.id, transaction_enrichments.transaction_id, transaction_enrichments.category, transaction_enrichments.reference, transaction_enrichments.counterparty_name, transaction_enrichments.counterparty_logo_url, transaction_enrichments.deleted_at
+select transactions.id, transactions.account_id, transactions.provider_transaction_id, transactions.bank_transaction_id, transactions.amount, transactions.currency, transactions.direction, transactions.status, transactions.operation_at, transactions.counterparty_name, transactions.counterparty_account, transactions.reference, transactions.created_at, transactions.updated_at, transactions.deleted_at, transaction_enrichments.id, transaction_enrichments.transaction_id, transaction_enrichments.category, transaction_enrichments.reference, transaction_enrichments.method, transaction_enrichments.counterparty_name, transaction_enrichments.counterparty_logo_url, transaction_enrichments.user_counterparty_name, transaction_enrichments.deleted_at
 from transactions
          inner join accounts on transactions.account_id = accounts.id
          inner join connections on accounts.connection_id = connections.id
@@ -627,10 +854,12 @@ type GetTransactionsByUserIDAndBetweenDatesRow struct {
 	DeletedAt             sql.NullTime   `db:"deleted_at"`
 	ID_2                  sql.NullInt32  `db:"id_2"`
 	TransactionID         sql.NullInt32  `db:"transaction_id"`
-	Category              sql.NullString `db:"category"`
+	Category              sql.NullInt32  `db:"category"`
 	Reference_2           sql.NullString `db:"reference_2"`
+	Method                sql.NullString `db:"method"`
 	CounterpartyName_2    sql.NullString `db:"counterparty_name_2"`
 	CounterpartyLogoUrl   sql.NullString `db:"counterparty_logo_url"`
+	UserCounterpartyName  sql.NullString `db:"user_counterparty_name"`
 	DeletedAt_2           sql.NullTime   `db:"deleted_at_2"`
 }
 
@@ -663,8 +892,10 @@ func (q *Queries) GetTransactionsByUserIDAndBetweenDates(ctx context.Context, ar
 			&i.TransactionID,
 			&i.Category,
 			&i.Reference_2,
+			&i.Method,
 			&i.CounterpartyName_2,
 			&i.CounterpartyLogoUrl,
+			&i.UserCounterpartyName,
 			&i.DeletedAt_2,
 		); err != nil {
 			return nil, err
@@ -819,6 +1050,46 @@ func (q *Queries) ListAccountsByConnectionID(ctx context.Context, connectionID i
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAllUserCounterpartiesByTransID = `-- name: ListAllUserCounterpartiesByTransID :many
+select distinct LOWER(user_counterparty_name)
+from transaction_enrichments
+         inner join transactions on transaction_enrichments.transaction_id = transactions.id
+         inner join accounts on transactions.account_id = accounts.id
+         inner join connections on accounts.connection_id = connections.id
+         inner join provider_users on connections.provider_users_id = provider_users.id
+where provider_users.user_id = (select user_id
+                                from provider_users
+                                         inner join connections on connections.provider_users_id = provider_users.id
+                                         inner join accounts on accounts.connection_id = connections.id
+                                         inner join transactions on accounts.id = transactions.account_id
+                                where transactions.id = $1)
+  and transactions.deleted_at is null
+  and user_counterparty_name is not null
+`
+
+func (q *Queries) ListAllUserCounterpartiesByTransID(ctx context.Context, id int32) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, listAllUserCounterpartiesByTransID, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var lower string
+		if err := rows.Scan(&lower); err != nil {
+			return nil, err
+		}
+		items = append(items, lower)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -1022,6 +1293,49 @@ func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (A
 		&i.Balance,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const updateCategoryByIDAndUserID = `-- name: UpdateCategoryByIDAndUserID :one
+update categories
+set name              = $2,
+    color             = $3,
+    icon              = $4,
+    include_in_budget = $5,
+    updated_at        = now()
+where id = $1
+  and user_id = $6
+  and deleted_at is null returning id, name, user_id, color, icon, include_in_budget, deleted_at
+`
+
+type UpdateCategoryByIDAndUserIDParams struct {
+	ID              int32         `db:"id"`
+	Name            string        `db:"name"`
+	Color           string        `db:"color"`
+	Icon            string        `db:"icon"`
+	IncludeInBudget bool          `db:"include_in_budget"`
+	UserID          sql.NullInt32 `db:"user_id"`
+}
+
+func (q *Queries) UpdateCategoryByIDAndUserID(ctx context.Context, arg UpdateCategoryByIDAndUserIDParams) (Category, error) {
+	row := q.db.QueryRowContext(ctx, updateCategoryByIDAndUserID,
+		arg.ID,
+		arg.Name,
+		arg.Color,
+		arg.Icon,
+		arg.IncludeInBudget,
+		arg.UserID,
+	)
+	var i Category
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.UserID,
+		&i.Color,
+		&i.Icon,
+		&i.IncludeInBudget,
 		&i.DeletedAt,
 	)
 	return i, err

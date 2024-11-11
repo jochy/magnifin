@@ -14,7 +14,7 @@ func (u UpdateConnectorsInput) Kind() string {
 }
 
 func (u UpdateConnectorsInput) InsertOpts() river.InsertOpts {
-	return river.InsertOpts{MaxAttempts: 5}
+	return river.InsertOpts{MaxAttempts: 5, Priority: 4}
 }
 
 func (j *Jobs) NewUpdateConnectorsPeriodicJob() *river.PeriodicJob {

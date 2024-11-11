@@ -30,7 +30,7 @@ func (r *Repository) GetByAccountIDAndProviderTransactionID(ctx context.Context,
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	} else if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting transaction by account id and provider transaction id: %w", err)
 	}
 
 	return toDomain(transaction, nil), nil
@@ -51,7 +51,7 @@ func (r *Repository) Create(ctx context.Context, transaction *model.Transaction)
 		Reference:             repository.ToSqlNullString(transaction.Reference),
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating transaction: %w", err)
 	}
 
 	return toDomain(trs, nil), nil
@@ -72,7 +72,7 @@ func (r *Repository) Update(ctx context.Context, transaction *model.Transaction)
 		Reference:             repository.ToSqlNullString(transaction.Reference),
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error updating transaction: %w", err)
 	}
 
 	return toDomain(trs, nil), nil
@@ -81,12 +81,12 @@ func (r *Repository) Update(ctx context.Context, transaction *model.Transaction)
 func (r *Repository) DeleteByConnectionID(ctx context.Context, connectionID int32) error {
 	err := r.db.DeleteTransactionsEnrichmentsByConnectionID(ctx, connectionID)
 	if err != nil {
-		return err
+		return fmt.Errorf("error deleting transactions enrichments by connection id: %w", err)
 	}
 
 	err = r.db.DeleteTransactionsByConnectionID(ctx, connectionID)
 	if err != nil {
-		return err
+		return fmt.Errorf("error deleting transactions by connection id: %w", err)
 	}
 
 	return nil
@@ -133,4 +133,48 @@ func (r *Repository) GetTransactionMinMaxDateByUser(ctx context.Context, user *m
 		Min: (row.MinDate).(time.Time), //nolint:forcetypeassert
 		Max: (row.MaxDate).(time.Time), //nolint:forcetypeassert
 	}, nil
+}
+
+func (r *Repository) GetByID(ctx context.Context, id int32) (*model.Transaction, error) {
+	transaction, err := r.db.GetTransactionByID(ctx, id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
+		return nil, fmt.Errorf("error getting transaction by id: %w", err)
+	}
+
+	return toDomain(transaction, nil), nil
+}
+
+func (r *Repository) StoreEnrichedData(ctx context.Context, data *model.TransactionEnrichment) error {
+	_, err := r.db.CreateTransactionEnrichment(ctx, database.CreateTransactionEnrichmentParams{
+		TransactionID:        data.TransactionID,
+		Category:             repository.ToSqlNullInt32(data.Category),
+		Reference:            repository.ToSqlNullString(data.Reference),
+		CounterpartyName:     repository.ToSqlNullString(data.CounterpartyName),
+		CounterpartyLogoUrl:  repository.ToSqlNullString(data.CounterpartyLogoURL),
+		Method:               repository.ToSqlNullString(data.Method),
+		UserCounterpartyName: repository.ToSqlNullString(data.UserCounterpartyName),
+	})
+	if err != nil {
+		return fmt.Errorf("error storing enriched data: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) ListAllUserCounterpartiesByTransID(ctx context.Context, transID int32) ([]string, error) {
+	counterparties, err := r.db.ListAllUserCounterpartiesByTransID(ctx, transID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
+		return nil, fmt.Errorf("error getting counterparties: %w", err)
+	}
+
+	cp := make([]string, len(counterparties))
+	for i, c := range counterparties {
+		cp[i] = c
+	}
+
+	return cp, nil
 }

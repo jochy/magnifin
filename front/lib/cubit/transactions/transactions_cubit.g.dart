@@ -20,7 +20,8 @@ _$TransactionImpl _$$TransactionImplFromJson(Map<String, dynamic> json) =>
       counterpartyAccount: json['acc'] as String?,
       reference: json['ref'] as String?,
       counterpartyLogoUrl: json['logo'] as String?,
-      category: json['ca'] as String?,
+      category: (json['ca'] as num?)?.toInt(),
+      method: json['m'] as String?,
     );
 
 Map<String, dynamic> _$$TransactionImplToJson(_$TransactionImpl instance) =>
@@ -38,6 +39,7 @@ Map<String, dynamic> _$$TransactionImplToJson(_$TransactionImpl instance) =>
       'ref': instance.reference,
       'logo': instance.counterpartyLogoUrl,
       'ca': instance.category,
+      'm': instance.method,
     };
 
 _$CategoryImpl _$$CategoryImplFromJson(Map<String, dynamic> json) =>

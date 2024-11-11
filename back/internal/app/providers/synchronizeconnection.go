@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"magnifin/internal/adapters/jobs"
 	"magnifin/internal/app/model"
+	"magnifin/internal/infra/scheduler"
 	"time"
 )
 
@@ -153,7 +155,16 @@ func (s *ProviderService) syncTransactions(
 		}
 
 		if dbTransaction == nil {
-			_, err = s.transactionsRepository.Create(ctx, &transaction)
+			t, err := s.transactionsRepository.Create(ctx, &transaction)
+			if err != nil {
+				return fmt.Errorf("unable to save transaction: %w", err)
+			}
+
+			// Trigger transaction enrichment job, for async work
+			err = scheduler.Scheduler.Trigger(context.Background(), jobs.TransactionEnrichInput{TransactionID: t.ID})
+			if err != nil {
+				slog.Error(fmt.Sprintf("unable to trigger transaction enrichment job: %s", err))
+			}
 		} else {
 			transaction.ID = dbTransaction.ID
 			_, err = s.transactionsRepository.Update(ctx, &transaction)
