@@ -58,6 +58,14 @@ func (r *Repository) Create(ctx context.Context, transaction *model.Transaction)
 }
 
 func (r *Repository) Update(ctx context.Context, transaction *model.Transaction) (*model.Transaction, error) {
+	if transaction.Enrichment != nil {
+		enrichment, err := r.StoreEnrichedData(ctx, transaction.Enrichment)
+		if err != nil {
+			return nil, fmt.Errorf("error storing enriched data: %w", err)
+		}
+		transaction.Enrichment = enrichment
+	}
+
 	trs, err := r.db.UpdateTransaction(ctx, database.UpdateTransactionParams{
 		ID:                    transaction.ID,
 		ProviderTransactionID: transaction.ProviderTransactionID,
@@ -75,7 +83,9 @@ func (r *Repository) Update(ctx context.Context, transaction *model.Transaction)
 		return nil, fmt.Errorf("error updating transaction: %w", err)
 	}
 
-	return toDomain(trs, nil), nil
+	t := toDomain(trs, nil)
+	t.Enrichment = transaction.Enrichment
+	return t, nil
 }
 
 func (r *Repository) DeleteByConnectionID(ctx context.Context, connectionID int32) error {
@@ -143,24 +153,45 @@ func (r *Repository) GetByID(ctx context.Context, id int32) (*model.Transaction,
 		return nil, fmt.Errorf("error getting transaction by id: %w", err)
 	}
 
-	return toDomain(transaction, nil), nil
+	return toEnrichedDomainByID(transaction), nil
 }
 
-func (r *Repository) StoreEnrichedData(ctx context.Context, data *model.TransactionEnrichment) error {
-	_, err := r.db.CreateTransactionEnrichment(ctx, database.CreateTransactionEnrichmentParams{
+func (r *Repository) StoreEnrichedData(ctx context.Context, data *model.TransactionEnrichment) (*model.TransactionEnrichment, error) {
+	if data.ID != 0 {
+		return r.updateEnrichment(ctx, data)
+	}
+
+	enriched, err := r.db.CreateTransactionEnrichment(ctx, database.CreateTransactionEnrichmentParams{
 		TransactionID:        data.TransactionID,
 		Category:             repository.ToSqlNullInt32(data.Category),
 		Reference:            repository.ToSqlNullString(data.Reference),
 		CounterpartyName:     repository.ToSqlNullString(data.CounterpartyName),
-		CounterpartyLogoUrl:  repository.ToSqlNullString(data.CounterpartyLogoURL),
+		CounterpartyLogo:     repository.ToSqlNullString(data.CounterpartyLogo),
 		Method:               repository.ToSqlNullString(data.Method),
 		UserCounterpartyName: repository.ToSqlNullString(data.UserCounterpartyName),
 	})
 	if err != nil {
-		return fmt.Errorf("error storing enriched data: %w", err)
+		return nil, fmt.Errorf("error storing enriched data: %w", err)
 	}
 
-	return nil
+	return enrichmentToDomain(&enriched), nil
+}
+
+func (r *Repository) updateEnrichment(ctx context.Context, data *model.TransactionEnrichment) (*model.TransactionEnrichment, error) {
+	enriched, err := r.db.UpdateTransactionEnrichment(ctx, database.UpdateTransactionEnrichmentParams{
+		TransactionID:        data.TransactionID,
+		Category:             repository.ToSqlNullInt32(data.Category),
+		Reference:            repository.ToSqlNullString(data.Reference),
+		CounterpartyName:     repository.ToSqlNullString(data.CounterpartyName),
+		CounterpartyLogo:     repository.ToSqlNullString(data.CounterpartyLogo),
+		Method:               repository.ToSqlNullString(data.Method),
+		UserCounterpartyName: repository.ToSqlNullString(data.UserCounterpartyName),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error updating enriched data: %w", err)
+	}
+
+	return enrichmentToDomain(&enriched), nil
 }
 
 func (r *Repository) ListAllUserCounterpartiesByTransID(ctx context.Context, transID int32) ([]string, error) {
@@ -171,10 +202,5 @@ func (r *Repository) ListAllUserCounterpartiesByTransID(ctx context.Context, tra
 		return nil, fmt.Errorf("error getting counterparties: %w", err)
 	}
 
-	cp := make([]string, len(counterparties))
-	for i, c := range counterparties {
-		cp[i] = c
-	}
-
-	return cp, nil
+	return counterparties, nil
 }

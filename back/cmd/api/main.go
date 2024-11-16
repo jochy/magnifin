@@ -8,8 +8,10 @@ import (
 	"log/slog"
 	enricher2 "magnifin/internal/adapters/enricher"
 	"magnifin/internal/adapters/http/handlers"
+	categorieshandlers "magnifin/internal/adapters/http/handlers/categories"
 	connectionshandlers "magnifin/internal/adapters/http/handlers/connections"
 	connectorshandlers "magnifin/internal/adapters/http/handlers/connectors"
+	imageshandlers "magnifin/internal/adapters/http/handlers/images"
 	"magnifin/internal/adapters/http/handlers/providers"
 	transactionshandlers "magnifin/internal/adapters/http/handlers/transactions"
 	usershandlers "magnifin/internal/adapters/http/handlers/users"
@@ -18,8 +20,10 @@ import (
 	"magnifin/internal/adapters/providers/gocardless"
 	"magnifin/internal/adapters/repository"
 	"magnifin/internal/adapters/repository/accounts"
+	"magnifin/internal/adapters/repository/categories"
 	"magnifin/internal/adapters/repository/connections"
 	"magnifin/internal/adapters/repository/connectors"
+	"magnifin/internal/adapters/repository/images"
 	providersrepo "magnifin/internal/adapters/repository/providers"
 	"magnifin/internal/adapters/repository/providerusers"
 	"magnifin/internal/adapters/repository/redirect_sessions"
@@ -102,6 +106,8 @@ func main() {
 	redirectionSessionsRepository := redirect_sessions.NewRepository(db)
 	accountsRepository := accounts.NewRepository(db)
 	transactionsRepository := transactions.NewRepository(db)
+	categoriesRepository := categories.NewRepository(db)
+	imagesRepository := images.NewRepository(db)
 
 	// Ports
 	providerPorts := []providers2.ProviderPort{
@@ -130,7 +136,12 @@ func main() {
 		transactionsRepository,
 		providerService,
 	)
-	transactionsService := transactions2.NewTransactionsService(transactionsRepository, enricher)
+	transactionsService := transactions2.NewTransactionsService(
+		transactionsRepository,
+		categoriesRepository,
+		imagesRepository,
+		enricher,
+	)
 
 	scheduler, err := scheduler2.NewScheduler(db, jobs.NewJobs(providerService, transactionsService, connectionsRepository))
 	if err != nil {
@@ -161,7 +172,9 @@ func main() {
 		providers.NewHandler(providerService),
 		connectorshandlers.NewHandler(connectorsService),
 		connectionshandlers.NewHandlers(connectionsService),
-		transactionshandlers.NewHandlers(transactionsService),
+		transactionshandlers.NewHandlers(transactionsService, publicURL),
+		categorieshandlers.NewHandlers(categoriesRepository),
+		imageshandlers.NewHandlers(imagesRepository),
 	)
 
 	// Create a done channel to signal when the shutdown is complete

@@ -17,6 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$TransactionsState {
   List<Transaction> get transactions => throw _privateConstructorUsedError;
+  List<Category> get categories => throw _privateConstructorUsedError;
   DateTime? get minDate => throw _privateConstructorUsedError;
   DateTime? get maxDate => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
@@ -40,6 +41,7 @@ abstract class $TransactionsStateCopyWith<$Res> {
   @useResult
   $Res call(
       {List<Transaction> transactions,
+      List<Category> categories,
       DateTime? minDate,
       DateTime? maxDate,
       bool isLoading,
@@ -64,6 +66,7 @@ class _$TransactionsStateCopyWithImpl<$Res, $Val extends TransactionsState>
   @override
   $Res call({
     Object? transactions = null,
+    Object? categories = null,
     Object? minDate = freezed,
     Object? maxDate = freezed,
     Object? isLoading = null,
@@ -76,6 +79,10 @@ class _$TransactionsStateCopyWithImpl<$Res, $Val extends TransactionsState>
           ? _value.transactions
           : transactions // ignore: cast_nullable_to_non_nullable
               as List<Transaction>,
+      categories: null == categories
+          ? _value.categories
+          : categories // ignore: cast_nullable_to_non_nullable
+              as List<Category>,
       minDate: freezed == minDate
           ? _value.minDate
           : minDate // ignore: cast_nullable_to_non_nullable
@@ -114,6 +121,7 @@ abstract class _$$TransactionsStateImplCopyWith<$Res>
   @useResult
   $Res call(
       {List<Transaction> transactions,
+      List<Category> categories,
       DateTime? minDate,
       DateTime? maxDate,
       bool isLoading,
@@ -136,6 +144,7 @@ class __$$TransactionsStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? transactions = null,
+    Object? categories = null,
     Object? minDate = freezed,
     Object? maxDate = freezed,
     Object? isLoading = null,
@@ -148,6 +157,10 @@ class __$$TransactionsStateImplCopyWithImpl<$Res>
           ? _value._transactions
           : transactions // ignore: cast_nullable_to_non_nullable
               as List<Transaction>,
+      categories: null == categories
+          ? _value._categories
+          : categories // ignore: cast_nullable_to_non_nullable
+              as List<Category>,
       minDate: freezed == minDate
           ? _value.minDate
           : minDate // ignore: cast_nullable_to_non_nullable
@@ -181,6 +194,7 @@ class __$$TransactionsStateImplCopyWithImpl<$Res>
 class _$TransactionsStateImpl implements _TransactionsState {
   const _$TransactionsStateImpl(
       {required final List<Transaction> transactions,
+      required final List<Category> categories,
       this.minDate,
       this.maxDate,
       required this.isLoading,
@@ -189,6 +203,7 @@ class _$TransactionsStateImpl implements _TransactionsState {
       @JsonKey(includeToJson: false)
       required final List<MonthlyBudget> loadedMonths})
       : _transactions = transactions,
+        _categories = categories,
         _loadedMonths = loadedMonths;
 
   final List<Transaction> _transactions;
@@ -197,6 +212,14 @@ class _$TransactionsStateImpl implements _TransactionsState {
     if (_transactions is EqualUnmodifiableListView) return _transactions;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_transactions);
+  }
+
+  final List<Category> _categories;
+  @override
+  List<Category> get categories {
+    if (_categories is EqualUnmodifiableListView) return _categories;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_categories);
   }
 
   @override
@@ -220,7 +243,7 @@ class _$TransactionsStateImpl implements _TransactionsState {
 
   @override
   String toString() {
-    return 'TransactionsState(transactions: $transactions, minDate: $minDate, maxDate: $maxDate, isLoading: $isLoading, hasLoaded: $hasLoaded, error: $error, loadedMonths: $loadedMonths)';
+    return 'TransactionsState(transactions: $transactions, categories: $categories, minDate: $minDate, maxDate: $maxDate, isLoading: $isLoading, hasLoaded: $hasLoaded, error: $error, loadedMonths: $loadedMonths)';
   }
 
   @override
@@ -230,6 +253,8 @@ class _$TransactionsStateImpl implements _TransactionsState {
             other is _$TransactionsStateImpl &&
             const DeepCollectionEquality()
                 .equals(other._transactions, _transactions) &&
+            const DeepCollectionEquality()
+                .equals(other._categories, _categories) &&
             (identical(other.minDate, minDate) || other.minDate == minDate) &&
             (identical(other.maxDate, maxDate) || other.maxDate == maxDate) &&
             (identical(other.isLoading, isLoading) ||
@@ -245,6 +270,7 @@ class _$TransactionsStateImpl implements _TransactionsState {
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(_transactions),
+      const DeepCollectionEquality().hash(_categories),
       minDate,
       maxDate,
       isLoading,
@@ -265,6 +291,7 @@ class _$TransactionsStateImpl implements _TransactionsState {
 abstract class _TransactionsState implements TransactionsState {
   const factory _TransactionsState(
           {required final List<Transaction> transactions,
+          required final List<Category> categories,
           final DateTime? minDate,
           final DateTime? maxDate,
           required final bool isLoading,
@@ -276,6 +303,8 @@ abstract class _TransactionsState implements TransactionsState {
 
   @override
   List<Transaction> get transactions;
+  @override
+  List<Category> get categories;
   @override
   DateTime? get minDate;
   @override
@@ -786,8 +815,12 @@ Category _$CategoryFromJson(Map<String, dynamic> json) {
 mixin _$Category {
   int get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
-  String get type => throw _privateConstructorUsedError;
+  @JsonKey(name: "uid")
+  int? get userId => throw _privateConstructorUsedError;
+  String get icon => throw _privateConstructorUsedError;
   String get color => throw _privateConstructorUsedError;
+  @JsonKey(name: "include_in_budget")
+  bool get includeInBudget => throw _privateConstructorUsedError;
 
   /// Serializes this Category to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -804,7 +837,13 @@ abstract class $CategoryCopyWith<$Res> {
   factory $CategoryCopyWith(Category value, $Res Function(Category) then) =
       _$CategoryCopyWithImpl<$Res, Category>;
   @useResult
-  $Res call({int id, String name, String type, String color});
+  $Res call(
+      {int id,
+      String name,
+      @JsonKey(name: "uid") int? userId,
+      String icon,
+      String color,
+      @JsonKey(name: "include_in_budget") bool includeInBudget});
 }
 
 /// @nodoc
@@ -824,8 +863,10 @@ class _$CategoryCopyWithImpl<$Res, $Val extends Category>
   $Res call({
     Object? id = null,
     Object? name = null,
-    Object? type = null,
+    Object? userId = freezed,
+    Object? icon = null,
     Object? color = null,
+    Object? includeInBudget = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -836,14 +877,22 @@ class _$CategoryCopyWithImpl<$Res, $Val extends Category>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
+      userId: freezed == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      icon: null == icon
+          ? _value.icon
+          : icon // ignore: cast_nullable_to_non_nullable
               as String,
       color: null == color
           ? _value.color
           : color // ignore: cast_nullable_to_non_nullable
               as String,
+      includeInBudget: null == includeInBudget
+          ? _value.includeInBudget
+          : includeInBudget // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -856,7 +905,13 @@ abstract class _$$CategoryImplCopyWith<$Res>
       __$$CategoryImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, String name, String type, String color});
+  $Res call(
+      {int id,
+      String name,
+      @JsonKey(name: "uid") int? userId,
+      String icon,
+      String color,
+      @JsonKey(name: "include_in_budget") bool includeInBudget});
 }
 
 /// @nodoc
@@ -874,8 +929,10 @@ class __$$CategoryImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
-    Object? type = null,
+    Object? userId = freezed,
+    Object? icon = null,
     Object? color = null,
+    Object? includeInBudget = null,
   }) {
     return _then(_$CategoryImpl(
       id: null == id
@@ -886,14 +943,22 @@ class __$$CategoryImplCopyWithImpl<$Res>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
+      userId: freezed == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      icon: null == icon
+          ? _value.icon
+          : icon // ignore: cast_nullable_to_non_nullable
               as String,
       color: null == color
           ? _value.color
           : color // ignore: cast_nullable_to_non_nullable
               as String,
+      includeInBudget: null == includeInBudget
+          ? _value.includeInBudget
+          : includeInBudget // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -904,8 +969,10 @@ class _$CategoryImpl implements _Category {
   const _$CategoryImpl(
       {required this.id,
       required this.name,
-      required this.type,
-      required this.color});
+      @JsonKey(name: "uid") this.userId,
+      required this.icon,
+      required this.color,
+      @JsonKey(name: "include_in_budget") required this.includeInBudget});
 
   factory _$CategoryImpl.fromJson(Map<String, dynamic> json) =>
       _$$CategoryImplFromJson(json);
@@ -915,13 +982,19 @@ class _$CategoryImpl implements _Category {
   @override
   final String name;
   @override
-  final String type;
+  @JsonKey(name: "uid")
+  final int? userId;
+  @override
+  final String icon;
   @override
   final String color;
+  @override
+  @JsonKey(name: "include_in_budget")
+  final bool includeInBudget;
 
   @override
   String toString() {
-    return 'Category(id: $id, name: $name, type: $type, color: $color)';
+    return 'Category(id: $id, name: $name, userId: $userId, icon: $icon, color: $color, includeInBudget: $includeInBudget)';
   }
 
   /// Create a copy of Category
@@ -944,8 +1017,11 @@ abstract class _Category implements Category {
   const factory _Category(
       {required final int id,
       required final String name,
-      required final String type,
-      required final String color}) = _$CategoryImpl;
+      @JsonKey(name: "uid") final int? userId,
+      required final String icon,
+      required final String color,
+      @JsonKey(name: "include_in_budget")
+      required final bool includeInBudget}) = _$CategoryImpl;
 
   factory _Category.fromJson(Map<String, dynamic> json) =
       _$CategoryImpl.fromJson;
@@ -955,9 +1031,15 @@ abstract class _Category implements Category {
   @override
   String get name;
   @override
-  String get type;
+  @JsonKey(name: "uid")
+  int? get userId;
+  @override
+  String get icon;
   @override
   String get color;
+  @override
+  @JsonKey(name: "include_in_budget")
+  bool get includeInBudget;
 
   /// Create a copy of Category
   /// with the given fields replaced by the non-null parameter values.

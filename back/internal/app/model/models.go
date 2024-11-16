@@ -125,12 +125,18 @@ type TransactionEnrichment struct {
 	ID            int32
 	TransactionID int32
 
-	CounterpartyLogoURL  *string
+	CounterpartyLogo     *string
 	Category             *int32
 	CounterpartyName     *string
 	UserCounterpartyName *string
 	Reference            *string
 	Method               *string
+}
+
+type Image struct {
+	ID          string
+	Content     string
+	ContentType string
 }
 
 type ConnectionWithAccounts struct {

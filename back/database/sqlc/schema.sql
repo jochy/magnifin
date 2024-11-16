@@ -128,7 +128,7 @@ create table transaction_enrichments
     reference              text null,
     method                 text null,
     counterparty_name      text null,
-    counterparty_logo_url  text null,
+    counterparty_logo      text null references images (id),
     user_counterparty_name text null,
 
     deleted_at             timestamp null
@@ -154,4 +154,11 @@ create table category_rules
 
     created_at  timestamp not null default now(),
     deleted_at  timestamp null
+);
+
+create table images
+(
+    id           text primary key,
+    content      text not null,
+    content_type text not null
 );

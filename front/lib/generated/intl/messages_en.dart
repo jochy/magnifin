@@ -36,35 +36,57 @@ class MessageLookup extends MessageLookupByLibrary {
         "areYouSureYouWantToDeleteThisConnectionnthisCan":
             MessageLookupByLibrary.simpleMessage(
                 "Are you sure you want to delete this connection?\nThis can not be undone and all data will be lost."),
+        "autoTransport":
+            MessageLookupByLibrary.simpleMessage("Auto & Transport"),
         "backendUrl": MessageLookupByLibrary.simpleMessage("Backend url"),
         "balance": MessageLookupByLibrary.simpleMessage("Balance"),
         "bankName": MessageLookupByLibrary.simpleMessage("Bank name"),
+        "businessWork": MessageLookupByLibrary.simpleMessage("Business & Work"),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+        "cashChecks": MessageLookupByLibrary.simpleMessage("Cash & Checks"),
+        "category": MessageLookupByLibrary.simpleMessage("Category:"),
         "connect": MessageLookupByLibrary.simpleMessage("Connect"),
         "createANewAccount":
             MessageLookupByLibrary.simpleMessage("Create a new account"),
         "createNewAccount":
             MessageLookupByLibrary.simpleMessage("Create new account"),
+        "createRuleError":
+            MessageLookupByLibrary.simpleMessage("Create rule error"),
         "createUserFailed":
             MessageLookupByLibrary.simpleMessage("Create user failed"),
         "delete": MessageLookupByLibrary.simpleMessage("Delete"),
         "deleteConnection":
             MessageLookupByLibrary.simpleMessage("Delete connection"),
         "distribution": MessageLookupByLibrary.simpleMessage("Distribution"),
+        "doYouWantToCreateASmartRule": MessageLookupByLibrary.simpleMessage(
+            "Do you want to create a smart rule?"),
+        "essentialNeeds":
+            MessageLookupByLibrary.simpleMessage("Essential Needs"),
         "expenses": MessageLookupByLibrary.simpleMessage("Expenses"),
+        "foodDrink": MessageLookupByLibrary.simpleMessage("Food & Drink"),
+        "health": MessageLookupByLibrary.simpleMessage("Health"),
         "income": MessageLookupByLibrary.simpleMessage("Income"),
+        "investment": MessageLookupByLibrary.simpleMessage("Investment"),
         "lastSuccessfulSync": m0,
+        "loanRepayment": MessageLookupByLibrary.simpleMessage("Loan Repayment"),
         "login": MessageLookupByLibrary.simpleMessage("Login"),
         "loginError": MessageLookupByLibrary.simpleMessage("Login error"),
         "loginFailedPleaseTryAgain": MessageLookupByLibrary.simpleMessage(
             "Login failed. Please try again."),
         "newAccount": MessageLookupByLibrary.simpleMessage("New account"),
+        "newSmartRule": MessageLookupByLibrary.simpleMessage("New smart rule"),
+        "no": MessageLookupByLibrary.simpleMessage("No"),
         "noDataToDisplay":
             MessageLookupByLibrary.simpleMessage("No data to display"),
         "other": MessageLookupByLibrary.simpleMessage("Other"),
         "password": MessageLookupByLibrary.simpleMessage("Password"),
         "rateLimited": MessageLookupByLibrary.simpleMessage("Rate Limited"),
+        "selectTheDataUsedToCategorizeFutureTransactions":
+            MessageLookupByLibrary.simpleMessage(
+                "Select the data used to categorize future transactions."),
         "signOut": MessageLookupByLibrary.simpleMessage("Sign out"),
+        "subscriptionsAndBills":
+            MessageLookupByLibrary.simpleMessage("Subscriptions and Bills"),
         "suspended": MessageLookupByLibrary.simpleMessage("Suspended"),
         "switchToDark": MessageLookupByLibrary.simpleMessage("Switch to dark"),
         "switchToLight":
@@ -72,7 +94,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "syncInProgress":
             MessageLookupByLibrary.simpleMessage("Sync in Progress"),
         "synced": MessageLookupByLibrary.simpleMessage("Synced"),
+        "taxes": MessageLookupByLibrary.simpleMessage("Taxes"),
+        "thisWillAutomaticallyCategorizeSimilarTransactionsInTheFuture":
+            MessageLookupByLibrary.simpleMessage(
+                "This will automatically categorize similar transactions in the future."),
         "transaction": MessageLookupByLibrary.simpleMessage("Transaction"),
+        "transfers": MessageLookupByLibrary.simpleMessage("Transfers"),
         "tryAgain": MessageLookupByLibrary.simpleMessage("Try again"),
         "unableToConnectToConnectorname": m1,
         "unableToDeleteConnection":
@@ -80,8 +107,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "unableToLoadApp":
             MessageLookupByLibrary.simpleMessage("Unable to load app"),
         "unknown": MessageLookupByLibrary.simpleMessage("Unknown"),
+        "updateTransactionFailed":
+            MessageLookupByLibrary.simpleMessage("Update transaction failed"),
         "url": MessageLookupByLibrary.simpleMessage("Url"),
         "username": MessageLookupByLibrary.simpleMessage("Username"),
-        "validate": MessageLookupByLibrary.simpleMessage("Validate")
+        "validate": MessageLookupByLibrary.simpleMessage("Validate"),
+        "yes": MessageLookupByLibrary.simpleMessage("Yes")
       };
 }

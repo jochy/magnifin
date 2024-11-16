@@ -20,10 +20,14 @@ func (s *Service) EnrichTransaction(ctx context.Context, transactionID int32) er
 		return fmt.Errorf("enrichTransaction failed to get user counterparties: %w", err)
 	}
 
-	enrichedData := model.TransactionEnrichment{TransactionID: trs.ID}
+	enrichedData := &model.TransactionEnrichment{TransactionID: trs.ID}
+	if trs.Enrichment != nil {
+		enrichedData = trs.Enrichment
+	}
+
 	hasEnriched := false
 
-	if trs.CounterpartyName != nil {
+	if trs.CounterpartyName != nil && enrichedData.CounterpartyName == nil {
 		cleanName, err := s.Enricher.CleanCounterpartyName(ctx, trs.CounterpartyName, userCounterparties)
 		if err != nil {
 			return fmt.Errorf("enrichTransaction failed to clean the name: %w", err)
@@ -36,20 +40,46 @@ func (s *Service) EnrichTransaction(ctx context.Context, transactionID int32) er
 		}
 	}
 
-	if enrichedData.CounterpartyName != nil {
-		logoURL, err := s.Enricher.GetCounterpartyNameLogoURL(ctx, enrichedData.CounterpartyName)
+	var counterpartyName *string
+	counterpartyName = enrichedData.UserCounterpartyName
+	if counterpartyName == nil {
+		counterpartyName = enrichedData.CounterpartyName
+	}
+
+	if counterpartyName != nil {
+		logoURL, err := s.Enricher.GetCounterpartyNameLogoURL(ctx, counterpartyName)
 		if err != nil {
 			return fmt.Errorf("enrichTransaction failed to get the logo: %w", err)
 		}
 
-		enrichedData.CounterpartyLogoURL = logoURL
 		if logoURL != nil {
 			hasEnriched = true
+			enrichedData.CounterpartyLogo = logoURL.ID
+
+			if _, err := s.ImageRepository.Store(ctx, &model.Image{
+				ID:          *logoURL.ID,
+				Content:     *logoURL.Content,
+				ContentType: *logoURL.ContentType,
+			}); err != nil {
+				return fmt.Errorf("enrichTransaction failed to store the logo: %w", err)
+			}
+		}
+	}
+
+	if enrichedData.Category == nil {
+		catID, err := s.ComputeCategory(ctx, trs, enrichedData)
+		if err != nil {
+			return fmt.Errorf("enrichTransaction failed to compute the category: %w", err)
+		}
+
+		if catID != nil {
+			hasEnriched = true
+			enrichedData.Category = catID
 		}
 	}
 
 	if hasEnriched {
-		if err := s.TransactionsRepository.StoreEnrichedData(ctx, &enrichedData); err != nil {
+		if _, err := s.TransactionsRepository.StoreEnrichedData(ctx, enrichedData); err != nil {
 			return fmt.Errorf("enrichTransaction failed to save the enriched data: %w", err)
 		}
 	}

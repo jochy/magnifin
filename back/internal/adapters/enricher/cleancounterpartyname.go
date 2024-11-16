@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/invopop/jsonschema"
-	"github.com/lithammer/fuzzysearch/fuzzy"
-	"github.com/openai/openai-go"
-	"github.com/openai/openai-go/option"
 	"log/slog"
 	"magnifin/internal/app/transactions"
 	"net/http"
 	"strings"
+
+	"github.com/invopop/jsonschema"
+	"github.com/lithammer/fuzzysearch/fuzzy"
+	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 )
 
 type OpenAICounterpartyNameResponse struct {
@@ -66,7 +67,7 @@ func (e *Enricher) CleanCounterpartyName(ctx context.Context, name *string, user
 		Model:       openai.F(e.aiModel),
 		TopP:        openai.Float(0.1),
 		Temperature: openai.Float(0.2),
-	}, option.WithMiddleware(ollamaMiddleware()))
+	}, option.WithMiddleware(ollamaMiddleware())) //nolint: bodyclose
 	if err != nil {
 		return nil, fmt.Errorf("cleanCounterpartyName: failed to get the completion: %w", err)
 	}

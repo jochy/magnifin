@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:front/config.dart';
 import 'package:front/cubit/auth/auth_cubit.dart';
-import 'package:front/screens/accounts/accounts_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:moment_dart/moment_dart.dart';
 
@@ -23,6 +22,7 @@ class TransactionsCubit extends Cubit<TransactionsState> {
   TransactionsCubit(this.authCubit)
       : super(const TransactionsState(
           transactions: [],
+          categories: [],
           isLoading: false,
           hasLoaded: false,
           error: null,
@@ -82,6 +82,52 @@ class TransactionsCubit extends Cubit<TransactionsState> {
           break;
         }
       }
+
+      await loadCategories();
+    }
+  }
+
+  Future<void> loadCategories() async {
+    emit(state.copyWith(isLoading: true, error: null));
+
+    try {
+      final response = await http.get(
+        Uri.parse("${Configuration.instance.baseUrl}/v1/categories"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Accept': 'application/json',
+          'Authorization': authCubit.state.token ?? "",
+        },
+      );
+
+      if (response.statusCode != 200) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            hasLoaded: false,
+            error: 'Failed to load categories: ${response.statusCode}',
+          ),
+        );
+        return;
+      }
+
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      var categories = data["categories"]
+          .map<Category>((c) => Category.fromJson(c))
+          .toList();
+
+      emit(
+        state.copyWith(
+          categories: categories,
+          isLoading: false,
+          hasLoaded: true,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      ));
     }
   }
 
@@ -146,5 +192,59 @@ class TransactionsCubit extends Cubit<TransactionsState> {
         error: e.toString(),
       ));
     }
+  }
+
+  void updateTransaction(
+    Transaction transaction,
+    Category? category,
+    String counterparty,
+  ) async {
+    final response = await http.patch(
+      Uri.parse(
+          "${Configuration.instance.baseUrl}/v1/transactions/${transaction.id}"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Accept': 'application/json',
+        'Authorization': authCubit.state.token ?? "",
+      },
+      body: jsonEncode({
+        'id': transaction.id,
+        'category_id': category?.id,
+        'user_counterparty': counterparty,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update transaction: ${response.statusCode}');
+    }
+
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    var updatedTransaction = Transaction.fromJson(data);
+
+    emit(state.copyWith(
+      transactions: [
+        for (var t in state.transactions)
+          if (t.id == transaction.id) updatedTransaction else t
+      ],
+    ));
+  }
+
+  Future<bool> createCategoryRule(
+      Category category, List<String> keywords) async {
+    final response = await http.post(
+      Uri.parse(
+          "${Configuration.instance.baseUrl}/v1/categories/${category.id}/rule"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Accept': 'application/json',
+        'Authorization': authCubit.state.token ?? "",
+      },
+      body: jsonEncode({
+        'category_id': category.id,
+        'keywords': keywords,
+      }),
+    );
+
+    return response.statusCode == 204;
   }
 }

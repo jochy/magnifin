@@ -459,6 +459,206 @@ class S {
       args: [],
     );
   }
+
+  /// `Essential Needs`
+  String get essentialNeeds {
+    return Intl.message(
+      'Essential Needs',
+      name: 'essentialNeeds',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Transfers`
+  String get transfers {
+    return Intl.message(
+      'Transfers',
+      name: 'transfers',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Taxes`
+  String get taxes {
+    return Intl.message(
+      'Taxes',
+      name: 'taxes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loan Repayment`
+  String get loanRepayment {
+    return Intl.message(
+      'Loan Repayment',
+      name: 'loanRepayment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Health`
+  String get health {
+    return Intl.message(
+      'Health',
+      name: 'health',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Investment`
+  String get investment {
+    return Intl.message(
+      'Investment',
+      name: 'investment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Food & Drink`
+  String get foodDrink {
+    return Intl.message(
+      'Food & Drink',
+      name: 'foodDrink',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Business & Work`
+  String get businessWork {
+    return Intl.message(
+      'Business & Work',
+      name: 'businessWork',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cash & Checks`
+  String get cashChecks {
+    return Intl.message(
+      'Cash & Checks',
+      name: 'cashChecks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscriptions and Bills`
+  String get subscriptionsAndBills {
+    return Intl.message(
+      'Subscriptions and Bills',
+      name: 'subscriptionsAndBills',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto & Transport`
+  String get autoTransport {
+    return Intl.message(
+      'Auto & Transport',
+      name: 'autoTransport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Category:`
+  String get category {
+    return Intl.message(
+      'Category:',
+      name: 'category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This will automatically categorize similar transactions in the future.`
+  String get thisWillAutomaticallyCategorizeSimilarTransactionsInTheFuture {
+    return Intl.message(
+      'This will automatically categorize similar transactions in the future.',
+      name: 'thisWillAutomaticallyCategorizeSimilarTransactionsInTheFuture',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to create a smart rule?`
+  String get doYouWantToCreateASmartRule {
+    return Intl.message(
+      'Do you want to create a smart rule?',
+      name: 'doYouWantToCreateASmartRule',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yes`
+  String get yes {
+    return Intl.message(
+      'Yes',
+      name: 'yes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No`
+  String get no {
+    return Intl.message(
+      'No',
+      name: 'no',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New smart rule`
+  String get newSmartRule {
+    return Intl.message(
+      'New smart rule',
+      name: 'newSmartRule',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select the data used to categorize future transactions.`
+  String get selectTheDataUsedToCategorizeFutureTransactions {
+    return Intl.message(
+      'Select the data used to categorize future transactions.',
+      name: 'selectTheDataUsedToCategorizeFutureTransactions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create rule error`
+  String get createRuleError {
+    return Intl.message(
+      'Create rule error',
+      name: 'createRuleError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update transaction failed`
+  String get updateTransactionFailed {
+    return Intl.message(
+      'Update transaction failed',
+      name: 'updateTransactionFailed',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

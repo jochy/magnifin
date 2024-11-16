@@ -67,6 +67,12 @@ type Connector struct {
 	DeletedAt           sql.NullTime   `db:"deleted_at"`
 }
 
+type Image struct {
+	ID          string `db:"id"`
+	Content     string `db:"content"`
+	ContentType string `db:"content_type"`
+}
+
 type Provider struct {
 	ID        int32          `db:"id"`
 	Name      string         `db:"name"`
@@ -121,7 +127,7 @@ type TransactionEnrichment struct {
 	Reference            sql.NullString `db:"reference"`
 	Method               sql.NullString `db:"method"`
 	CounterpartyName     sql.NullString `db:"counterparty_name"`
-	CounterpartyLogoUrl  sql.NullString `db:"counterparty_logo_url"`
+	CounterpartyLogo     sql.NullString `db:"counterparty_logo"`
 	UserCounterpartyName sql.NullString `db:"user_counterparty_name"`
 	DeletedAt            sql.NullTime   `db:"deleted_at"`
 }

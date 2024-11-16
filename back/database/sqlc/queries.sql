@@ -260,28 +260,56 @@ where provider_users.user_id = $1
 -- name: GetTransactionByID :one
 select *
 from transactions
-where id = $1
-  and deleted_at is null;
+left join transaction_enrichments on transactions.id = transaction_enrichments.transaction_id
+where transactions.id = $1
+  and transactions.deleted_at is null;
 
 -- name: CreateTransactionEnrichment :one
-insert into transaction_enrichments (transaction_id, category, reference, counterparty_name, counterparty_logo_url,
+insert into transaction_enrichments (transaction_id, category, reference, counterparty_name, counterparty_logo,
                                      method, user_counterparty_name)
 values ($1, $2, $3, $4, $5, $6, $7) returning *;
 
--- name: GetAllRulesByUserID :many
+-- name: UpdateTransactionEnrichment :one
+update transaction_enrichments
+set category              = $2,
+    reference             = $3,
+    counterparty_name     = $4,
+    counterparty_logo     = $5,
+    method                = $6,
+    user_counterparty_name = $7
+where transaction_id = $1 returning *;
+
+-- name: GetAllRulesByUserFromTransactionID :many
 select category_rules.*
 from category_rules
          left join categories on category_rules.category_id = categories.id
 where categories.deleted_at is null
   and category_rules.deleted_at is null
-  and (user_id is null or user_id = $1)
-order by created_at desc;
+  and (user_id is null or user_id = (select user_id
+                                     from provider_users
+                                              inner join connections on connections.provider_users_id = provider_users.id
+                                              inner join accounts on accounts.connection_id = connections.id
+                                              inner join transactions on accounts.id = transactions.account_id
+                                     where transactions.id = $1))
+order by category_rules.created_at desc
+limit 1000; -- after 1000 per user, it is too much, let's ignore them
 
 -- name: GetAllCategoriesByUserID :many
 select *
 from categories
 where categories.deleted_at is null
   and (user_id is null or user_id = $1);
+
+-- name: GetAllCategoriesByUserFromTransactionID :many
+select *
+from categories
+where categories.deleted_at is null
+  and (user_id is null or user_id = (select user_id
+                                     from provider_users
+                                              inner join connections on connections.provider_users_id = provider_users.id
+                                              inner join accounts on accounts.connection_id = connections.id
+                                              inner join transactions on accounts.id = transactions.account_id
+                                     where transactions.id = $1));
 
 -- name: DeleteCategoryByID :exec
 update categories
@@ -327,3 +355,12 @@ where provider_users.user_id = (select user_id
                                 where transactions.id = $1)
   and transactions.deleted_at is null
   and user_counterparty_name is not null;
+
+-- name: StoreImage :one
+insert into images (id, content, content_type)
+values ($1, $2, $3) returning *;
+
+-- name: GetImageByID :one
+select *
+from images
+where id = $1;

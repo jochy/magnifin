@@ -4,6 +4,7 @@ part of 'transactions_cubit.dart';
 class TransactionsState with _$TransactionsState {
   const factory TransactionsState({
     required List<Transaction> transactions,
+    required List<Category> categories,
     DateTime? minDate,
     DateTime? maxDate,
     required bool isLoading,
@@ -41,8 +42,10 @@ class Category with _$Category {
   const factory Category({
     required int id,
     required String name,
-    required String type,
+    @JsonKey(name: "uid") int? userId,
+    required String icon,
     required String color,
+    @JsonKey(name: "include_in_budget") required bool includeInBudget,
   }) = _Category;
 
   factory Category.fromJson(Map<String, dynamic> json) =>
@@ -149,4 +152,9 @@ class MonthlyBudgetSummary {
     l.sort((a, b) => a.key.compareTo(b.key));
     return l;
   }
+}
+
+extension TransactionExt on Transaction {
+  Category? getCategory(TransactionsState state) => state.categories
+      .where((c) => c.id == category).firstOrNull;
 }

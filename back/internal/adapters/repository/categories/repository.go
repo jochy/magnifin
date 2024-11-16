@@ -19,8 +19,8 @@ func NewRepository(db database.Service) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) GetAllRulesByUserID(ctx context.Context, userID int32) ([]model.CategoryRule, error) {
-	rules, err := r.db.GetAllRulesByUserID(ctx, repository.ToSqlNullInt32(&userID))
+func (r *Repository) GetAllRulesByUserFromTransID(ctx context.Context, transID int32) ([]model.CategoryRule, error) {
+	rules, err := r.db.GetAllRulesByUserFromTransactionID(ctx, transID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	} else if err != nil {
@@ -28,8 +28,24 @@ func (r *Repository) GetAllRulesByUserID(ctx context.Context, userID int32) ([]m
 	}
 
 	result := make([]model.CategoryRule, len(rules))
-	for _, c := range rules {
-		result = append(result, *toCategoryRuleDomain(&c))
+	for i, c := range rules {
+		result[i] = *toCategoryRuleDomain(&c)
+	}
+
+	return result, nil
+}
+
+func (r *Repository) GetAllCategoriesByUserFromTransactionID(ctx context.Context, transID int32) ([]model.Category, error) {
+	categories, err := r.db.GetAllCategoriesByUserFromTransactionID(ctx, transID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	result := make([]model.Category, len(categories))
+	for i, c := range categories {
+		result[i] = *toCategoryDomain(&c)
 	}
 
 	return result, nil
@@ -45,8 +61,8 @@ func (r *Repository) GetAllCategoriesByUserID(ctx context.Context, userID int32)
 	}
 
 	result := make([]model.Category, len(categories))
-	for _, c := range categories {
-		result = append(result, *toCategoryDomain(&c))
+	for i, c := range categories {
+		result[i] = *toCategoryDomain(&c)
 	}
 
 	return result, nil

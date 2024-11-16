@@ -1,6 +1,7 @@
 package transactions
 
 import (
+	"fmt"
 	"magnifin/internal/adapters/http/middlewares"
 	"magnifin/internal/app/model"
 	"net/http"
@@ -38,7 +39,7 @@ func (h *Handlers) List(c *gin.Context) {
 
 	t := make([]enrichedTransaction, len(transactions))
 	for i, tx := range transactions {
-		t[i] = *toPublicFormat(&tx)
+		t[i] = *h.toPublicFormat(&tx)
 	}
 
 	c.JSON(http.StatusOK, listResponse{Transactions: t})
@@ -67,7 +68,7 @@ type enrichedTransaction struct {
 	Category            *int32  `json:"ca"`
 }
 
-func toPublicFormat(t *model.Transaction) *enrichedTransaction {
+func (h *Handlers) toPublicFormat(t *model.Transaction) *enrichedTransaction {
 	if t.Enrichment == nil {
 		// Avoid NPE
 		t.Enrichment = &model.TransactionEnrichment{}
@@ -87,6 +88,12 @@ func toPublicFormat(t *model.Transaction) *enrichedTransaction {
 		reference = t.Reference
 	}
 
+	var logoURL *string
+	if t.Enrichment.CounterpartyLogo != nil {
+		u := fmt.Sprintf("%s/v1/images/%s", h.PublicURL, *t.Enrichment.CounterpartyLogo)
+		logoURL = &u
+	}
+
 	return &enrichedTransaction{
 		ID:                t.ID,
 		AccountID:         t.AccountID,
@@ -102,7 +109,7 @@ func toPublicFormat(t *model.Transaction) *enrichedTransaction {
 		Reference:           reference,
 		Method:              t.Enrichment.Method,
 
-		CounterpartyLogoURL: t.Enrichment.CounterpartyLogoURL,
+		CounterpartyLogoURL: logoURL,
 		Category:            t.Enrichment.Category,
 	}
 }

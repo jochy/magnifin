@@ -240,9 +240,9 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 }
 
 const createTransactionEnrichment = `-- name: CreateTransactionEnrichment :one
-insert into transaction_enrichments (transaction_id, category, reference, counterparty_name, counterparty_logo_url,
+insert into transaction_enrichments (transaction_id, category, reference, counterparty_name, counterparty_logo,
                                      method, user_counterparty_name)
-values ($1, $2, $3, $4, $5, $6, $7) returning id, transaction_id, category, reference, method, counterparty_name, counterparty_logo_url, user_counterparty_name, deleted_at
+values ($1, $2, $3, $4, $5, $6, $7) returning id, transaction_id, category, reference, method, counterparty_name, counterparty_logo, user_counterparty_name, deleted_at
 `
 
 type CreateTransactionEnrichmentParams struct {
@@ -250,7 +250,7 @@ type CreateTransactionEnrichmentParams struct {
 	Category             sql.NullInt32  `db:"category"`
 	Reference            sql.NullString `db:"reference"`
 	CounterpartyName     sql.NullString `db:"counterparty_name"`
-	CounterpartyLogoUrl  sql.NullString `db:"counterparty_logo_url"`
+	CounterpartyLogo     sql.NullString `db:"counterparty_logo"`
 	Method               sql.NullString `db:"method"`
 	UserCounterpartyName sql.NullString `db:"user_counterparty_name"`
 }
@@ -261,7 +261,7 @@ func (q *Queries) CreateTransactionEnrichment(ctx context.Context, arg CreateTra
 		arg.Category,
 		arg.Reference,
 		arg.CounterpartyName,
-		arg.CounterpartyLogoUrl,
+		arg.CounterpartyLogo,
 		arg.Method,
 		arg.UserCounterpartyName,
 	)
@@ -273,7 +273,7 @@ func (q *Queries) CreateTransactionEnrichment(ctx context.Context, arg CreateTra
 		&i.Reference,
 		&i.Method,
 		&i.CounterpartyName,
-		&i.CounterpartyLogoUrl,
+		&i.CounterpartyLogo,
 		&i.UserCounterpartyName,
 		&i.DeletedAt,
 	)
@@ -482,13 +482,58 @@ func (q *Queries) GetAccountByConnectionIDAndProviderAccountID(ctx context.Conte
 	return i, err
 }
 
+const getAllCategoriesByUserFromTransactionID = `-- name: GetAllCategoriesByUserFromTransactionID :many
+select id, name, user_id, color, icon, include_in_budget, deleted_at
+from categories
+where categories.deleted_at is null
+  and (user_id is null or user_id = (select user_id
+                                     from provider_users
+                                              inner join connections on connections.provider_users_id = provider_users.id
+                                              inner join accounts on accounts.connection_id = connections.id
+                                              inner join transactions on accounts.id = transactions.account_id
+                                     where transactions.id = $1))
+`
+
+func (q *Queries) GetAllCategoriesByUserFromTransactionID(ctx context.Context, id int32) ([]Category, error) {
+	rows, err := q.db.QueryContext(ctx, getAllCategoriesByUserFromTransactionID, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Category{}
+	for rows.Next() {
+		var i Category
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.UserID,
+			&i.Color,
+			&i.Icon,
+			&i.IncludeInBudget,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAllCategoriesByUserID = `-- name: GetAllCategoriesByUserID :many
+
 select id, name, user_id, color, icon, include_in_budget, deleted_at
 from categories
 where categories.deleted_at is null
   and (user_id is null or user_id = $1)
 `
 
+// after 1000 per user, it is too much, let's ignore them
 func (q *Queries) GetAllCategoriesByUserID(ctx context.Context, userID sql.NullInt32) ([]Category, error) {
 	rows, err := q.db.QueryContext(ctx, getAllCategoriesByUserID, userID)
 	if err != nil {
@@ -520,18 +565,24 @@ func (q *Queries) GetAllCategoriesByUserID(ctx context.Context, userID sql.NullI
 	return items, nil
 }
 
-const getAllRulesByUserID = `-- name: GetAllRulesByUserID :many
+const getAllRulesByUserFromTransactionID = `-- name: GetAllRulesByUserFromTransactionID :many
 select category_rules.id, category_rules.category_id, category_rules.rule, category_rules.created_at, category_rules.deleted_at
 from category_rules
          left join categories on category_rules.category_id = categories.id
 where categories.deleted_at is null
   and category_rules.deleted_at is null
-  and (user_id is null or user_id = $1)
-order by created_at desc
+  and (user_id is null or user_id = (select user_id
+                                     from provider_users
+                                              inner join connections on connections.provider_users_id = provider_users.id
+                                              inner join accounts on accounts.connection_id = connections.id
+                                              inner join transactions on accounts.id = transactions.account_id
+                                     where transactions.id = $1))
+order by category_rules.created_at desc
+limit 1000
 `
 
-func (q *Queries) GetAllRulesByUserID(ctx context.Context, userID sql.NullInt32) ([]CategoryRule, error) {
-	rows, err := q.db.QueryContext(ctx, getAllRulesByUserID, userID)
+func (q *Queries) GetAllRulesByUserFromTransactionID(ctx context.Context, id int32) ([]CategoryRule, error) {
+	rows, err := q.db.QueryContext(ctx, getAllRulesByUserFromTransactionID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -672,6 +723,19 @@ func (q *Queries) GetConnectorByID(ctx context.Context, id int32) (Connector, er
 	return i, err
 }
 
+const getImageByID = `-- name: GetImageByID :one
+select id, content, content_type
+from images
+where id = $1
+`
+
+func (q *Queries) GetImageByID(ctx context.Context, id string) (Image, error) {
+	row := q.db.QueryRowContext(ctx, getImageByID, id)
+	var i Image
+	err := row.Scan(&i.ID, &i.Content, &i.ContentType)
+	return i, err
+}
+
 const getProviderByID = `-- name: GetProviderByID :one
 select id, name, access_key, secret, enabled, created_at, updated_at, deleted_at
 from providers
@@ -788,15 +852,43 @@ func (q *Queries) GetRedirectSessionByID(ctx context.Context, id string) (Redire
 }
 
 const getTransactionByID = `-- name: GetTransactionByID :one
-select id, account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status, operation_at, counterparty_name, counterparty_account, reference, created_at, updated_at, deleted_at
+select transactions.id, account_id, provider_transaction_id, bank_transaction_id, amount, currency, direction, status, operation_at, transactions.counterparty_name, counterparty_account, transactions.reference, created_at, updated_at, transactions.deleted_at, transaction_enrichments.id, transaction_id, category, transaction_enrichments.reference, method, transaction_enrichments.counterparty_name, counterparty_logo, user_counterparty_name, transaction_enrichments.deleted_at
 from transactions
-where id = $1
-  and deleted_at is null
+left join transaction_enrichments on transactions.id = transaction_enrichments.transaction_id
+where transactions.id = $1
+  and transactions.deleted_at is null
 `
 
-func (q *Queries) GetTransactionByID(ctx context.Context, id int32) (Transaction, error) {
+type GetTransactionByIDRow struct {
+	ID                    int32          `db:"id"`
+	AccountID             int32          `db:"account_id"`
+	ProviderTransactionID string         `db:"provider_transaction_id"`
+	BankTransactionID     sql.NullString `db:"bank_transaction_id"`
+	Amount                string         `db:"amount"`
+	Currency              string         `db:"currency"`
+	Direction             string         `db:"direction"`
+	Status                string         `db:"status"`
+	OperationAt           time.Time      `db:"operation_at"`
+	CounterpartyName      sql.NullString `db:"counterparty_name"`
+	CounterpartyAccount   sql.NullString `db:"counterparty_account"`
+	Reference             sql.NullString `db:"reference"`
+	CreatedAt             time.Time      `db:"created_at"`
+	UpdatedAt             time.Time      `db:"updated_at"`
+	DeletedAt             sql.NullTime   `db:"deleted_at"`
+	ID_2                  sql.NullInt32  `db:"id_2"`
+	TransactionID         sql.NullInt32  `db:"transaction_id"`
+	Category              sql.NullInt32  `db:"category"`
+	Reference_2           sql.NullString `db:"reference_2"`
+	Method                sql.NullString `db:"method"`
+	CounterpartyName_2    sql.NullString `db:"counterparty_name_2"`
+	CounterpartyLogo      sql.NullString `db:"counterparty_logo"`
+	UserCounterpartyName  sql.NullString `db:"user_counterparty_name"`
+	DeletedAt_2           sql.NullTime   `db:"deleted_at_2"`
+}
+
+func (q *Queries) GetTransactionByID(ctx context.Context, id int32) (GetTransactionByIDRow, error) {
 	row := q.db.QueryRowContext(ctx, getTransactionByID, id)
-	var i Transaction
+	var i GetTransactionByIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.AccountID,
@@ -813,12 +905,21 @@ func (q *Queries) GetTransactionByID(ctx context.Context, id int32) (Transaction
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.ID_2,
+		&i.TransactionID,
+		&i.Category,
+		&i.Reference_2,
+		&i.Method,
+		&i.CounterpartyName_2,
+		&i.CounterpartyLogo,
+		&i.UserCounterpartyName,
+		&i.DeletedAt_2,
 	)
 	return i, err
 }
 
 const getTransactionsByUserIDAndBetweenDates = `-- name: GetTransactionsByUserIDAndBetweenDates :many
-select transactions.id, transactions.account_id, transactions.provider_transaction_id, transactions.bank_transaction_id, transactions.amount, transactions.currency, transactions.direction, transactions.status, transactions.operation_at, transactions.counterparty_name, transactions.counterparty_account, transactions.reference, transactions.created_at, transactions.updated_at, transactions.deleted_at, transaction_enrichments.id, transaction_enrichments.transaction_id, transaction_enrichments.category, transaction_enrichments.reference, transaction_enrichments.method, transaction_enrichments.counterparty_name, transaction_enrichments.counterparty_logo_url, transaction_enrichments.user_counterparty_name, transaction_enrichments.deleted_at
+select transactions.id, transactions.account_id, transactions.provider_transaction_id, transactions.bank_transaction_id, transactions.amount, transactions.currency, transactions.direction, transactions.status, transactions.operation_at, transactions.counterparty_name, transactions.counterparty_account, transactions.reference, transactions.created_at, transactions.updated_at, transactions.deleted_at, transaction_enrichments.id, transaction_enrichments.transaction_id, transaction_enrichments.category, transaction_enrichments.reference, transaction_enrichments.method, transaction_enrichments.counterparty_name, transaction_enrichments.counterparty_logo, transaction_enrichments.user_counterparty_name, transaction_enrichments.deleted_at
 from transactions
          inner join accounts on transactions.account_id = accounts.id
          inner join connections on accounts.connection_id = connections.id
@@ -858,7 +959,7 @@ type GetTransactionsByUserIDAndBetweenDatesRow struct {
 	Reference_2           sql.NullString `db:"reference_2"`
 	Method                sql.NullString `db:"method"`
 	CounterpartyName_2    sql.NullString `db:"counterparty_name_2"`
-	CounterpartyLogoUrl   sql.NullString `db:"counterparty_logo_url"`
+	CounterpartyLogo      sql.NullString `db:"counterparty_logo"`
 	UserCounterpartyName  sql.NullString `db:"user_counterparty_name"`
 	DeletedAt_2           sql.NullTime   `db:"deleted_at_2"`
 }
@@ -894,7 +995,7 @@ func (q *Queries) GetTransactionsByUserIDAndBetweenDates(ctx context.Context, ar
 			&i.Reference_2,
 			&i.Method,
 			&i.CounterpartyName_2,
-			&i.CounterpartyLogoUrl,
+			&i.CounterpartyLogo,
 			&i.UserCounterpartyName,
 			&i.DeletedAt_2,
 		); err != nil {
@@ -1223,6 +1324,24 @@ func (q *Queries) ListProviders(ctx context.Context) ([]Provider, error) {
 	return items, nil
 }
 
+const storeImage = `-- name: StoreImage :one
+insert into images (id, content, content_type)
+values ($1, $2, $3) returning id, content, content_type
+`
+
+type StoreImageParams struct {
+	ID          string `db:"id"`
+	Content     string `db:"content"`
+	ContentType string `db:"content_type"`
+}
+
+func (q *Queries) StoreImage(ctx context.Context, arg StoreImageParams) (Image, error) {
+	row := q.db.QueryRowContext(ctx, storeImage, arg.ID, arg.Content, arg.ContentType)
+	var i Image
+	err := row.Scan(&i.ID, &i.Content, &i.ContentType)
+	return i, err
+}
+
 const storeRedirectSessions = `-- name: StoreRedirectSessions :exec
 insert into redirect_sessions (id, provider_connection_id, internal_connection_id, user_id)
 values ($1, $2, $3, $4)
@@ -1517,6 +1636,52 @@ func (q *Queries) UpdateTransaction(ctx context.Context, arg UpdateTransactionPa
 		&i.Reference,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const updateTransactionEnrichment = `-- name: UpdateTransactionEnrichment :one
+update transaction_enrichments
+set category              = $2,
+    reference             = $3,
+    counterparty_name     = $4,
+    counterparty_logo     = $5,
+    method                = $6,
+    user_counterparty_name = $7
+where transaction_id = $1 returning id, transaction_id, category, reference, method, counterparty_name, counterparty_logo, user_counterparty_name, deleted_at
+`
+
+type UpdateTransactionEnrichmentParams struct {
+	TransactionID        int32          `db:"transaction_id"`
+	Category             sql.NullInt32  `db:"category"`
+	Reference            sql.NullString `db:"reference"`
+	CounterpartyName     sql.NullString `db:"counterparty_name"`
+	CounterpartyLogo     sql.NullString `db:"counterparty_logo"`
+	Method               sql.NullString `db:"method"`
+	UserCounterpartyName sql.NullString `db:"user_counterparty_name"`
+}
+
+func (q *Queries) UpdateTransactionEnrichment(ctx context.Context, arg UpdateTransactionEnrichmentParams) (TransactionEnrichment, error) {
+	row := q.db.QueryRowContext(ctx, updateTransactionEnrichment,
+		arg.TransactionID,
+		arg.Category,
+		arg.Reference,
+		arg.CounterpartyName,
+		arg.CounterpartyLogo,
+		arg.Method,
+		arg.UserCounterpartyName,
+	)
+	var i TransactionEnrichment
+	err := row.Scan(
+		&i.ID,
+		&i.TransactionID,
+		&i.Category,
+		&i.Reference,
+		&i.Method,
+		&i.CounterpartyName,
+		&i.CounterpartyLogo,
+		&i.UserCounterpartyName,
 		&i.DeletedAt,
 	)
 	return i, err
