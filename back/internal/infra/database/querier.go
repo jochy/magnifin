@@ -14,6 +14,7 @@ type Querier interface {
 	CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error)
 	CreateCategoryRule(ctx context.Context, arg CreateCategoryRuleParams) (CategoryRule, error)
 	CreateConnection(ctx context.Context, arg CreateConnectionParams) (Connection, error)
+	CreateProvider(ctx context.Context, arg CreateProviderParams) (Provider, error)
 	CreateProviderUser(ctx context.Context, arg CreateProviderUserParams) (ProviderUser, error)
 	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
 	CreateTransactionEnrichment(ctx context.Context, arg CreateTransactionEnrichmentParams) (TransactionEnrichment, error)

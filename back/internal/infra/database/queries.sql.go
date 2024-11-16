@@ -157,6 +157,39 @@ func (q *Queries) CreateConnection(ctx context.Context, arg CreateConnectionPara
 	return i, err
 }
 
+const createProvider = `-- name: CreateProvider :one
+insert into providers (name, access_key, secret, enabled)
+values ($1, $2, $3, $4) returning id, name, access_key, secret, enabled, created_at, updated_at, deleted_at
+`
+
+type CreateProviderParams struct {
+	Name      string         `db:"name"`
+	AccessKey sql.NullString `db:"access_key"`
+	Secret    sql.NullString `db:"secret"`
+	Enabled   bool           `db:"enabled"`
+}
+
+func (q *Queries) CreateProvider(ctx context.Context, arg CreateProviderParams) (Provider, error) {
+	row := q.db.QueryRowContext(ctx, createProvider,
+		arg.Name,
+		arg.AccessKey,
+		arg.Secret,
+		arg.Enabled,
+	)
+	var i Provider
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.AccessKey,
+		&i.Secret,
+		&i.Enabled,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const createProviderUser = `-- name: CreateProviderUser :one
 insert into provider_users (provider_id, user_id, provider_user_id)
 values ($1, $2, $3) returning id, provider_id, provider_user_id, user_id, created_at, updated_at, deleted_at

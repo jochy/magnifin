@@ -27,7 +27,6 @@ func (s *Server) registerRoutes() http.Handler {
 	auth.GET("/ws", s.wsHandler.Listen)
 
 	auth.GET("/providers", s.providersHandlers.List)
-	auth.POST("/providers/:id", s.providersHandlers.Update)
 
 	auth.GET("/connectors", s.connectorsHandlers.SearchByName)
 	auth.POST("/connectors/:id/connect", s.connectorsHandlers.Connect)

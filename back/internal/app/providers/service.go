@@ -3,11 +3,13 @@ package providers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"magnifin/internal/app/model"
 )
 
 type ProviderRepository interface {
 	List(ctx context.Context) ([]model.Provider, error)
+	Create(ctx context.Context, provider *model.Provider) (*model.Provider, error)
 	Update(ctx context.Context, provider *model.Provider) (*model.Provider, error)
 	GetByName(ctx context.Context, name string) (*model.Provider, error)
 	GetByID(ctx context.Context, id int32) (*model.Provider, error)
@@ -38,6 +40,7 @@ type ProviderUserRepository interface {
 
 type ProviderPort interface {
 	Name() string
+	LoadConfig() *model.Provider
 	ValidateConfiguration(provider *model.Provider) error
 	ListConnectors(ctx context.Context, provider *model.Provider) ([]model.Connector, error)
 	CreateProviderUser(ctx context.Context, provider *model.Provider, user *model.User) (*model.ProviderUser, error)
@@ -107,6 +110,37 @@ func NewProviderService(
 
 func (s *ProviderService) ListProviders(ctx context.Context) ([]model.Provider, error) {
 	return s.providerRepository.List(ctx)
+}
+
+func (s *ProviderService) LoadProviderConfigurations() error {
+	for _, port := range s.ports {
+		provider := port.LoadConfig()
+
+		err := port.ValidateConfiguration(provider)
+		if err != nil {
+			provider.Enabled = false
+		}
+
+		pDb, err := s.providerRepository.GetByName(context.Background(), provider.Name)
+		if err != nil {
+			return fmt.Errorf("failed to get provider %s: %w", provider.Name, err)
+		}
+
+		if pDb == nil {
+			_, err = s.providerRepository.Create(context.Background(), provider)
+			if err != nil {
+				return fmt.Errorf("failed to create provider %s: %w", provider.Name, err)
+			}
+		} else {
+			provider.ID = pDb.ID
+			_, err = s.providerRepository.Update(context.Background(), provider)
+			if err != nil {
+				return fmt.Errorf("failed to update provider %s: %w", provider.Name, err)
+			}
+		}
+	}
+
+	return nil
 }
 
 func (s *ProviderService) UpdateProvider(ctx context.Context, provider model.Provider) (*model.Provider, error) {

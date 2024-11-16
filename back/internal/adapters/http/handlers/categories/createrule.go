@@ -22,7 +22,6 @@ func (h *Handlers) CreateRule(c *gin.Context) {
 		CategoryID: req.CategoryID,
 		Rule:       req.Keywords,
 	})
-
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

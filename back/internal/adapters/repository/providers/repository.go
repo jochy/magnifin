@@ -42,6 +42,30 @@ func (r *Repository) List(ctx context.Context) ([]model.Provider, error) {
 	return providers, nil
 }
 
+func (r *Repository) Create(ctx context.Context, provider *model.Provider) (*model.Provider, error) {
+	accessKey, err := repository.EncryptString(provider.AccessKey, r.CypherKey)
+	if err != nil {
+		return nil, err
+	}
+
+	secret, err := repository.EncryptString(provider.Secret, r.CypherKey)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := r.db.CreateProvider(ctx, database.CreateProviderParams{
+		Name:      provider.Name,
+		Enabled:   provider.Enabled,
+		AccessKey: toSqlNullValue(accessKey),
+		Secret:    toSqlNullValue(secret),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return toDomain(&p, r.CypherKey)
+}
+
 func (r *Repository) Update(ctx context.Context, provider *model.Provider) (*model.Provider, error) {
 	accessKey, err := repository.EncryptString(provider.AccessKey, r.CypherKey)
 	if err != nil {

@@ -34,6 +34,10 @@ set name       = $2,
     updated_at = now()
 where id = $1 returning *;
 
+-- name: CreateProvider :one
+insert into providers (name, access_key, secret, enabled)
+values ($1, $2, $3, $4) returning *;
+
 -- name: GetProviderByID :one
 select *
 from providers

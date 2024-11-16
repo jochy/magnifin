@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"magnifin/internal/app/model"
 	"net/http"
+	"os"
 	"sync"
 )
 
@@ -37,6 +38,26 @@ func NewGoCardless(publicURL string) *GoCardless {
 
 func (g *GoCardless) Name() string {
 	return "GoCardless"
+}
+
+func (g *GoCardless) LoadConfig() *model.Provider {
+	var accessKey *string
+	var secret *string
+
+	if os.Getenv("GOCARDLESS_SECRET_ID") != "" {
+		tmp := os.Getenv("GOCARDLESS_SECRET_ID")
+		accessKey = &tmp
+	}
+	if os.Getenv("GOCARDLESS_SECRET_KEY") != "" {
+		tmp := os.Getenv("GOCARDLESS_SECRET_KEY")
+		secret = &tmp
+	}
+
+	return &model.Provider{
+		Name:      g.Name(),
+		AccessKey: accessKey,
+		Secret:    secret,
+	}
 }
 
 func (g *GoCardless) ValidateConfiguration(provider *model.Provider) error {
