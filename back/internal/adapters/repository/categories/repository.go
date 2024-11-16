@@ -130,3 +130,14 @@ func (r *Repository) CreateCategoryRule(ctx context.Context, categoryRule model.
 
 	return toCategoryRuleDomain(&rule), nil
 }
+
+func (r *Repository) GetCategoryRuleByID(ctx context.Context, id int32) (*model.CategoryRule, error) {
+	rule, err := r.db.GetCategoryRuleByID(ctx, id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.New("category rule not found")
+	} else if err != nil {
+		return nil, err
+	}
+
+	return toCategoryRuleDomain(&rule), nil
+}

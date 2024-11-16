@@ -30,7 +30,7 @@ func NewScheduler(db database.Service, jobs *jobs.Jobs) (Client, error) {
 
 	riverClient, err := river.NewClient(riverpgxv5.New(db.PgxPool()), &river.Config{
 		Queues: map[string]river.QueueConfig{
-			river.QueueDefault: {MaxWorkers: 50},
+			river.QueueDefault: {MaxWorkers: 100},
 		},
 		Workers:      workers,
 		PeriodicJobs: periodicJobs(jobs),

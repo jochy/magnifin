@@ -31,6 +31,7 @@ type Querier interface {
 	// after 1000 per user, it is too much, let's ignore them
 	GetAllCategoriesByUserID(ctx context.Context, userID sql.NullInt32) ([]Category, error)
 	GetAllRulesByUserFromTransactionID(ctx context.Context, id int32) ([]CategoryRule, error)
+	GetCategoryRuleByID(ctx context.Context, id int32) (CategoryRule, error)
 	GetConnectionByID(ctx context.Context, id int32) (Connection, error)
 	GetConnectionByIDAndUserID(ctx context.Context, arg GetConnectionByIDAndUserIDParams) (Connection, error)
 	GetConnectionByProviderUserIDAndProviderConnectionID(ctx context.Context, arg GetConnectionByProviderUserIDAndProviderConnectionIDParams) (Connection, error)

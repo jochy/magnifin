@@ -659,6 +659,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Apply rule to existing transactions`
+  String get applyRuleToExistingTransactions {
+    return Intl.message(
+      'Apply rule to existing transactions',
+      name: 'applyRuleToExistingTransactions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This may impact all transactions`
+  String get thisMayImpactAllTransactions {
+    return Intl.message(
+      'This may impact all transactions',
+      name: 'thisMayImpactAllTransactions',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -59,5 +59,7 @@
   "newSmartRule": "New smart rule",
   "selectTheDataUsedToCategorizeFutureTransactions": "Select the data used to categorize future transactions.",
   "createRuleError": "Create rule error",
-  "updateTransactionFailed": "Update transaction failed"
+  "updateTransactionFailed": "Update transaction failed",
+  "applyRuleToExistingTransactions": "Apply rule to existing transactions",
+  "thisMayImpactAllTransactions": "This may impact all transactions"
 }

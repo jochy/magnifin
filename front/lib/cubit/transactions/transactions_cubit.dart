@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +18,7 @@ part 'transactions_cubit.g.dart';
 class TransactionsCubit extends Cubit<TransactionsState> {
   final AuthCubit authCubit;
   WebSocketChannel? channel;
+  Timer? timer;
 
   static TransactionsCubit of(context) =>
       BlocProvider.of<TransactionsCubit>(context);
@@ -41,19 +43,13 @@ class TransactionsCubit extends Cubit<TransactionsState> {
 
   void loadRecentTransactions() async {
     if (channel == null) {
-      channel = WebSocketChannel.connect(
-        Uri.parse(
-            "${Configuration.instance.baseUrl.replaceFirst("http", "ws")}/v1/ws?token=${authCubit.state.token}"),
-      );
-      channel!.stream.listen((d) {
-        var data = jsonDecode(d);
-        var transaction = Transaction.fromJson(data);
-        emit(state.copyWith(
-          transactions: cleanTransactions([
-            ...state.transactions,
-            transaction,
-          ]),
-        ));
+      _connectWS();
+
+      timer = Timer(const Duration(seconds: 5), () {
+        if (channel?.closeCode != null) {
+          print("Reconnecting WS");
+          _connectWS();
+        }
       });
     }
     emit(state.copyWith(isLoading: true, error: null));
@@ -111,6 +107,24 @@ class TransactionsCubit extends Cubit<TransactionsState> {
 
       await loadCategories();
     }
+  }
+
+  void _connectWS() {
+    channel = WebSocketChannel.connect(
+      Uri.parse(
+          "${Configuration.instance.baseUrl.replaceFirst("http", "ws")}/v1/ws?token=${authCubit.state.token}"),
+    );
+    channel!.stream.listen((d) {
+      print(d);
+      var data = jsonDecode(d);
+      var transaction = Transaction.fromJson(data);
+      emit(state.copyWith(
+        transactions: cleanTransactions([
+          ...state.transactions,
+          transaction,
+        ]),
+      ));
+    });
   }
 
   Future<void> loadCategories() async {
@@ -250,7 +264,7 @@ class TransactionsCubit extends Cubit<TransactionsState> {
   }
 
   Future<bool> createCategoryRule(
-      Category category, List<String> keywords) async {
+      Category category, List<String> keywords, bool applyToAll) async {
     final response = await http.post(
       Uri.parse(
           "${Configuration.instance.baseUrl}/v1/categories/${category.id}/rule"),
@@ -262,6 +276,7 @@ class TransactionsCubit extends Cubit<TransactionsState> {
       body: jsonEncode({
         'category_id': category.id,
         'keywords': keywords,
+        'apply_to_all': applyToAll,
       }),
     );
 

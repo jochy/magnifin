@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:front/components/styled_text.dart';
 import 'package:front/cubit/connections/connections_cubit.dart';
 import 'package:front/cubit/transactions/transactions_cubit.dart';
 import 'package:front/generated/l10n.dart';
@@ -24,6 +25,7 @@ class _CreateAutoRuleDialogState extends State<CreateAutoRuleDialog> {
   List<String> selectedElements = [];
   Map<String, bool> selected = {};
   bool isLoading = false;
+  bool applyToAll = false;
 
   @override
   Widget build(BuildContext context) {
@@ -43,28 +45,60 @@ class _CreateAutoRuleDialogState extends State<CreateAutoRuleDialog> {
     list = list.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet();
 
     return AlertDialog(
+      titlePadding: const EdgeInsets.all(16),
+      insetPadding: const EdgeInsets.all(16),
+      buttonPadding: const EdgeInsets.all(8),
+      actionsPadding: const EdgeInsets.all(16),
+      contentPadding: const EdgeInsets.all(12),
       title: Text(S.of(context).newSmartRule),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(S.of(context).selectTheDataUsedToCategorizeFutureTransactions),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 4,
-            runSpacing: 4,
-            children: list.map((e) => _chip(e)).toList(),
-          ),
-        ],
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(S.of(context).selectTheDataUsedToCategorizeFutureTransactions),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 2,
+              runSpacing: 2,
+              children: list.map((e) => _chip(e)).toList(),
+            ),
+            const SizedBox(height: 8),
+            CheckboxListTile(
+              value: applyToAll,
+              onChanged: (v) {
+                setState(() {
+                  applyToAll = v ?? false;
+                });
+              },
+              controlAffinity: ListTileControlAffinity.leading,
+              dense: true,
+              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+              contentPadding: const EdgeInsets.all(0),
+              title: Text(S.of(context).applyRuleToExistingTransactions),
+              subtitle: Align(
+                alignment: Alignment.centerLeft,
+                child: StyledText.hintText(S.of(context).thisMayImpactAllTransactions),
+              ),
+            ),
+          ],
+        ),
       ),
       actions: [
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text(S.of(context).cancel),
+          child: Text(
+            S.of(context).cancel,
+            style: const TextStyle(fontSize: 12),
+          ),
         ),
         FilledButton(
           onPressed: () => _createRule(context),
+          style: FilledButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
           child: Text(S.of(context).validate),
         ),
       ],
@@ -87,12 +121,13 @@ class _CreateAutoRuleDialogState extends State<CreateAutoRuleDialog> {
       child: Chip(
         visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
         padding: const EdgeInsets.all(0),
-        labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
         label: Text(label),
         labelStyle: TextStyle(
           color: (selected[label] ?? false)
               ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.onSurface,
+          fontSize: 10,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(100),
@@ -128,7 +163,7 @@ class _CreateAutoRuleDialogState extends State<CreateAutoRuleDialog> {
     });
 
     try {
-      await cubit.createCategoryRule(widget.category, keywords);
+      await cubit.createCategoryRule(widget.category, keywords, applyToAll);
 
       if (this.context.mounted) {
         Navigator.of(context).pop();

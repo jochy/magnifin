@@ -15,6 +15,7 @@ type Service interface {
 
 type TransactionService interface {
 	EnrichTransaction(ctx context.Context, transactionID int32) error
+	ApplyCategoryRule(ctx context.Context, ruleID int32, userID int32) error
 }
 
 type ConnectionsRepository interface {

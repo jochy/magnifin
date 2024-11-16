@@ -30,11 +30,16 @@ type TransactionsRepository interface {
 type CategoryRepository interface {
 	GetAllRulesByUserFromTransID(ctx context.Context, transID int32) ([]model.CategoryRule, error)
 	GetAllCategoriesByUserFromTransactionID(ctx context.Context, transID int32) ([]model.Category, error)
+	GetCategoryRuleByID(ctx context.Context, id int32) (*model.CategoryRule, error)
 }
 
 type ImageRepository interface {
 	GetByID(ctx context.Context, id string) (*model.Image, error)
 	Store(ctx context.Context, image *model.Image) (*model.Image, error)
+}
+
+type UserRepository interface {
+	GetUserByID(ctx context.Context, id int32) (*model.User, error)
 }
 
 type Enricher interface {
@@ -51,6 +56,7 @@ type Service struct {
 	TransactionsRepository TransactionsRepository
 	CategoryRepository     CategoryRepository
 	ImageRepository        ImageRepository
+	UserRepository         UserRepository
 	Enricher               Enricher
 	Notifier               Notifier
 }
@@ -59,6 +65,7 @@ func NewTransactionsService(
 	transactionsRepository TransactionsRepository,
 	categoryRepository CategoryRepository,
 	imageRepository ImageRepository,
+	userRepository UserRepository,
 	enricher Enricher,
 	notifier Notifier,
 ) *Service {
@@ -66,6 +73,7 @@ func NewTransactionsService(
 		TransactionsRepository: transactionsRepository,
 		CategoryRepository:     categoryRepository,
 		ImageRepository:        imageRepository,
+		UserRepository:         userRepository,
 		Enricher:               enricher,
 		Notifier:               notifier,
 	}

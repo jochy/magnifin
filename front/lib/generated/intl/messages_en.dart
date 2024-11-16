@@ -33,6 +33,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "anErrorOccurredWhileTryingToContactTheServerNplease":
             MessageLookupByLibrary.simpleMessage(
                 "An error occurred while trying to contact the server. \nPlease make sure the URL is correct and try again."),
+        "applyRuleToExistingTransactions": MessageLookupByLibrary.simpleMessage(
+            "Apply rule to existing transactions"),
         "areYouSureYouWantToDeleteThisConnectionnthisCan":
             MessageLookupByLibrary.simpleMessage(
                 "Are you sure you want to delete this connection?\nThis can not be undone and all data will be lost."),
@@ -95,6 +97,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Sync in Progress"),
         "synced": MessageLookupByLibrary.simpleMessage("Synced"),
         "taxes": MessageLookupByLibrary.simpleMessage("Taxes"),
+        "thisMayImpactAllTransactions": MessageLookupByLibrary.simpleMessage(
+            "This may impact all transactions"),
         "thisWillAutomaticallyCategorizeSimilarTransactionsInTheFuture":
             MessageLookupByLibrary.simpleMessage(
                 "This will automatically categorize similar transactions in the future."),

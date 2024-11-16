@@ -610,6 +610,26 @@ func (q *Queries) GetAllRulesByUserFromTransactionID(ctx context.Context, id int
 	return items, nil
 }
 
+const getCategoryRuleByID = `-- name: GetCategoryRuleByID :one
+select id, category_id, rule, created_at, deleted_at
+from category_rules
+where id = $1
+  and deleted_at is null
+`
+
+func (q *Queries) GetCategoryRuleByID(ctx context.Context, id int32) (CategoryRule, error) {
+	row := q.db.QueryRowContext(ctx, getCategoryRuleByID, id)
+	var i CategoryRule
+	err := row.Scan(
+		&i.ID,
+		&i.CategoryID,
+		&i.Rule,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getConnectionByID = `-- name: GetConnectionByID :one
 select id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
 from connections

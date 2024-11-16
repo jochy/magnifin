@@ -372,3 +372,9 @@ from provider_users
          inner join accounts on accounts.connection_id = connections.id
          inner join transactions on accounts.id = transactions.account_id
 where transactions.id = $1;
+
+-- name: GetCategoryRuleByID :one
+select *
+from category_rules
+where id = $1
+  and deleted_at is null;

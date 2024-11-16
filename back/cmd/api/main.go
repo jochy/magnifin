@@ -148,6 +148,7 @@ func main() {
 		transactionsRepository,
 		categoriesRepository,
 		imagesRepository,
+		userRepository,
 		enricher,
 		notifier,
 	)
