@@ -7,7 +7,11 @@ import (
 )
 
 func (s *Server) registerRoutes() http.Handler {
-	r := gin.Default()
+	r := gin.New()
+	r.Use(
+		gin.LoggerWithWriter(gin.DefaultWriter, "/health", "/v1/ping", "/v1/images/"),
+		gin.Recovery(),
+	)
 
 	// Public routes
 	r.GET("/health", s.healthHandler.HealthHandler)

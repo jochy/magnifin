@@ -3,6 +3,7 @@ package handlers
 import (
 	"magnifin/internal/adapters/http/middlewares"
 	"magnifin/internal/adapters/notifier"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,11 @@ func (h *WSHandler) Listen(gctx *gin.Context) {
 		return
 	}
 
-	upgrader := websocket.Upgrader{}
+	upgrader := websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
 	c, err := upgrader.Upgrade(gctx.Writer, gctx.Request, nil)
 	if err != nil {
 		gctx.JSON(400, gin.H{"error": "unable to upgrade connection in websocket"})

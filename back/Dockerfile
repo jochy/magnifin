@@ -12,6 +12,8 @@ RUN go build -o migrate ./database
 
 FROM alpine:latest
 
+RUN apk add curl
+
 WORKDIR /app
 
 COPY --from=builder /app/api .

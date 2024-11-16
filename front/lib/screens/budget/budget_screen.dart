@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/components/empty_state.dart';
 import 'package:front/components/styled_text.dart';
+import 'package:front/cubit/connections/connections_cubit.dart';
 import 'package:front/cubit/transactions/transactions_cubit.dart';
 import 'package:front/generated/l10n.dart';
-import 'package:front/screens/accounts/accounts_screen.dart';
 import 'package:front/screens/budget/day_transaction_list.dart';
 import 'package:front/screens/budget/month_selector.dart';
-import 'package:moment_dart/moment_dart.dart';
-import 'package:money2/money2.dart';
 
 class BudgetScreen extends StatefulWidget {
   const BudgetScreen({super.key});
@@ -24,6 +22,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<TransactionsCubit, TransactionsState>(
       builder: (context, state) {
+        if (ConnectionsCubit.of(context).state.connections.isEmpty) {
+          return const Center(child: EmptyStateComponent());
+        }
+
         var allMonths =
             MonthlyBudget.fromMinMax(state.minDate!, state.maxDate!);
 

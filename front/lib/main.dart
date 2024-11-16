@@ -1,4 +1,5 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -119,6 +120,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      Configuration.instance.baseUrl = webUri();
+    }
+
     return ToastificationWrapper(
       child: MultiBlocProvider(
         providers: [
@@ -167,5 +172,20 @@ class MyApp extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String webUri() {
+    var currentUri = Uri.base.toString();
+    var apiUri = currentUri;
+
+    if (apiUri.contains("#")) {
+      apiUri = apiUri.substring(0, apiUri.indexOf("#"));
+    }
+
+    if (apiUri.endsWith("/")) {
+      apiUri = apiUri.substring(0, apiUri.length - 1);
+    }
+
+    return "$apiUri/api";
   }
 }

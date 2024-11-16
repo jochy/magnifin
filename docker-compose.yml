@@ -5,6 +5,7 @@ services:
       context: ./back
       dockerfile: Dockerfile
     command: [ "./migrate" ]
+    pull_policy: always
     environment:
       DB_CONNECTION: pgsql
       DB_HOST: psql_bp
@@ -16,11 +17,28 @@ services:
       psql_bp:
         condition: service_healthy
 
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    pull_policy: always
+    environment:
+      BACKEND_URL: http://back:8080
+    volumes:
+      - ./front/nginx.conf:/etc/nginx/templates/default.conf.template
+    ports:
+      - "3000:80"
+    depends_on:
+      back:
+        condition: service_healthy
+
   back:
     build:
       context: ./back
       dockerfile: Dockerfile
     restart: unless-stopped
+    pull_policy: always
     environment:
       DB_CONNECTION: pgsql
       DB_HOST: psql_bp
@@ -42,7 +60,12 @@ services:
       GOCARDLESS_SECRET_ID: ${GOCARDLESS_SECRET_ID}
       GOCARDLESS_SECRET_KEY: ${GOCARDLESS_SECRET_KEY}
     ports:
-      - "${PORT}:8080"
+      - "8080:8080"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/health || exit 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     depends_on:
       migrations:
         condition: service_completed_successfully
