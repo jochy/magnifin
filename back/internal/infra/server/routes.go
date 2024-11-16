@@ -24,6 +24,7 @@ func (s *Server) registerRoutes() http.Handler {
 	auth.GET("/check-login", func(context *gin.Context) {
 		context.JSON(http.StatusNoContent, nil)
 	})
+	auth.GET("/ws", s.wsHandler.Listen)
 
 	auth.GET("/providers", s.providersHandlers.List)
 	auth.POST("/providers/:id", s.providersHandlers.Update)
@@ -34,9 +35,11 @@ func (s *Server) registerRoutes() http.Handler {
 	// User's data
 	auth.GET("/connections", s.connectionsHandlers.List)
 	auth.DELETE("/connections/:id", s.connectionsHandlers.Delete)
+
 	auth.GET("/transactions", s.transactionsHandler.List)
 	auth.GET("/transactions/minmax", s.transactionsHandler.MinMax)
 	auth.PATCH("/transactions/:id", s.transactionsHandler.Update)
+
 	auth.GET("/categories", s.categoriesHandlers.List)
 	auth.POST("/categories/:id/rule", s.categoriesHandlers.CreateRule)
 

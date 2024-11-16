@@ -29,6 +29,7 @@ type Server struct {
 	transactionsHandler *transactions.Handlers
 	categoriesHandlers  *categories.Handlers
 	imagesHandlers      *images.Handlers
+	wsHandler           *handlers.WSHandler
 }
 
 func NewServer(
@@ -41,6 +42,7 @@ func NewServer(
 	transactionsHandler *transactions.Handlers,
 	categoriesHandlers *categories.Handlers,
 	imagesHandlers *images.Handlers,
+	wsHandler *handlers.WSHandler,
 ) *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	NewServer := &Server{
@@ -54,6 +56,7 @@ func NewServer(
 		transactionsHandler: transactionsHandler,
 		categoriesHandlers:  categoriesHandlers,
 		imagesHandlers:      imagesHandlers,
+		wsHandler:           wsHandler,
 	}
 
 	// Declare Server config

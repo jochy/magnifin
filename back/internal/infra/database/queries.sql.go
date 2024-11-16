@@ -1076,6 +1076,22 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 	return i, err
 }
 
+const getUserIDByTransactionID = `-- name: GetUserIDByTransactionID :one
+select user_id
+from provider_users
+         inner join connections on connections.provider_users_id = provider_users.id
+         inner join accounts on accounts.connection_id = connections.id
+         inner join transactions on accounts.id = transactions.account_id
+where transactions.id = $1
+`
+
+func (q *Queries) GetUserIDByTransactionID(ctx context.Context, id int32) (int32, error) {
+	row := q.db.QueryRowContext(ctx, getUserIDByTransactionID, id)
+	var user_id int32
+	err := row.Scan(&user_id)
+	return user_id, err
+}
+
 const likeSearchConnectorsByName = `-- name: LikeSearchConnectorsByName :many
 select connectors.id, connectors.name, connectors.logo_url, connectors.provider_connector_id, connectors.provider_id, connectors.created_at, connectors.updated_at, connectors.deleted_at
 from connectors

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"magnifin/internal/adapters"
 	enricher2 "magnifin/internal/adapters/enricher"
 	"magnifin/internal/adapters/http/handlers"
 	categorieshandlers "magnifin/internal/adapters/http/handlers/categories"
@@ -17,6 +18,7 @@ import (
 	usershandlers "magnifin/internal/adapters/http/handlers/users"
 	"magnifin/internal/adapters/http/middlewares"
 	"magnifin/internal/adapters/jobs"
+	"magnifin/internal/adapters/notifier"
 	"magnifin/internal/adapters/providers/gocardless"
 	"magnifin/internal/adapters/repository"
 	"magnifin/internal/adapters/repository/accounts"
@@ -96,6 +98,12 @@ func main() {
 		slog.Warn("OPENAI_KEY not set, some features may not work. Please set either OPENAI_KEY, OPENAI_BASE_URL and OPENAI_MODEL")
 	}
 
+	publicTransactionMapper := adapters.NewMapper(publicURL)
+
+	// Notifier
+	notifier := notifier.NewNotifier(publicTransactionMapper)
+	defer notifier.Close() //nolint:errcheck
+
 	// Db
 	db := database.NewService()
 	userRepository := usersrepo.NewRepository(db, cypherKey)
@@ -141,6 +149,7 @@ func main() {
 		categoriesRepository,
 		imagesRepository,
 		enricher,
+		notifier,
 	)
 
 	scheduler, err := scheduler2.NewScheduler(db, jobs.NewJobs(providerService, transactionsService, connectionsRepository))
@@ -172,9 +181,10 @@ func main() {
 		providers.NewHandler(providerService),
 		connectorshandlers.NewHandler(connectorsService),
 		connectionshandlers.NewHandlers(connectionsService),
-		transactionshandlers.NewHandlers(transactionsService, publicURL),
+		transactionshandlers.NewHandlers(transactionsService, publicTransactionMapper),
 		categorieshandlers.NewHandlers(categoriesRepository),
 		imageshandlers.NewHandlers(imagesRepository),
+		handlers.NewWSHandler(notifier),
 	)
 
 	// Create a done channel to signal when the shutdown is complete

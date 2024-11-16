@@ -85,6 +85,7 @@ func (r *Repository) Update(ctx context.Context, transaction *model.Transaction)
 
 	t := toDomain(trs, nil)
 	t.Enrichment = transaction.Enrichment
+
 	return t, nil
 }
 
@@ -203,4 +204,15 @@ func (r *Repository) ListAllUserCounterpartiesByTransID(ctx context.Context, tra
 	}
 
 	return counterparties, nil
+}
+
+func (r *Repository) GetUserIDByTransactionID(ctx context.Context, id int32) (int32, error) {
+	userID, err := r.db.GetUserIDByTransactionID(ctx, id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, errors.New("user not found")
+	} else if err != nil {
+		return 0, fmt.Errorf("error getting user id by transaction id: %w", err)
+	}
+
+	return userID, nil
 }

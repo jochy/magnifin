@@ -24,6 +24,7 @@ type TransactionsRepository interface {
 	StoreEnrichedData(ctx context.Context, data *model.TransactionEnrichment) (*model.TransactionEnrichment, error)
 	ListAllUserCounterpartiesByTransID(ctx context.Context, transID int32) ([]string, error)
 	Update(ctx context.Context, transaction *model.Transaction) (*model.Transaction, error)
+	GetUserIDByTransactionID(ctx context.Context, id int32) (int32, error)
 }
 
 type CategoryRepository interface {
@@ -42,11 +43,16 @@ type Enricher interface {
 	GuessCategory(ctx context.Context, keywords []string, categories []string) (*string, error)
 }
 
+type Notifier interface {
+	Notify(userID int32, trs *model.Transaction)
+}
+
 type Service struct {
 	TransactionsRepository TransactionsRepository
 	CategoryRepository     CategoryRepository
 	ImageRepository        ImageRepository
 	Enricher               Enricher
+	Notifier               Notifier
 }
 
 func NewTransactionsService(
@@ -54,11 +60,13 @@ func NewTransactionsService(
 	categoryRepository CategoryRepository,
 	imageRepository ImageRepository,
 	enricher Enricher,
+	notifier Notifier,
 ) *Service {
 	return &Service{
 		TransactionsRepository: transactionsRepository,
 		CategoryRepository:     categoryRepository,
 		ImageRepository:        imageRepository,
 		Enricher:               enricher,
+		Notifier:               notifier,
 	}
 }

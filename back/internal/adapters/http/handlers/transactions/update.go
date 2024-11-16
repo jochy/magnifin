@@ -19,7 +19,7 @@ func (h *Handlers) Update(c *gin.Context) {
 		return
 	}
 
-	publicTrs := h.toPublicFormat(tx)
+	publicTrs := h.Mapper.ToPublicFormat(tx)
 	c.JSON(http.StatusOK, publicTrs)
 }
 

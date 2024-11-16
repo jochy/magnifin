@@ -2,6 +2,7 @@ package transactions
 
 import (
 	"context"
+	"magnifin/internal/adapters"
 	"magnifin/internal/app/model"
 	"time"
 )
@@ -12,14 +13,18 @@ type Service interface {
 	Update(ctx context.Context, id int32, category *int32, userCounterparty *string) (*model.Transaction, error)
 }
 
-type Handlers struct {
-	Service   Service
-	PublicURL string
+type MapperInterface interface {
+	ToPublicFormat(trs *model.Transaction) *adapters.EnrichedTransaction
 }
 
-func NewHandlers(service Service, publicURL string) *Handlers {
+type Handlers struct {
+	Service Service
+	Mapper  MapperInterface
+}
+
+func NewHandlers(service Service, mapper MapperInterface) *Handlers {
 	return &Handlers{
-		Service:   service,
-		PublicURL: publicURL,
+		Service: service,
+		Mapper:  mapper,
 	}
 }

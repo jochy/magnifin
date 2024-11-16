@@ -46,6 +46,7 @@ type Querier interface {
 	GetTransactionsMinAndMaxDateByUserID(ctx context.Context, userID int32) (GetTransactionsMinAndMaxDateByUserIDRow, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
+	GetUserIDByTransactionID(ctx context.Context, id int32) (int32, error)
 	LikeSearchConnectorsByName(ctx context.Context, name string) ([]Connector, error)
 	ListAccountsByConnectionID(ctx context.Context, connectionID int32) ([]Account, error)
 	ListAllUserCounterpartiesByTransID(ctx context.Context, id int32) ([]string, error)

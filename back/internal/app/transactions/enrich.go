@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"magnifin/internal/app/model"
 )
 
@@ -79,9 +80,19 @@ func (s *Service) EnrichTransaction(ctx context.Context, transactionID int32) er
 	}
 
 	if hasEnriched {
-		if _, err := s.TransactionsRepository.StoreEnrichedData(ctx, enrichedData); err != nil {
+		enrichedData, err = s.TransactionsRepository.StoreEnrichedData(ctx, enrichedData)
+		if err != nil {
 			return fmt.Errorf("enrichTransaction failed to save the enriched data: %w", err)
 		}
+
+		trs.Enrichment = enrichedData
+	}
+
+	userID, err := s.TransactionsRepository.GetUserIDByTransactionID(ctx, trs.ID)
+	if err != nil {
+		slog.Error(fmt.Sprintf("enrichTransaction failed to get the user ID: %s", err))
+	} else {
+		s.Notifier.Notify(userID, trs)
 	}
 
 	return nil

@@ -364,3 +364,11 @@ values ($1, $2, $3) returning *;
 select *
 from images
 where id = $1;
+
+-- name: GetUserIDByTransactionID :one
+select user_id
+from provider_users
+         inner join connections on connections.provider_users_id = provider_users.id
+         inner join accounts on accounts.connection_id = connections.id
+         inner join transactions on accounts.id = transactions.account_id
+where transactions.id = $1;

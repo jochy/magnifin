@@ -6,6 +6,7 @@ import 'package:front/config.dart';
 import 'package:front/cubit/auth/auth_cubit.dart';
 import 'package:http/http.dart' as http;
 import 'package:moment_dart/moment_dart.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 part 'transactions_state.dart';
 
@@ -15,6 +16,7 @@ part 'transactions_cubit.g.dart';
 
 class TransactionsCubit extends Cubit<TransactionsState> {
   final AuthCubit authCubit;
+  WebSocketChannel? channel;
 
   static TransactionsCubit of(context) =>
       BlocProvider.of<TransactionsCubit>(context);
@@ -29,7 +31,31 @@ class TransactionsCubit extends Cubit<TransactionsState> {
           loadedMonths: [],
         ));
 
+  @override
+  Future<void> close() {
+    if (channel != null) {
+      channel!.sink.close();
+    }
+    return super.close();
+  }
+
   void loadRecentTransactions() async {
+    if (channel == null) {
+      channel = WebSocketChannel.connect(
+        Uri.parse(
+            "${Configuration.instance.baseUrl.replaceFirst("http", "ws")}/v1/ws?token=${authCubit.state.token}"),
+      );
+      channel!.stream.listen((d) {
+        var data = jsonDecode(d);
+        var transaction = Transaction.fromJson(data);
+        emit(state.copyWith(
+          transactions: cleanTransactions([
+            ...state.transactions,
+            transaction,
+          ]),
+        ));
+      });
+    }
     emit(state.copyWith(isLoading: true, error: null));
     // Load min-max
 
@@ -163,21 +189,15 @@ class TransactionsCubit extends Cubit<TransactionsState> {
       }
 
       final Map<String, dynamic> data = jsonDecode(response.body);
-      var allTransactions = [
+      var allTransactions = <Transaction>[
         ...state.transactions,
         ...data['transactions']
             .map<Transaction>((t) => Transaction.fromJson(t)),
       ];
 
-      // Let's remove duplicated transactions
-      var mapTrs = <int, Transaction>{};
-      for (var t in allTransactions) {
-        mapTrs[t.id] = t;
-      }
-
       emit(
         state.copyWith(
-          transactions: mapTrs.values.toList(),
+          transactions: cleanTransactions(allTransactions),
           isLoading: false,
           hasLoaded: true,
           loadedMonths: [
@@ -247,4 +267,22 @@ class TransactionsCubit extends Cubit<TransactionsState> {
 
     return response.statusCode == 204;
   }
+}
+
+List<Transaction> cleanTransactions(List<Transaction> transactions) {
+  var mapTrs = <int, Transaction>{};
+  for (var t in transactions) {
+    mapTrs[t.id] = t;
+  }
+
+  var trs = mapTrs.values.toList();
+  trs.sort((a, b) {
+    if (a.operationAt.isAtSameMomentAs(b.operationAt)) {
+      return a.id.compareTo(b.id);
+    }
+
+    return a.operationAt.compareTo(b.operationAt);
+  });
+
+  return trs;
 }

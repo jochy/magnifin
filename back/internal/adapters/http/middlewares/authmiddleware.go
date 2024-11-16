@@ -27,14 +27,20 @@ func NewAuthMiddleware(userService UserService) *AuthMiddleware {
 
 func (m *AuthMiddleware) Authenticate(ctx *gin.Context) {
 	token := ctx.GetHeader("Authorization")
-	if token == "" {
+	tokenQuery := ctx.Query("token")
+	if token == "" && tokenQuery == "" {
 		slog.Debug("missing Authorization header")
 		ctx.JSON(401, gin.H{"error": "missing Authorization header"})
 		ctx.Abort()
 		return
 	}
 
-	user, err := m.userService.FromJWT(ctx.Request.Context(), token)
+	tokenToUse := token
+	if tokenToUse == "" {
+		tokenToUse = tokenQuery
+	}
+
+	user, err := m.userService.FromJWT(ctx.Request.Context(), tokenToUse)
 	if err != nil {
 		slog.Error(fmt.Sprintf("error parsing token: %v", err))
 		ctx.JSON(500, gin.H{"error": err.Error()})
