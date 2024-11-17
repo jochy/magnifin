@@ -102,8 +102,8 @@ class ConnectionsCubit extends Cubit<ConnectionsState> {
         'Authorization': authCubit.state.token ?? "",
       },
       body: jsonEncode(<String, String>{
-        'success_url': "",
-        'error_url': "",
+        'success_url': Configuration.instance.baseUrl,
+        'error_url': Configuration.instance.baseUrl,
       }),
     );
 
