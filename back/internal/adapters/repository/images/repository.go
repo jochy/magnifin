@@ -8,6 +8,11 @@ import (
 	"fmt"
 	"magnifin/internal/app/model"
 	"magnifin/internal/infra/database"
+	"strings"
+)
+
+const (
+	UniqueViolationErr = "23505"
 )
 
 type Repository struct {
@@ -54,7 +59,9 @@ func (r *Repository) Store(ctx context.Context, image *model.Image) (*model.Imag
 		Content:     toBase64(image.Content),
 		ContentType: image.ContentType,
 	})
-	if err != nil {
+	if err != nil && isErrorCode(err, UniqueViolationErr) {
+		return r.GetByID(ctx, image.ID)
+	} else if err != nil {
 		return nil, fmt.Errorf("error creating image: %w", err)
 	}
 
@@ -72,4 +79,8 @@ func toBase64(input string) string {
 func fromBase64(input string) (string, error) {
 	data, err := base64.StdEncoding.DecodeString(input)
 	return string(data), err
+}
+
+func isErrorCode(err error, errcode string) bool {
+	return strings.Contains(err.Error(), errcode)
 }
