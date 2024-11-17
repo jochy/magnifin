@@ -1,1 +1,0 @@
-alter table redirect_sessions drop column user_id;

@@ -1,3 +1,8 @@
+drop table if exists images;
+drop table if exists category_rules;
+drop table if exists categories;
+drop table if exists transaction_enrichments;
+drop table if exists transactions;
 drop table if exists connections;
 drop table if exists connectors;
 drop table if exists provider_users;

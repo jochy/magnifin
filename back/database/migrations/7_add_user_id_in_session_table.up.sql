@@ -1,1 +1,0 @@
-alter table redirect_sessions add column user_id integer null references users (id);
