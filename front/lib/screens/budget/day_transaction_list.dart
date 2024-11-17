@@ -95,7 +95,7 @@ class TransactionRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "${(transaction.method ?? S.of(context).other).capitalize()} - ${transaction.counterpartyName?.getOrNull() ?? transaction.reference?.getOrNull() ?? S.of(context).transaction}",
+                      "${(((transaction.method?.length ?? 0) > 2 ? transaction.method! : S.of(context).other)).capitalize()} - ${transaction.counterpartyName?.getOrNull() ?? transaction.reference?.getOrNull() ?? S.of(context).transaction}",
                       style: const TextStyle(fontSize: 12),
                     ),
                     Padding(
@@ -294,6 +294,8 @@ extension StringExt on String {
   }
 
   String capitalize() {
+    if (isEmpty) return this;
+    if (length == 1) return toUpperCase();
     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
