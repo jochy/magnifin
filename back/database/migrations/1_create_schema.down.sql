@@ -1,3 +1,4 @@
+drop table if exists redirect_sessions;
 drop table if exists images;
 drop table if exists category_rules;
 drop table if exists categories;

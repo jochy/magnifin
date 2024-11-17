@@ -119,21 +119,6 @@ create table transactions
     deleted_at              timestamp null
 );
 
-create table transaction_enrichments
-(
-    id                     serial primary key,
-    transaction_id         integer not null references transactions (id),
-
-    category               integer null references categories (id),
-    reference              text null,
-    method                 text null,
-    counterparty_name      text null,
-    counterparty_logo      text null references images (id),
-    user_counterparty_name text null,
-
-    deleted_at             timestamp null
-);
-
 create table categories
 (
     id                serial primary key,
@@ -161,4 +146,19 @@ create table images
     id           text primary key,
     content      text not null,
     content_type text not null
+);
+
+create table transaction_enrichments
+(
+    id                     serial primary key,
+    transaction_id         integer not null references transactions (id),
+
+    category               integer null references categories (id),
+    reference              text null,
+    method                 text null,
+    counterparty_name      text null,
+    counterparty_logo      text null references images (id),
+    user_counterparty_name text null,
+
+    deleted_at             timestamp null
 );
