@@ -33,3 +33,7 @@ values ('Auto & Transport', '#FFC107', 'directions_car'),
        ('Taxes', '#FFC107', 'monet'),
        ('Transfers', '#2196F3', 'swap_horiz'),
        ('Essential Needs', '#FFEB3B', 'local_grocery_store');
+
+
+alter table transaction_enrichments
+    add column category integer null references categories (id);
