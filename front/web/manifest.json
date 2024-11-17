@@ -1,11 +1,11 @@
 {
-    "name": "front",
-    "short_name": "front",
+    "name": "MagniFin",
+    "short_name": "MagniFin",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "MagniFin front app, used to manage your finances in one place",
+    "description": "MagniFin - Manage your finances in one place",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

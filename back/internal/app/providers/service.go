@@ -119,6 +119,8 @@ func (s *ProviderService) LoadProviderConfigurations() error {
 		err := port.ValidateConfiguration(provider)
 		if err != nil {
 			provider.Enabled = false
+		} else {
+			provider.Enabled = true
 		}
 
 		pDb, err := s.providerRepository.GetByName(context.Background(), provider.Name)

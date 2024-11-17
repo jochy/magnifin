@@ -24,6 +24,7 @@ RUN flutter build web
 FROM nginx:1.25.2-alpine as production
 
 COPY --from=build-env /app/build/web /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
