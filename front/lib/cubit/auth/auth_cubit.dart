@@ -47,7 +47,7 @@ class AuthCubit extends Cubit<AuthState> {
     if (token != null && url != null ) {
       Configuration.instance.baseUrl = url;
 
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse("${Configuration.instance.baseUrl}/v1/check-login"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
