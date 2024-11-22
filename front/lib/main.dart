@@ -25,9 +25,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
   var authCubit = AuthCubit();
-  await authCubit.loadFromStorage();
   var transactionsCubit = TransactionsCubit(authCubit);
   var connectionsCubit = ConnectionsCubit(authCubit, transactionsCubit);
+
+  await authCubit.loadFromStorage();
+
   runApp(MyApp(
     authCubit: authCubit,
     connectionsCubit: connectionsCubit,

@@ -27,7 +27,7 @@ class ConnectionsCubit extends Cubit<ConnectionsState> {
           connections: [],
         )) {
     authCubit.stream.listen((state) {
-      if (state.token != null && this.state.connections.isEmpty) {
+      if (state.token != null && !this.state.hasLoaded) {
         loadConnections();
       }
     });
