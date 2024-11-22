@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:front/config.dart';
@@ -39,8 +40,10 @@ class AuthCubit extends Cubit<AuthState> {
     var token = await prefs.getString("token");
     var url = await prefs.getString("url");
 
-    if (token != null && url != null) {
-      Configuration.instance.baseUrl = url;
+    if (token != null && (url != null || kIsWeb)) {
+      if (!kIsWeb && url != null) {
+        Configuration.instance.baseUrl = url;
+      }
 
       final response = await http.post(
         Uri.parse("${Configuration.instance.baseUrl}/v1/check-login"),
