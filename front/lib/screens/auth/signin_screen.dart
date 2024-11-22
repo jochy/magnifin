@@ -116,7 +116,6 @@ class _SignInScreenState extends State<SigninScreen> {
       var res =
           await cubit.createUser(usernameController.text, passwordController.text);
       if (res) {
-        connectionsCubit.loadConnections(); // Fire and forget
         router.replace('/');
       } else {
         setState(() {

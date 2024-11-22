@@ -104,7 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login(BuildContext context) async {
     var cubit = AuthCubit.of(context);
-    var connectionsCubit = ConnectionsCubit.of(context);
     var router = GoRouter.of(context);
 
     setState(() {
@@ -116,7 +115,6 @@ class _LoginScreenState extends State<LoginScreen> {
       var res =
           await cubit.login(usernameController.text, passwordController.text);
       if (res) {
-        connectionsCubit.loadConnections(); // Fire and forget
         router.go('/');
       } else {
         setState(() {

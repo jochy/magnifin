@@ -25,7 +25,13 @@ class ConnectionsCubit extends Cubit<ConnectionsState> {
           isLoading: false,
           hasLoaded: false,
           connections: [],
-        ));
+        )) {
+    authCubit.stream.listen((state) {
+      if (state.token != null && this.state.connections.isEmpty) {
+        loadConnections();
+      }
+    });
+  }
 
   Future<void> loadConnections() async {
     emit(state.copyWith(isLoading: true));
