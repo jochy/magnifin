@@ -123,6 +123,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     if (kIsWeb) {
       Configuration.instance.baseUrl = webUri();
+      AuthCubit.of(context).saveUrl(Configuration.instance.baseUrl);
     }
 
     return ToastificationWrapper(
