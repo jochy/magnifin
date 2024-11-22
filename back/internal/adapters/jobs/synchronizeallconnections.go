@@ -20,7 +20,7 @@ func (u SynchronizeAllConnectionsInput) InsertOpts() river.InsertOpts {
 
 func (j *Jobs) NewSynchronizeAllConnectionsPeriodicJob() *river.PeriodicJob {
 	return river.NewPeriodicJob(
-		river.PeriodicInterval(12*time.Hour),
+		river.PeriodicInterval(4*time.Hour),
 		func() (river.JobArgs, *river.InsertOpts) {
 			return SynchronizeAllConnectionsInput{}, nil
 		},

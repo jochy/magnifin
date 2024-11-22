@@ -1316,7 +1316,7 @@ const listConnectionsToSync = `-- name: ListConnectionsToSync :many
 select id, provider_users_id, provider_connection_id, connector_id, status, renew_consent_before, error_message, last_successful_sync, created_at, updated_at, deleted_at
 from connections
 where ((last_successful_sync is null and created_at < now() - interval '1 hour') or
-       (last_successful_sync < now() - interval '11 hours'))
+       (last_successful_sync < now() - interval '23 hours'))
   and deleted_at is null
 `
 
