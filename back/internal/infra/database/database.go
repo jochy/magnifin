@@ -58,10 +58,13 @@ func NewService() Service {
 		panic(err)
 	}
 
+	db.SetMaxOpenConns(100)
+
 	pgxpool, err := pgxpool.New(context.Background(), connStr)
 	if err != nil {
 		panic(err)
 	}
+	pgxpool.Config().MaxConns = 100
 
 	dbInstance = &service{
 		Querier: New(db),
