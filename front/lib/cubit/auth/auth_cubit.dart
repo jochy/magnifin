@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:front/config.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'auth_state.dart';
 
@@ -26,9 +27,35 @@ class AuthCubit extends Cubit<AuthState> {
     );
 
     if (response.statusCode == 200) {
+      await SharedPreferencesAsync().setString("url", url);
       return true;
     } else {
       return false;
+    }
+  }
+
+  Future<void> loadFromStorage() async {
+    SharedPreferencesAsync prefs = SharedPreferencesAsync();
+    var token = await prefs.getString("token");
+    var url = await prefs.getString("url");
+
+    if (token != null && url != null) {
+      Configuration.instance.baseUrl = url;
+
+      final response = await http.post(
+        Uri.parse("${Configuration.instance.baseUrl}/v1/check-login"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Accept': 'application/json',
+          'Authorization': token,
+        },
+      );
+
+      if (response.statusCode == 204) {
+        emit(AuthState(token: token));
+      } else {
+        await prefs.remove("token");
+      }
     }
   }
 
@@ -48,6 +75,7 @@ class AuthCubit extends Cubit<AuthState> {
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       emit(AuthState(token: data['token']));
+      await SharedPreferencesAsync().setString("token", state.token!);
     } else {
       return false;
     }
@@ -71,6 +99,7 @@ class AuthCubit extends Cubit<AuthState> {
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       emit(AuthState(token: data['token']));
+      await SharedPreferencesAsync().setString("token", state.token!);
     } else {
       return false;
     }
