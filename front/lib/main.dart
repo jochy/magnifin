@@ -18,6 +18,7 @@ import 'package:front/screens/auth/login_screen.dart';
 import 'package:front/screens/url_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 
 void main() async {
@@ -123,7 +124,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     if (kIsWeb) {
       Configuration.instance.baseUrl = webUri();
-      AuthCubit.of(context).saveUrl(Configuration.instance.baseUrl);
+      SharedPreferencesAsync().setString("url", Configuration.instance.baseUrl);
     }
 
     return ToastificationWrapper(
