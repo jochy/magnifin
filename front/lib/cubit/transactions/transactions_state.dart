@@ -149,7 +149,7 @@ class MonthlyBudgetSummary {
 
   List<MapEntry<DateTime, List<Transaction>>> get groupedTransactionsEntries {
     var l = groupedTransactions.entries.toList();
-    l.sort((a, b) => a.key.compareTo(b.key));
+    l.sort((a, b) => b.key.compareTo(a.key));
     return l;
   }
 }
