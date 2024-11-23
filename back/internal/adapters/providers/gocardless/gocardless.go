@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"time"
 )
 
 const (
@@ -20,6 +21,8 @@ type gocardlessAccessToken struct {
 	AccessExpires  int    `json:"access_expires"`
 	Refresh        string `json:"refresh"`
 	RefreshExpires int    `json:"refresh_expires"`
+
+	IssuedAt *time.Time
 }
 
 type GoCardless struct {

@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"magnifin/internal/app/model"
 	"net/http"
+	"time"
 )
 
 const (
@@ -22,14 +23,12 @@ func (g *GoCardless) updateTokenIfNeeded(ctx context.Context, provider *model.Pr
 	switch {
 	case g.token == nil:
 		return g.generateNewToken(ctx, provider)
-	case g.token.AccessExpires < 10 && g.token.RefreshExpires > 10:
+	default:
 		err := g.updateToken(ctx)
 		if err != nil {
 			slog.Warn(fmt.Sprintf("Failed to update token: %s, will request a brand new one...", err.Error()))
 			return g.generateNewToken(ctx, provider)
 		}
-	case g.token.AccessExpires < 10:
-		return g.generateNewToken(ctx, provider)
 	}
 
 	return nil
@@ -75,6 +74,9 @@ func (g *GoCardless) generateNewToken(ctx context.Context, provider *model.Provi
 		return err
 	}
 
+	now := time.Now()
+	token.IssuedAt = &now
+
 	g.token = &token
 
 	return nil
@@ -119,6 +121,8 @@ func (g *GoCardless) updateToken(ctx context.Context) error {
 
 	g.token.Access = token.Access
 	g.token.AccessExpires = token.AccessExpires
+	now := time.Now()
+	g.token.IssuedAt = &now
 
 	return nil
 }
