@@ -71,7 +71,7 @@ class DistributionComponent extends StatelessWidget {
       return PieChartSectionData(
         color: pieColors[i],
         value: accounts[i].value,
-        title: "${accounts[i].key} (${accounts[i].value.round()}%)",
+        title: "${accounts[i].key.split(";;;")[1]} (${accounts[i].value.round()}%)",
         radius: radius,
         titleStyle: TextStyle(
           fontSize: fontSize,
@@ -107,7 +107,8 @@ class DistributionComponent extends StatelessWidget {
       var connection = connections.firstWhere(
         (c) => c.accounts.contains(element),
       );
-      accounts["${connection.connector.name} - ${element.name}"] =
+      // Dirty hack when the same account is present in multiple connections
+      accounts["${element.id};;;${connection.connector.name} - ${element.name}"] =
           (element.balance / maxMoney) * 100;
     });
 

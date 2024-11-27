@@ -20,10 +20,11 @@ func (g *GoCardless) updateTokenIfNeeded(ctx context.Context, provider *model.Pr
 	g.mu.Lock()
 	defer g.mu.Unlock()
 
-	switch {
-	case g.token == nil:
+	now := time.Now()
+
+	if g.token == nil || g.token.IssuedAt == nil {
 		return g.generateNewToken(ctx, provider)
-	default:
+	} else if now.Sub(*g.token.IssuedAt).Seconds() > float64(g.token.AccessExpires-120) {
 		err := g.updateToken(ctx)
 		if err != nil {
 			slog.Warn(fmt.Sprintf("Failed to update token: %s, will request a brand new one...", err.Error()))
@@ -123,6 +124,7 @@ func (g *GoCardless) updateToken(ctx context.Context) error {
 	g.token.AccessExpires = token.AccessExpires
 	now := time.Now()
 	g.token.IssuedAt = &now
+	g.token.Refresh = token.Refresh
 
 	return nil
 }

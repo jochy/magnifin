@@ -26,9 +26,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
           return const Center(child: EmptyStateComponent());
         }
 
-        var allMonths =
-            MonthlyBudget.fromMinMax(state.minDate!, state.maxDate!);
-
         if (state.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -36,6 +33,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
         if (state.minDate == null || state.maxDate == null) {
           return const EmptyStateComponent();
         }
+
+        var allMonths =
+            MonthlyBudget.fromMinMax(state.minDate!, state.maxDate!);
 
         if (_monthSelect == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
